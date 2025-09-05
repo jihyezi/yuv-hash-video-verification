@@ -1,0 +1,27 @@
+# --- Python venv & 캐시 ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+
+# --- 에디터/IDE ---
+.vscode/
+.idea/
+
+# --- OS 잡파일 ---
+.DS_Store
+Thumbs.db
+
+# --- 환경변수/로그 ---
+.env
+*.env
+*.log
+
+# --- 빌드/테스트 산출물 ---
+dist/
+build/
+.pytest_cache/
+.coverage
+.mypy_cache/
+.ruff_cache/
