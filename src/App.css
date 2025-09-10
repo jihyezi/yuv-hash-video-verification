@@ -1,0 +1,667 @@
+/* ===== 공통 ===== */
+body {
+  margin: 0;
+  font-family: "Arial", sans-serif;
+  background-color: #f5f5f5;
+}
+
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== 헤더 ===== */
+.header {
+  background: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+  color: #000;
+  text-decoration: none;
+}
+
+.nav {
+  display: flex;
+  gap: 30px;
+}
+
+.nav a {
+  text-decoration: none;
+  color: #555;
+  font-size: 15px;
+  transition: color 0.2s;
+}
+
+.nav a:hover {
+  color: #4a90e2;
+}
+
+.nav a.active {
+  color: #4a90e2;
+  font-weight: bold;
+}
+
+.profile-icon {
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* ===== 로그인 & 회원가입 버튼 ===== */
+.auth-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+/* 로그인 버튼: 파란색 배경 + 흰색 글씨 */
+.login-btn {
+  padding: 6px 14px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.login-btn:hover {
+  background-color: #357abd;
+}
+
+/* 회원가입 버튼: 흰색 배경 + 검은색 테두리 */
+.signup-btn {
+  padding: 6px 14px;
+  border: 1px solid #8C8C8C;  /* ★ 테두리 검은색으로 변경 */
+  background-color: white;
+  color: #333333;  /* 글씨도 검은색으로 변경 */
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.signup-btn:hover {
+  background-color: #f5f5f5;
+}
+
+
+/* ===== 메인 타이틀 ===== */
+.main-content {
+  text-align: center;
+  padding: 50px 20px;
+}
+
+.main-title {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.main-subtitle {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 40px;
+}
+
+/* ===== 카드 ===== */
+.cards {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin-bottom: 200px;
+}
+
+.card {
+  width: 320px;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.card h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.card-btn {
+  width: 100%;
+  padding: 10px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.card-btn:hover {
+  background: #357abd;
+}
+
+/* ===== 사진 위변조 검증하는 방법 ===== */
+
+.how-to {
+  max-width: 900px;
+  margin: 0 auto 80px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  padding: 40px;
+}
+
+/* 타이틀 */
+.how-to-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin: 40px 0 20px;
+  text-align: center;
+}
+
+/* 컨테이너 */
+.how-to-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 40px;
+}
+
+/* 왼쪽 시연 이미지 */
+.how-to-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.how-to-image img {
+  width: 280px;
+  height: auto;
+  object-fit: contain;
+}
+
+/* 단계 리스트 */
+.how-to-steps {
+  flex: 1;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* 각 단계 */
+.how-to-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* 세로바 (단계별 개별 적용) */
+.step-bar {
+  width: 4px;
+  height: 32px;
+  background-color: #D1D1D1;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+/* 활성 단계 세로바 강조 */
+.how-to-steps li.active .step-bar {
+  height: 62px;
+  background-color: #4a90e2;
+}
+
+/* 단계 콘텐츠 */
+.step-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap:8px;
+}
+
+/* 단계 제목 */
+.step-content h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  white-space:nowrap; 
+  margin-left: 15px;
+  margin-top: 10px;
+}
+
+/* 단계 설명 */
+.step-content p {
+  margin: 0;
+  font-size: 14px;
+  color: #555;
+  font-weight: 400;
+  margin-left: 15px;
+}
+
+
+
+/* ===== 원본 영상 등록 페이지 ===== */
+.upload-page {
+  padding: 50px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.upload-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: -10px;
+  color: #333;
+}
+
+.upload-subtitle {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+/* 업로드 박스 */
+.upload-page .upload-box {
+  background: #fff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 720px;
+  text-align: center;
+}
+
+/* 드래그 앤 드롭 영역 */
+.upload-page .drop-zone {
+  display: block;
+  border: 2px dashed #ccc;
+  border-radius: 15px;
+  padding: 40px 20px;
+  width: 660px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.drop-zone:hover {
+  border-color: #4a90e2;
+}
+
+/* 숨겨진 파일 입력 */
+.file-input {
+  display: none;
+}
+
+/* 드롭 영역 내부 */
+.drop-content {
+  display: flex;              
+  flex-direction: column;      
+  justify-content: center;     
+  align-items: center;          
+  text-align: center;
+  height: 100%;           
+  color: #777;
+  font-size: 16px;
+}
+
+.upload-icon {
+  width: 48px;       
+  height: 48px;
+  margin-bottom: 10px;
+  object-fit: contain;          /* 비율 유지 */
+  display: block;
+
+}
+
+/* 업로드 버튼 */
+.upload-btn {
+  background: #4a90e2;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  width: 50%;
+}
+
+.upload-btn:hover {
+  background: #357abd;
+}
+
+/* 선택한 파일명 */
+.file-name {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #333;
+}
+
+
+/*verifypage*/
+.verify-page {
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f8f8;
+  min-height: 100vh;
+
+}
+/* ===== 타이틀 ===== */
+.verify-title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  margin-top: 30px;
+  margin-bottom: -10px;
+  color: #222;
+}
+
+.verify-subtitle {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+
+
+/* ===== 스텝 컨테이너 ===== */
+.verify-steps {
+  display: flex;
+  justify-content: center;  /* ✅ 가운데 정렬 */
+  align-items: flex-start;  /* ✅ 상단 기준 정렬 */
+  gap: 100px;               /* ✅ Step1, Step2 사이 간격 */
+  margin-top: 20px;
+  flex-wrap: nowrap;       /* ✅ 줄바꿈 방지 */
+
+}
+
+/* ===== 업로드 박스 ===== */
+.upload-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 440px;
+  height: 380px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== 스텝 제목 ===== */
+.step-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 13px;   /* ✅ 제목과 업로드 박스 사이 간격 줄이기 */
+  color: #222;
+  text-align: center;    /* ✅ 제목 중앙 정렬 */     /* ✅ 제목 블록화로 정렬 안정화 */
+  width: 50%;           /* ✅ 중앙 정렬 위해 전체 너비 사용 */
+}
+
+.step-title span {
+  color: #3a7ff6;
+}
+
+.step-title.disabled {
+  color: #999;
+}
+
+
+.upload-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* ✅ 업로드 박스 안의 요소도 가운데 정렬 */
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== 드롭존 ===== */
+.drop-zone {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 400px;
+  height: 290px;
+  border: 2px dashed #ccc;
+  border-radius: 15px;
+  cursor: pointer;
+  background-color: #fafafa;
+  transition: border 0.2s ease;
+}
+
+.drop-zone:hover {
+  border-color: #3a7ff6;
+}
+
+.drop-content {
+  text-align: center;
+  color: #777;
+  font-size: 14px;
+}
+
+.upload-icon {
+  display: block;
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+/* ===== 버튼 공통 ===== */
+button {
+  width: 93%;
+  height: 40px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 갤러리 버튼 */
+.gallery-btn {
+  background-color: #3a7ff6;
+  color: white;
+}
+
+.gallery-btn:hover {
+  background-color: #246fe0;
+}
+
+/* 검증 버튼 */
+.verify-btn {
+  background-color: #3a7ff6;
+  color: white;
+}
+
+.verify-btn.disabled {
+  background-color: #ccc;
+  color: #676767;
+  font-size: 15px;
+  cursor: not-allowed;
+}
+
+
+/*GalleryPage*/
+
+/* 레이아웃 */
+.gallery-page { background: #f5f5f5; min-height: 100vh; }
+.g-container { max-width: 1120px; margin: 0 auto; padding: 28px 20px 60px; }
+
+/* 상단 영역 */
+.g-header { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: start; }
+.g-title { margin: 0; font-size: 32px; font-weight: 800; color: #222; }
+.g-count { margin-top: 6px; color: #8b8b8b; font-size: 14px; }
+
+/* 버튼/검색 묶음 */
+.g-toolbar { display: flex; gap: 22px; align-items: center; }
+.g-btns { display: flex; gap: 10px; }
+
+/* 버튼 */
+.g-primary {
+  background: #4a90e2; color:#fff; border:none; border-radius: 10px;
+  height: 36px; padding: 0 16px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 1px 0 rgba(0,0,0,.08);
+}
+.g-primary:hover { background:#357abd; }
+
+.g-ghost {
+  background:#fff; border:1px solid #cfcfcf; color:#444;
+  height:36px; padding:0 14px; border-radius:10px; font-weight:700; cursor:pointer;
+}
+.g-ghost:hover { background:#f5f5f5; }
+.g-disabled { opacity:.5; cursor:not-allowed; }
+
+/* 검색 */
+.g-search { display:flex; align-items:center; gap:14px; }
+.g-search-dot { color:#b7b7b7; font-size:24px; line-height:1; user-select:none; }
+.g-search-box {
+  width: 340px; height: 36px; background:#fff; border:1px solid #e3e3e3; border-radius: 20px;
+  display:flex; align-items:center; padding:0 12px; gap:8px;
+}
+.g-search-icon { font-size:16px; opacity:.7; }
+.g-search-box input {
+  border:none; outline:none; width:100%; font-size:14px; color:#333; background:transparent;
+}
+
+/* 그리드 */
+.g-grid {
+  margin-top: 26px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px;
+}
+
+@media (max-width: 1100px) { .g-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 800px)  { .g-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px)  { .g-grid { grid-template-columns: 1fr; } }
+
+
+/* ===== 썸네일 ===== */
+.g-thumb {
+  background: #f0f0f0;
+  border-radius: 10px;
+  width: 100%;
+  height: 220px;              /* ✅ 높이 고정 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.g-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 이미지 없을 때 처리 */
+.g-thumb::after {
+  content: "이미지 없음";
+  color: #aaa;
+  font-size: 14px;
+  font-weight: 600;
+  display: none;
+}
+.g-thumb.no-image::after {
+  display: block;
+}
+
+/* ===== 카드 하단 메타 정보 ===== */
+.g-meta { padding: 0 4px 6px; }
+.g-name { font-size:14px; color:#222; font-weight:700; margin-bottom: 2px; }
+.g-date { font-size:12px; color:#9a9a9a; }
+
+
+/* ===== 회원가입 & 로그인 공통 박스 ===== */
+.auth-box {
+  width: 400px;
+  margin: 80px auto;
+  padding: 32px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.auth-title {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: #222;
+}
+
+.auth-subtitle {
+  font-size: 14px;
+  color: #777;
+  margin-bottom: 24px;
+}
+
+/* 입력 폼 */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-form input {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.auth-form input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+}
+
+
+.auth-form button {
+  margin-top: 10px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+}
