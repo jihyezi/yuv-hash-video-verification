@@ -2,6 +2,8 @@ import hashlib
 import numpy as np
 from PIL import Image
 import pillow_heif
+import piexif
+import os
 
 # Register HEIC/HEIF file formats for PIL
 pillow_heif.register_heif_opener()
@@ -46,3 +48,31 @@ def generate_chroma_hash(image_path, secret_key, num_pixels=64, quantization_lev
         print(f"An error occurred in hash_core: {e}")
         return None
 
+def save_image_with_hash(image_path, output_path, hash_value):
+    try:
+        img = Image.open(image_path)
+        
+        _, ext = os.path.splitext(output_path)
+        output_format = ext.lower().replace('.', '')
+        
+        if output_format == 'png':
+            img.info["chroma_hash"] = hash_value
+            img.save(output_path, format='PNG')
+        elif output_format in ['jpg', 'jpeg']:
+            user_comment_bytes = hash_value.encode('utf-8')
+            exif_dict = {"Exif": {piexif.ExifIFD.UserComment: user_comment_bytes}}
+            exif_bytes = piexif.dump(exif_dict)
+            img.save(output_path, exif=exif_bytes, quality=95)
+        elif output_format == 'webp':
+            img.info["chroma_hash"] = hash_value
+            img.save(output_path, format='WebP')
+        else:
+            print(f"[오류] 지원하지 않는 출력 포맷입니다: {output_format}")
+            return False
+
+        print(f"✅ 해시값이 메타데이터에 포함된 파일이 '{output_path}'에 저장되었습니다.")
+        return True
+        
+    except Exception as e:
+        print(f"파일 저장 중 오류가 발생했습니다: {e}")
+        return False

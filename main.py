@@ -1,6 +1,6 @@
 # 다른 파일에서 필요한 함수들을 가져옵니다 (import).
 from au import generate_user_secret_key
-from hash import generate_chroma_hash
+from hash import generate_chroma_hash, save_image_with_hash
 
 def run_main_process(user_id, image_path, system_pepper):
     """
@@ -21,6 +21,17 @@ def run_main_process(user_id, image_path, system_pepper):
         if generated_hash:
             print("-" * 20)
             print(f"최종 생성된 특징 해시: {generated_hash}")
+
+            # 3. 해시값을 메타데이터에 삽입하여 파일로 저장 (JPG, PNG, WebP로 저장)
+            output_image_path_jpg = f"hashed_{user_id}_image.jpg"
+            save_image_with_hash(image_path, output_image_path_jpg, generated_hash)
+            
+            output_image_path_png = f"hashed_{user_id}_image.png"
+            save_image_with_hash(image_path, output_image_path_png, generated_hash)
+
+            output_image_path_webp = f"hashed_{user_id}_image.webp"
+            save_image_with_hash(image_path, output_image_path_webp, generated_hash)
+
             print("--- 프로세스 성공 ---")
             return generated_hash
         else:
