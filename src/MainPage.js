@@ -35,22 +35,30 @@ export default function MainPage() {
         {/* 두 개의 주요 카드 */}
         <div className="cards">
           <div className="card">
-            <div className="card-icon">⬆️</div>
+            <div className="card-icon-circle">
+              <img src="/img/main_upload.svg" alt="upload"/>
+            </div>
+            <div className ="card-content">
             <h2>원본 사진 등록</h2>
-            <p>나의 소중한 원본 영상을 안전하게 저장하고 관리하세요.</p>
+            <p>나의 소중한 원본 영상을 안전하게 <br/> 저장하고 관리하세요.</p>
             <Link to="/upload">
               <button className="card-btn">원본 사진 등록하기</button>
             </Link>
           </div>
+          </div>
 
           <div className="card">
-            <div className="card-icon">✔️</div>
+            <div className="card-icon-circle">
+              <img src="/img/check.svg" alt="check"/>
+            </div>
+            <div className="card-content">
             <h2>사진 위변조 검증</h2>
-            <p>의심스러운 사진, 원본과 비교하여 조작 여부를 확인하세요.</p>
+            <p>의심스러운 사진, 원본과 비교하여 <br/> 조작 여부를 확인하세요.</p>
             <Link to="/verify">
               <button className="card-btn">사진 위변조 검증하기</button>
             </Link>
           </div>
+        </div>
         </div>
 
             {/* ===== 사진 위변조 검증하는 방법 섹션 ===== */}

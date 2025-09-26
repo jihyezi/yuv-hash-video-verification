@@ -53,7 +53,9 @@ export default function GalleryPage() {
           <Link to="/gallery" className={location.pathname === "/gallery" ? "active" : ""}>내 갤러리</Link>
         </nav>
 
-        <div className="profile-icon">👤</div>
+        <div className="profile-icon">
+        <img src="/img/my.svg" alt="mypage"/>
+        </div>
       </header>
 
       {/* 상단 타이틀/툴바 */}

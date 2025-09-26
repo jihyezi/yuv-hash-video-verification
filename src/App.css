@@ -107,6 +107,8 @@ body {
 .main-title {
   font-size: 32px;
   font-weight: bold;
+  text-align: left;
+  margin-left:230px;
   margin-bottom: 10px;
 }
 
@@ -114,61 +116,102 @@ body {
   font-size: 16px;
   color: #666;
   margin-bottom: 40px;
+  text-align: left;
+  margin-left:230px;
 }
 
 /* ===== 카드 ===== */
 .cards {
   display: flex;
   justify-content: center;
-  gap: 32px;
+  gap: 60px;
+  margin:60px;
   flex-wrap: wrap;
   margin-bottom: 200px;
 }
 
+/* 카드 */
 .card {
-  width: 320px;
+  position: relative;          /* 아이콘을 카드 위에 올리려면 필요 */
+  width: 380px;
+  height: 260px;
   background: white;
-  padding: 24px;
+  padding: 10px 24px 30px;     /* 위쪽 패딩 늘려줌 */
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   text-align: center;
   transition: transform 0.2s ease;
+  margin-top: 35px;
 }
 
 .card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+
 }
 
-.card-icon {
-  font-size: 40px;
-  margin-bottom: 10px;
+/* 카드 아이콘 (위에 떠 있는 원형) */
+.card-icon-circle {
+  position: absolute;
+  top: -30px;                  /* 카드 위쪽에 걸쳐 있도록 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 80px;
+  border-radius:50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-icon-circle img {
+  width: 60px;
+  height: 60px;
+  width:auto;
+  height: auto;
+}
+
+/* 카드 본문 */
+.card-content {
+  margin-top: 40px; 
+  text-align: center;
 }
 
 .card h2 {
-  font-size: 18px;
-  margin-bottom: 10px;
+  font-size: 32px;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  margin-left:40px;
+  text-align: left;
 }
 
 .card p {
-  font-size: 14px;
+  font-size: 18px;
   color: #666;
   margin-bottom: 20px;
+  margin-left: 40px;
+  text-align: left;
 }
 
 .card-btn {
-  width: 100%;
+  width: 80%;
+  height: 50px;
   padding: 10px;
   background: #4a90e2;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   font-weight: bold;
+  margin-top:50px;
 }
 
 .card-btn:hover {
   background: #357abd;
 }
+
+
 
 /* ===== 사진 위변조 검증하는 방법 ===== */
 
@@ -341,7 +384,7 @@ body {
   width: 48px;       
   height: 48px;
   margin-bottom: 10px;
-  object-fit: contain;          /* 비율 유지 */
+  object-fit: contain;          
   display: block;
 
 }
@@ -380,12 +423,12 @@ body {
   min-height: 100vh;
 
 }
-/* ===== 타이틀 ===== */
+
 .verify-title {
   text-align: center;
   font-size: 28px;
   font-weight: bold;
-  margin-top: 30px;
+  margin-top: 50px;
   margin-bottom: -10px;
   color: #222;
 }
@@ -398,19 +441,16 @@ body {
 }
 
 
-
-/* ===== 스텝 컨테이너 ===== */
 .verify-steps {
   display: flex;
-  justify-content: center;  /* ✅ 가운데 정렬 */
-  align-items: flex-start;  /* ✅ 상단 기준 정렬 */
-  gap: 100px;               /* ✅ Step1, Step2 사이 간격 */
+  justify-content: center;  
+  align-items: flex-start;  
+  gap: 100px;              
   margin-top: 20px;
-  flex-wrap: nowrap;       /* ✅ 줄바꿈 방지 */
+  flex-wrap: nowrap;     
 
 }
 
-/* ===== 업로드 박스 ===== */
 .upload-box {
   display: flex;
   flex-direction: column;
@@ -423,14 +463,13 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* ===== 스텝 제목 ===== */
 .step-title {
   font-size: 16px;
   font-weight: bold;
-  margin-bottom: 13px;   /* ✅ 제목과 업로드 박스 사이 간격 줄이기 */
+  margin-bottom: 13px;   
   color: #222;
-  text-align: center;    /* ✅ 제목 중앙 정렬 */     /* ✅ 제목 블록화로 정렬 안정화 */
-  width: 50%;           /* ✅ 중앙 정렬 위해 전체 너비 사용 */
+  text-align: center;   
+  width: 50%;        
 }
 
 .step-title span {
@@ -441,18 +480,17 @@ body {
   color: #999;
 }
 
-
 .upload-box {
   display: flex;
   flex-direction: column;
-  align-items: center;   /* ✅ 업로드 박스 안의 요소도 가운데 정렬 */
+  align-items: center;  
   padding: 20px;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* ===== 드롭존 ===== */
+
 .drop-zone {
   display: flex;
   justify-content: center;
@@ -489,13 +527,17 @@ button {
   margin-top: 12px;
   border: none;
   border-radius: 10px;
-  font-size: 15px;
+  font-size: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-weight: bold;
 }
 
 /* 갤러리 버튼 */
 .gallery-btn {
+  width: 93%;
+  height: 40px;
+  margin-top: 12px;
   background-color: #3a7ff6;
   color: white;
 }
@@ -535,9 +577,18 @@ button {
 
 /* 버튼 */
 .g-primary {
-  background: #4a90e2; color:#fff; border:none; border-radius: 10px;
-  height: 36px; padding: 0 16px; font-weight: 700; cursor: pointer;
+  background: #4a90e2; 
+  color:#fff; 
+  border:none;
+  border-radius: 10px;
+  height: 35px;
+  padding: 0 30px; 
+  cursor: pointer;
   box-shadow: 0 1px 0 rgba(0,0,0,.08);
+  display: flex;         
+  align-items: center;    
+  justify-content: center; 
+  white-space:nowrap; /*줄바꿈 방지*/
 }
 .g-primary:hover { background:#357abd; }
 
@@ -578,7 +629,7 @@ button {
   background: #f0f0f0;
   border-radius: 10px;
   width: 100%;
-  height: 220px;              /* ✅ 높이 고정 */
+  height: 220px;             
   display: flex;
   align-items: center;
   justify-content: center;
@@ -605,13 +656,13 @@ button {
   display: block;
 }
 
-/* ===== 카드 하단 메타 정보 ===== */
+/* 카드 하단 메타 정보  */
 .g-meta { padding: 0 4px 6px; }
 .g-name { font-size:14px; color:#222; font-weight:700; margin-bottom: 2px; }
 .g-date { font-size:12px; color:#9a9a9a; }
 
 
-/* ===== 회원가입 & 로그인 공통 박스 ===== */
+/* 회원가입 & 로그인 공통 박스 */
 .auth-box {
   width: 400px;
   margin: 80px auto;
@@ -663,5 +714,45 @@ button {
   font-size: 15px;
   font-weight: bold;
   border-radius: 8px;
+  cursor: pointer;
+}
+
+
+/*모달창*/
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 700px;
+  height: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: auto;   
+  height: auto;
+  margin:0;
+  padding:0;
+  font-size: 20px;
+  background: none;
+  border: none;
   cursor: pointer;
 }
