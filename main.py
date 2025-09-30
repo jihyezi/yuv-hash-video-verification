@@ -1,6 +1,9 @@
 # 다른 파일에서 필요한 함수들을 가져옵니다 (import).
 from au import generate_user_secret_key
 from hash import generate_chroma_hash, save_image_with_hash
+import os
+from PIL import Image
+import pillow_heif
 
 def run_main_process(user_id, image_path, system_pepper):
     """
@@ -22,15 +25,33 @@ def run_main_process(user_id, image_path, system_pepper):
             print("-" * 20)
             print(f"최종 생성된 특징 해시: {generated_hash}")
 
-            # 3. 해시값을 메타데이터에 삽입하여 파일로 저장 (JPG, PNG, WebP로 저장)
-            output_image_path_jpg = f"hashed_{user_id}_image.jpg"
-            save_image_with_hash(image_path, output_image_path_jpg, generated_hash)
-            
-            output_image_path_png = f"hashed_{user_id}_image.png"
-            save_image_with_hash(image_path, output_image_path_png, generated_hash)
+            # 3. 입력 포맷 확인 및 출력 포맷 결정
+            _, input_ext = os.path.splitext(image_path)
+            input_ext = input_ext.lower()
 
-            output_image_path_webp = f"hashed_{user_id}_image.webp"
-            save_image_with_hash(image_path, output_image_path_webp, generated_hash)
+            final_output_ext = input_ext  
+            input_path_for_hash = image_path  
+        
+            # 3-A. HEIC 파일 특수 처리: PNG로 변환 및 임시 저장
+            if input_ext in ('.heic', '.heif'):
+                print("▶ HEIC/HEIF 파일 감지: PNG로 변환 후 메타데이터 삽입을 시도합니다.")
+            
+                img = Image.open(image_path)
+                temp_image_path = f"temp_{user_id}_converted.png"
+                img.save(temp_image_path, format='PNG')
+            
+                final_output_ext = '.png'
+                input_path_for_hash = temp_image_path
+        
+            # 4. 해시값을 메타데이터에 삽입하여 단일 파일로 저장
+            original_base_name = os.path.splitext(image_path)[0]
+            output_image_path = f"{original_base_name}_hashed{final_output_ext}"
+        
+            save_success = save_image_with_hash(
+                input_path_for_hash, 
+                output_image_path, 
+                generated_hash
+            )
 
             print("--- 프로세스 성공 ---")
             return generated_hash
@@ -49,7 +70,7 @@ if __name__ == "__main__":
     # --- 실행 환경 설정 ---
     # 실제 서비스에서는 이 값들을 외부(예: 사용자 입력, 서버 환경변수)에서 받아옵니다.
     CURRENT_USER = "seoyun_dev"
-    TARGET_IMAGE = 'IMG_3543.HEIC'
+    TARGET_IMAGE = 'example.jpg'
     SYSTEM_PEPPER = "gr63-ob87-secret-pepper-lh44-mercedes-win-!@#$!%^&"
     
     # 메인 프로세스 실행

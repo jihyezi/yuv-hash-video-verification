@@ -49,6 +49,10 @@ def generate_chroma_hash(image_path, secret_key, num_pixels=64, quantization_lev
         return None
 
 def save_image_with_hash(image_path, output_path, hash_value):
+    """
+    이미지 파일을 열어 해시값을 메타데이터에 삽입한 후, 
+    output_path의 확장자에 맞는 형식으로 저장합니다.
+    """
     try:
         img = Image.open(image_path)
         
@@ -56,14 +60,20 @@ def save_image_with_hash(image_path, output_path, hash_value):
         output_format = ext.lower().replace('.', '')
         
         if output_format == 'png':
+            # PNG는 img.info 딕셔너리를 사용하여 메타데이터를 저장
             img.info["chroma_hash"] = hash_value
             img.save(output_path, format='PNG')
         elif output_format in ['jpg', 'jpeg']:
+            # JPG/JPEG는 EXIF UserComment 필드를 사용하여 메타데이터를 저장
             user_comment_bytes = hash_value.encode('utf-8')
             exif_dict = {"Exif": {piexif.ExifIFD.UserComment: user_comment_bytes}}
             exif_bytes = piexif.dump(exif_dict)
+            
+            if img.mode == 'RGBA':
+                img = img.convert('RGB')
             img.save(output_path, exif=exif_bytes, quality=95)
         elif output_format == 'webp':
+            # WebP는 PNG와 마찬가지로 img.info를 사용합니다.
             img.info["chroma_hash"] = hash_value
             img.save(output_path, format='WebP')
         else:
