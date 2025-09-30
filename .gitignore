@@ -1,6 +1,15 @@
+# 환경 변수 파일
+.env
+
 # 가상 환경 폴더 무시
 venv/
+.venv/
+backend/venv
 
 # 기타 파이썬 관련 무시 항목 (선택 사항)
 __pycache__/
 *.pyc
+
+# 해시 생성으로 만들어지는 결과 파일
+*_hashed.jpg
+*_hashed.png

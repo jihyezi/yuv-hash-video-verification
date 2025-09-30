@@ -1,14 +1,18 @@
 # 다른 파일에서 필요한 함수들을 가져옵니다 (import).
-from au import generate_user_secret_key
-from hash import generate_chroma_hash, save_image_with_hash
+from backend.au import generate_user_secret_key
+from backend.hash import generate_chroma_hash, save_image_with_hash
+from backend.db_integration import insert_gallery_record
 import os
 from PIL import Image
 import pillow_heif
+import uuid
 
 def run_main_process(user_id, image_path, system_pepper):
     """
     한 명의 사용자와 하나의 이미지에 대한 해시 생성 프로세스를 실행합니다.
     """
+    temp_image_path = None
+
     try:
         print(f"--- 프로세스 시작 ---")
         print(f"사용자: {user_id}")
@@ -32,7 +36,6 @@ def run_main_process(user_id, image_path, system_pepper):
             final_output_ext = input_ext  
             input_path_for_hash = image_path  
         
-            # 3-A. HEIC 파일 특수 처리: PNG로 변환 및 임시 저장
             if input_ext in ('.heic', '.heif'):
                 print("▶ HEIC/HEIF 파일 감지: PNG로 변환 후 메타데이터 삽입을 시도합니다.")
             
@@ -44,6 +47,7 @@ def run_main_process(user_id, image_path, system_pepper):
                 input_path_for_hash = temp_image_path
         
             # 4. 해시값을 메타데이터에 삽입하여 단일 파일로 저장
+            id = str(uuid.uuid4())
             original_base_name = os.path.splitext(image_path)[0]
             output_image_path = f"{original_base_name}_hashed{final_output_ext}"
         
@@ -53,8 +57,23 @@ def run_main_process(user_id, image_path, system_pepper):
                 generated_hash
             )
 
-            print("--- 프로세스 성공 ---")
-            return generated_hash
+            if save_success:
+                db_result = insert_gallery_record(
+                    id=id,
+                    user_id=user_id,
+                    image_url=output_image_path,
+                    file_hash=generated_hash,
+                    title=None
+                )
+
+                if db_result:
+                    print(f"--- 프로세스 성공 ---")
+                    print(f"DB에 gallery ID '{id}'로 기록되었습니다.")
+                    return generated_hash
+                else:
+                    raise Exception("DB 삽입 단계에서 오류가 발생했습니다.")
+            else:
+                raise Exception("해시가 삽입된 파일 저장에 실패했습니다.")
         else:
             raise Exception("해시 생성에 실패했습니다.")
 
