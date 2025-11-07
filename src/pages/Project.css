@@ -1,0 +1,226 @@
+.project-container {
+    display: flex;
+    gap: 20px;
+    background-color: #f5f7fa;
+    padding: 20px;
+    height: calc(100vh - 80px);
+    box-sizing: border-box;
+  }
+  
+  /* 왼쪽 폴더 */
+  .folder-sidebar {
+    width: 200px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .path-search {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* 왼쪽엔 경로, 오른쪽엔 검색창 */
+    margin: 15px 0;
+  }
+  
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .search-bar input {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 220px;
+  }
+  
+  .search-bar button {
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  
+  .search-bar button:hover {
+    background-color: #155fc2;
+  }
+  
+  
+  .folder-sidebar h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: -300px;
+  }
+  
+  .folder-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .team {
+    font-size: 15px;
+    margin: 8px 0;
+    cursor: pointer;
+  }
+  
+  .sub-folder {
+    list-style: none;
+    margin-left: 20px;
+    margin-top: 5px;
+    padding-left: 0;
+  }
+  
+  .sub-folder li {
+    padding: 5px 0;
+    cursor: pointer;
+    color: #555;
+  }
+  
+  .sub-folder li.active {
+    background-color: #e7f0ff;
+    border-radius: 6px;
+    padding-left: 10px;
+    color: wheat;
+    font-weight: 600;
+  }
+  
+  .trash-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  
+  /* 오른쪽 파일 영역 */
+  .file-area {
+    flex: 1;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+  }.file-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    gap: 10px;
+  }
+  
+  /* 버튼 그룹 */
+  .file-actions {
+    display: flex;
+    gap: 8px;
+    flex: 1 1 50%; /* 전체의 절반 크기 */
+  }
+
+  
+  /* 상단 버튼들 크기 ↓ */
+  .file-actions button {
+    background-color: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 5px 12px; /* ← 기존보다 작게 */
+    font-size: 14px;  /* ← 텍스트도 살짝 작게 */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: black;
+  }
+  
+  .file-actions button:hover {
+    background-color: #e9e9e9;
+  }
+  
+  /* 삭제 버튼만 색 다르게 */
+  .file-actions .delete {
+    background-color: #ffefef;
+    color: #d33;
+    border-color: #f1c0c0;
+  }
+  
+  .file-actions .delete:hover {
+    background-color: #ffd6d6;
+  }
+  
+  
+  
+  .search-bar {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .search-bar input {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 6px 10px;
+  }
+  
+  .current-path {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 15px;
+  }
+  
+  .file-list {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .file-card {
+    background: #f9f9f9;
+    border-radius: 10px;
+    width: 160px;
+    text-align: center;
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .file-card img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  .file-card.folder {
+    background: #ffe1e1;
+  }
+  
+  .folder-icon {
+    font-size: 50px;
+    color: #f77;
+  }
+  .sub-folder li.active {
+    background-color: #e7f0ff;
+    border-radius: 6px;
+    padding-left: 10px;
+    color: #1a73e8;
+    font-weight: 600;
+  }
+  
+  /* 오른쪽 파일 카드 스타일 */
+  .file-card {
+    transition: transform 0.2s;
+  }
+  .file-card:hover {
+    transform: translateY(-4px);
+  }
+  
