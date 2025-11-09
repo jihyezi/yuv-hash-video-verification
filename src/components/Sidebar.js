@@ -13,10 +13,10 @@ function Sidebar() {
       
       {/* 1. 사이드바 헤더: 로고와 토글 버튼을 함께 관리 */}
       <div className="sidebar-header">
-        <h2 className="logo">혜안</h2>
-        <button className="toggle-btn" onClick={toggleSidebar}>
+      <button className="toggle-btn" onClick={toggleSidebar}>
         ☰
-        </button>
+      </button>
+        <h2 className="logo">혜안</h2>
       </div>
 
       {/* 2. 사이드바 내용: 스크롤 방지 및 메뉴 리스트 관리 */}

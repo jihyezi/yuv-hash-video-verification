@@ -20,16 +20,16 @@ export default function Detect() {
 
   return (
     <div className="detect-page">
-      <h1 className="detect-title">사진 위변조 검증</h1>
+      <h1 className="detect-title">데이터 위변조 검증</h1>
       <p className="detect-subtitle">
-        원본 이미지와 의심 이미지를 비교하여 진위를 판별하세요.
+        원본 데이터와 의심 데이터를 업로드하여 시템이 자동으로 위변조 여부를 판별합니다.
       </p>
 
       <div className="detect-steps">
         {/* Step 1 */}
         <div className="upload-box">
           <h3 className="step-title">
-            Step 1. <span>원본 사진 선택</span>
+            Step 1. <span>데이터 선택</span>
           </h3>
 
           <label className="drop-zone">
@@ -70,7 +70,7 @@ export default function Detect() {
         {/* Step 2 */}
         <div className="upload-box">
           <h3 className="step-title">
-            Step 2. <span>의심 사진 업로드</span>
+            Step 2. <span>위변조 의심 데이터 업로드</span>
           </h3>
 
           <label className="drop-zone">
@@ -101,7 +101,7 @@ export default function Detect() {
             onClick={handleVerify}
             disabled={!originalImage || !suspiciousImage}
           >
-            사진 위변조 검증하기
+            데이터 위변조 검증하기
           </button>
         </div>
       </div>

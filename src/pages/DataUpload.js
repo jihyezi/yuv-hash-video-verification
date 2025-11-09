@@ -65,7 +65,7 @@ className="file-input"
 </button>
 )}
 <button className="upload-btn" onClick={handleUpload}>
-이미지 업로드하기
+이미지 업로드
 </button>
 </div>
 </div>

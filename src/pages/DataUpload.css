@@ -102,6 +102,7 @@
   background: #4a90e2;
   color: white;
   border: none;
+  white-space: nowrap;
 }
 
 .upload-btn:hover {
