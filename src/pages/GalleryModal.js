@@ -14,7 +14,7 @@ export default function GalleryModal({ isOpen, onClose, onSelect }) {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h2>이미지 선택</h2>
+        <h2>사진 선택</h2>
         <div className="gallery-grid">
           {images.map((img, idx) => (
             <img
@@ -22,7 +22,10 @@ export default function GalleryModal({ isOpen, onClose, onSelect }) {
               src={img}
               alt={`gallery-${idx}`}
               className="gallery-item"
-              onClick={() => onSelect(img)} // 클릭 시 바로 선택
+              onClick={() => {
+                onSelect(img);  // 부모에 선택 전달
+                onClose();      // 모달 닫기
+              }}
             />
           ))}
         </div>
