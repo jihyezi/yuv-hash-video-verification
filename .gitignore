@@ -1,7 +1,24 @@
+# 환경 변수 파일
+.env
+.env.*
+
+# 가상 환경 폴더 무시
+venv/
+.venv/
+backend/venv
+
+# 기타 파이썬 관련 무시 항목 (선택 사항)
+__pycache__/
+*.pyc
+*/__pycache__/
+__pycache__
+
+# 해시 생성으로 만들어지는 결과 파일
+*_hashed.jpg
+*_hashed.png
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
 /.pnp
 .pnp.js
 
@@ -21,3 +38,17 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# 가상 환경 폴더 
+server/
+/newenv/
+/venv/
+
+# Local Database
+uvhash.db
+backend/storage
+
+# Frontend Dependencies & Build
+frontend/node_modules/
+frontend/build/
+frontend/package.json
