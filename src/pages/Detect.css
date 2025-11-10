@@ -1,0 +1,141 @@
+.detect-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f8f8f8;
+  min-height: 100vh;
+  padding: 60px 20px;
+}
+
+.detect-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 8px;
+}
+
+.detect-subtitle {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+/* ✅ 두 박스 나란히 */
+.detect-steps {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 60px;
+  flex-wrap: wrap;
+  max-width: 1100px;
+  width: 100%;
+}
+
+.upload-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 420px;
+  height: 420px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.upload-box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.step-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 15px;
+}
+
+.step-title span {
+  color: #3a7ff6;
+}
+
+/* 드롭존 */
+.drop-zone {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 90%;
+  height: 260px;
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  background-color: #fafafa;
+  cursor: pointer;
+  transition: border 0.2s ease, background-color 0.2s ease;
+}
+
+.drop-zone:hover {
+  border-color: #3a7ff6;
+  background-color: #f5f9ff;
+}
+
+.drop-content {
+  text-align: center;
+  color: #777;
+  font-size: 14px;
+}
+
+.upload-icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 8px;
+}
+
+.image-preview {
+  margin-top: 10px;
+  width: 100%;
+  max-height: 160px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* 버튼 */
+button {
+  width: 90%;
+  height: 42px;
+  margin-top: 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #fff;
+  background-color: #3a7ff6;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background-color: #2d6ae0;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* ✅ 반응형: 화면이 작을 때는 세로 배치 */
+@media (max-width: 900px) {
+  .detect-steps {
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .upload-box {
+    width: 90%;
+  }
+}
+.file-input {
+  display: none;
+}

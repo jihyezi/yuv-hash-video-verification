@@ -1,0 +1,126 @@
+/* ===== 페이지 레이아웃 ===== */
+.upload-page {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.upload-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: -10px;
+  color: #333;
+}
+
+.upload-subtitle {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+/* ===== 업로드 박스 ===== */
+.upload-box {
+  background: #fff;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 720px; /* 박스 크기 그대로 유지 */
+  text-align: center;
+}
+
+/* ===== 드롭존 ===== */
+.drop-zone {
+  border: 2px dashed #ccc;
+  border-radius: 15px;
+  padding: 60px 20px; /* 내부 여백 */
+  width: 90%; /* 박스보다 살짝 작게 */
+  height: 280px; /* 세로 크기 */
+  margin: 0 auto 20px auto; /* 중앙 정렬 + 아래 여백 */
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+  background-color: #fafafa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.drop-zone.drag-over {
+  border-color: #4a90e2;
+  background-color: #f0f6ff;
+}
+
+/* ===== 드롭 영역 내부 ===== */
+.drop-content {
+  width: 60%; /* 내부 내용 크기 줄임 */
+  max-width: 360px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #777;
+  font-size: 15px;
+}
+
+.upload-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 10px;
+  color: #4a90e2;
+}
+
+/* ===== 미리보기 이미지 ===== */
+.drop-preview {
+  width: 90%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+/* ===== 버튼 ===== */
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.button-container button {
+  flex: 1 1 150px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 업로드 버튼 */
+.upload-btn {
+  background: #4a90e2;
+  color: white;
+  border: none;
+}
+
+.upload-btn:hover {
+  background: #357abd;
+}
+
+/* 초기화 버튼 */
+.reset-btn {
+  background: white;
+  color: #4a90e2;
+  border: 1px solid #4a90e2;
+}
+
+.reset-btn:hover {
+  background: #4a90e2;
+  color: white;
+}
+
+/* 파일 입력 숨김 */
+.file-input {
+  display: none;
+}
