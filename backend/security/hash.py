@@ -86,3 +86,4 @@ def save_image_with_hash(image_path, output_path, hash_value):
     except Exception as e:
         print(f"파일 저장 중 오류가 발생했습니다: {e}")
         return False
+
