@@ -125,3 +125,33 @@
 .file-input {
   display: none;
 }
+
+
+
+/* 팀/폴더 선택 영역 */
+.team-select {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  color: #333;
+}
+
+.team-select label {
+  font-weight: 500;
+}
+
+.team-select select {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.team-select select:hover {
+  border-color: #888;
+}

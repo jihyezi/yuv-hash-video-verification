@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaFolder, FaTrashAlt, FaSearch } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Project.css";
 
 const Project = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const newImage = location.state?.newImage || null; // DataUpload에서 넘어온 이미지
+
   const [selectedTeam, setSelectedTeam] = useState("프론트엔드팀");
   const [selectedImage, setSelectedImage] = useState(null); // 빠른검증용 선택 이미지
   const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태
@@ -33,13 +36,36 @@ const Project = () => {
     ],
   });
 
+  // ✅ DataUpload에서 넘어온 이미지가 있으면 folderData에 추가
+  useEffect(() => {
+    if (newImage) {
+      setFolderData((prev) => ({
+        ...prev,
+        [newImage.team]: [
+          ...prev[newImage.team],
+          {
+            type: "image",
+            name: newImage.name,
+            date: new Date().toISOString().split("T")[0],
+            img: newImage.img,
+          },
+        ],
+      }));
+      setSelectedTeam(newImage.team);
+  
+      // 한 번 처리 후 location.state 초기화
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [newImage, navigate, location.pathname]);
+  
+
   // 폴더 생성
   const handleCreateFolder = () => {
     const folderName = prompt("새 폴더 이름을 입력하세요:");
     if (!folderName) return;
     setFolderData((prev) => ({
       ...prev,
-      [selectedTeam]: [...prev[selectedTeam], { type: "folder", name: folderName, images: [] }]
+      [selectedTeam]: [...prev[selectedTeam], { type: "folder", name: folderName, images: [] }],
     }));
   };
 
@@ -53,7 +79,7 @@ const Project = () => {
     if (!selectedImage) return alert("삭제할 이미지를 선택해주세요.");
     setFolderData((prev) => ({
       ...prev,
-      [selectedTeam]: prev[selectedTeam].filter(item => item.img !== selectedImage)
+      [selectedTeam]: prev[selectedTeam].filter(item => item.img !== selectedImage),
     }));
     setSelectedImage(null);
   };
@@ -151,7 +177,7 @@ const Project = () => {
         </div>
       </div>
 
-      {/* 폴더 모달 (샘플 이미지만 표시, 닫기 버튼만) */}
+      {/* 폴더 모달 */}
       {folderModal && (
         <div className="folder-modal">
           <div className="modal-content">
@@ -162,7 +188,6 @@ const Project = () => {
               ))}
             </div>
             <button className="close-btn" onClick={() => setFolderModal(null)}>닫기</button>
-
           </div>
         </div>
       )}

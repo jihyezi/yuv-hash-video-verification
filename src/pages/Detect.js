@@ -81,7 +81,7 @@ export default function Detect() {
           {originalImage && (
             <img
               src={getPreviewSrc(originalImage)}
-              alt="원본 미리보"
+              alt="원본 미리보기"
               className="image-preview"
             />
           )}
