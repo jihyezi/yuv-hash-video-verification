@@ -27,7 +27,8 @@
 
 .logo {
   text-align: left;
-  font-size: 18px;
+  font-size: 24px;
+  padding-right: 10px;
   margin: 0;
   white-space: nowrap; /* 텍스트 줄바꿈 방지 */
   overflow: hidden; /* 텍스트 넘침 방지 */
@@ -39,8 +40,8 @@
   background-color: transparent;
   border: none;
   color: white;
-  font-size: 20px; /* 기존 16px에서 키움 */
-  line-height: 1; /* 높이 조정 */
+  font-size: 20px; 
+  line-height: 1; 
   cursor: pointer;
   padding: 5px 8px;
   border-radius: 5px;
@@ -48,18 +49,17 @@
 }
 
 
-/* 닫혔을 때 혜안 이름(로고) 숨기기 */
 .sidebar.closed .logo {
+    visibility: hidden;
     opacity: 0;
-    width: 0; /* 공간을 완전히 없앰 */
+    width: auto; 
     padding: 0;
     margin: 0;
 }
 
-/* 닫혔을 때 버튼만 중앙 정렬 */
 .sidebar.closed .sidebar-header {
-    justify-content: center; 
-    padding: 0; 
+    justify-content: flex-end;
+    padding: 0 10px;
 }
 
 /* 닫힌 상태일 때 아이콘 중앙 정렬 */
@@ -103,4 +103,26 @@
   flex: 1;
   overflow-y: auto;
   padding-top: 10px;
+}
+
+.toggle-btn {
+  padding: 10px 10px;     
+  width: 30px;  
+  height: 30px;
+  display: flex;  
+  justify-content: center;
+  align-items: center;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+/* 클릭해도 아무 효과 없음 */
+.toggle-btn:active,
+.toggle-btn:hover,
+.toggle-btn:focus {
+  background-color: transparent;
+  outline: none;
+  border: none;
+  box-shadow: none;
 }

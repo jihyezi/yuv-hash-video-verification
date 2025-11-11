@@ -224,3 +224,107 @@
     transform: translateY(-4px);
   }
   
+  .file-card.selected {
+    border: 1px solid #007bff;
+    box-shadow: 0 0 1px #007bff;
+  }
+  
+
+  /* 모달 전체 배경 */
+.folder-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.folder-modal .modal-content {
+  background-color: #fff;
+  width: 80%;             /* 모달 넓게 */
+  max-width: 900px;       /* 최대 넓이 */
+  max-height: 80%;        /* 세로 크기 */
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;       /* 세로 스크롤 가능 */
+  position: relative;
+}
+
+/* 이미지 리스트: 가로 배치, 줄 바꿈 가능 */
+.folder-images {
+  display: flex;
+  flex-wrap: wrap;        /* 여러 줄 가능 */
+  gap: 12px;
+  margin-top: 20px;
+  justify-content: flex-start;
+}
+
+/* 이미지 크기 */
+.folder-images img {
+  width: calc(33% - 8px); /* 한 줄에 3개 */
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* 닫기 버튼 */
+.close-btn {
+  position: sticky;
+  bottom: 10px;
+  align-self: center;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background-color: #3a7ff6;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+
+
+/* 모달 제목 */
+.folder-modal h2 {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* 이미지 리스트 */
+.folder-images {
+  display: flex;
+  flex-direction: column; /* 세로 배치 */
+  gap: 12px;
+  margin-bottom: 60px; /* 닫기 버튼 공간 확보 */
+}
+
+.folder-images img {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* 닫기 버튼 */
+.close-btn {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  background-color: #3a7ff6;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.close-btn:hover {
+  background-color: #2d6ae0;
+}
