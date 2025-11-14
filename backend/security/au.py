@@ -12,3 +12,4 @@ def generate_user_secret_key(user_id, system_pepper):
     secret_key = hashlib.sha256(data_to_hash).hexdigest()
     return secret_key
 
+
