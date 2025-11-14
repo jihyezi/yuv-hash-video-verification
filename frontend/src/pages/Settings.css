@@ -139,7 +139,12 @@ input[type="checkbox"] {
     transform: scale(1.2); /* 체크박스 크기 약간 키움 */
     margin: 0;
     cursor: pointer;
-    accent-color: #1c7ed6; /* 체크박스 색상 */
+    accent-color: #1c7ed6; 
+}
+
+.checkbox-cell {
+    text-align: center;
+ 
 }
 
 /* 권한 테이블 섹션의 특정 패딩 */

@@ -43,28 +43,28 @@ const RoleBasedPermissions = () => {
                         {roles.map(role => (
                             <tr key={role.id}>
                                 <td>{role.name}</td>
-                                <td>
+                                <td className="checkbox-cell">
                                     <input 
                                         type="checkbox" 
                                         checked={role.userManagement} 
                                         onChange={() => handlePermissionChange(role.id, 'userManagement')} 
                                     />
                                 </td>
-                                <td>
+                                <td className="checkbox-cell">
                                     <input 
                                         type="checkbox" 
                                         checked={role.contentManagement} 
                                         onChange={() => handlePermissionChange(role.id, 'contentManagement')} 
                                     />
                                 </td>
-                                <td>
+                                <td className="checkbox-cell">
                                     <input 
                                         type="checkbox" 
                                         checked={role.settingsAccess} 
                                         onChange={() => handlePermissionChange(role.id, 'settingsAccess')} 
                                     />
                                 </td>
-                                <td>
+                                <td className="checkbox-cell">
                                     <input 
                                         type="checkbox" 
                                         checked={role.auditLog} 
@@ -116,14 +116,14 @@ const DepartmentPermissions = () => {
                             <tr key={dept.id}>
                                 <td>{dept.name}</td>
                                 <td>{dept.type}</td>
-                                <td>
+                                <td className="checkbox-cell">
                                     <input 
                                         type="checkbox" 
                                         checked={dept.defaultPermissions} 
                                         onChange={() => handlePermissionChange(dept.id)} 
                                     />
                                 </td>
-                                <td>
+                                <td className="checkbox-cell">
                                 <input 
                                         type="checkbox" 
                                         checked={dept.defaultPermissions} 
