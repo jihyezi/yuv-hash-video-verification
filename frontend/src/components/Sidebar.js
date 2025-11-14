@@ -35,10 +35,7 @@ function Sidebar() {
             <Link to="/detect">🔍 {isOpen && "빠른검증"}</Link>
           </li>
           <li className={location.pathname === "/stats" ? "active" : ""}>
-            <Link to="/stats">📄 {isOpen && "증명서 발급"}</Link>
-          </li>
-          <li className={location.pathname === "/log" ? "active" : ""}>
-            <Link to="/log">📊 {isOpen && "실시간 활동 로그"}</Link>
+            <Link to="/stats">📊 {isOpen && "실시간 활동 로그"}</Link>
           </li>
           <li className={location.pathname === "/settings" ? "active" : ""}>
             <Link to="/settings">⚙️ {isOpen && "설정"}</Link>
