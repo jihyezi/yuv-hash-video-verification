@@ -1,41 +1,56 @@
-# app/routers/auth.py (핵심 부분)
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
-from app.db.database import SessionLocal
-from app.db import models
-from app.schemas.auth import UserCreate, Token
-from app.core.security import hash_password, verify_password, create_access_token
+from fastapi import APIRouter, HTTPException, status
+from app.db.schemas import UserCreate, UserLogin
+from app.core.supabase_client import supabase, supabase_admin
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
-def get_db():
-    db = SessionLocal()
+@router.post("/signup")
+def create_user(user_in: UserCreate):
     try:
-        yield db
-    finally:
-        db.close()
+        # 1. Supabase auth.users 테이블에 사용자 생성
+        auth_response = supabase.auth.sign_up({
+            "email": user_in.email,
+            "password": user_in.password
+        })
 
-@router.post("/register", status_code=201)
-def register(payload: UserCreate, db: Session = Depends(get_db)):
-    exists = db.query(models.User).filter(models.User.email == payload.email).first()
-    if exists:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    u = models.User(email=payload.email, hashed_password=hash_password(payload.password))
-    db.add(u); db.commit(); db.refresh(u)
-    return {"id": u.id, "email": u.email}
+        if not auth_response.user or not auth_response.user.id:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Auth 응답에 유저 정보가 없습니다.")
 
-@router.post("/login", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    email = form_data.username            # ← username 칸에 이메일을 넣습니다
-    password = form_data.password
-    u = db.query(models.User).filter(models.User.email == email).first()
-    if not u or not verify_password(password, u.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    return {"access_token": create_access_token(u.email), "token_type": "bearer"}
+        auth_user_id = auth_response.user.id
+        auth_creation_time = auth_response.user.created_at
 
-# (선택) 인증 확인용
-from app.utils.deps import get_current_user
-@router.get("/me")
-def me(current_user: models.User = Depends(get_current_user)):
-    return {"id": current_user.id, "email": current_user.email}
+        # 2. public.user 테이블에 추가 정보 (사용자 이름) 삽입
+        response = supabase.table("user").insert({
+            "id": auth_user_id,
+            "username": user_in.username,
+            "created_at": str(auth_creation_time)
+        }).execute()
+        
+        if not response.data:  # 성공 시 data에 리스트 있음, 실패 시 []
+            supabase_admin.auth.admin.delete_user(auth_user_id)
+            raise HTTPException(status_code=400, detail="프로필 생성 실패")
+
+        return {"auth_user": auth_response.user, "db_profile": response.data}
+
+    except Exception as e:
+        print(f"DEBUG: 발생한 오류 타입: {type(e)}")
+        print(f"DEBUG: 발생한 오류 내용: {e}")
+        
+        detail_message = getattr(e, 'message', str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail_message)
+
+@router.post("/login")
+def login_user(user_in: UserLogin):
+    try:
+        session = supabase.auth.sign_in_with_password({
+            "email": user_in.email,
+            "password": user_in.password
+        })
+        return session
+    
+    except Exception as e:
+        print(f"DEBUG: 발생한 오류 타입: {type(e)}")
+        print(f"DEBUG: 발생한 오류 내용: {e}")
+        
+        detail_message = getattr(e, 'message', str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail_message)
