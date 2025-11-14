@@ -1,7 +1,7 @@
 # app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth
+from app.routers import auth,images
 
 # --- FastAPI 앱 설정 ---
 app = FastAPI(
@@ -21,6 +21,8 @@ app.add_middleware(
 
 # --- 라우터 등록 ---
 app.include_router(auth.router)
+app.include_router(images.router)
+
 
 
 # --- 기본/헬스 체크 ---
