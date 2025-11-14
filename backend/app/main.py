@@ -1,10 +1,7 @@
 # app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.db.database import Base, engine
-from app.db import models
-from app.routers import auth, media, verify  # ✅ verify 추가!
-from app.routers import debug  # 임시 디버그 뷰가 있을 때만 유지
+from app.routers import auth
 
 # --- FastAPI 앱 설정 ---
 app = FastAPI(
@@ -22,14 +19,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- DB 테이블 생성 (개발 편의용) ---
-Base.metadata.create_all(bind=engine)
-
 # --- 라우터 등록 ---
 app.include_router(auth.router)
-app.include_router(media.router)
-app.include_router(debug.router)
-app.include_router(verify.router)  # ✅ verify가 import되면 여기서 정상 작동!
+
 
 # --- 기본/헬스 체크 ---
 @app.get("/", tags=["health"])
