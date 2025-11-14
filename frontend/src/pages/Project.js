@@ -37,9 +37,13 @@ const Project = () => {
   });
 
   // ✅ DataUpload에서 넘어온 이미지가 있으면 folderData에 추가
+  
   useEffect(() => {
-    if (newImage) {
-      setFolderData((prev) => ({
+  if (newImage) {
+    setFolderData((prev) => {
+      const exists = prev[newImage.team].some(item => item.img === newImage.img);
+      if (exists) return prev; // 이미 추가되어 있으면 그대로
+      return {
         ...prev,
         [newImage.team]: [
           ...prev[newImage.team],
@@ -50,13 +54,12 @@ const Project = () => {
             img: newImage.img,
           },
         ],
-      }));
-      setSelectedTeam(newImage.team);
-  
-      // 한 번 처리 후 location.state 초기화
-      navigate(location.pathname, { replace: true, state: {} });
-    }
-  }, [newImage, navigate, location.pathname]);
+      };
+    });
+    setSelectedTeam(newImage.team);
+    navigate(location.pathname, { replace: true, state: {} });
+  }
+}, [newImage, navigate, location.pathname]);
   
 
   // 폴더 생성
@@ -135,7 +138,7 @@ const Project = () => {
         <div className="file-actions">
           <button onClick={handleCreateFolder}>폴더생성</button>
           <button onClick={handleQuickVerify}>빠른 검증</button>
-          <button>다운로드</button>
+          <button>증명서 발급</button>
           <button className="delete" onClick={handleDeleteImage}>삭제</button>
         </div>
 

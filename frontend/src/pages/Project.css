@@ -38,12 +38,16 @@
   }
   
   .search-bar button {
+    height: 30px;
+    width: 100px;
+    margin-top: 2px;
     background-color: #1a73e8;
     color: white;
     border: none;
     border-radius: 6px;
     padding: 6px 12px;
     cursor: pointer;
+    white-space: nowrap;
   }
   
   .search-bar button:hover {

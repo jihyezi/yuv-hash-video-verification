@@ -1,0 +1,58 @@
+/* Stats.css */
+
+.stats-container {
+    padding: 40px;
+    background: #f8fafc;
+    min-height: 100vh;
+  }
+  
+  .stats-title {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 25px;
+  }
+  
+  .stats-table-wrapper {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  }
+  
+  .stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  
+  .stats-table th {
+    text-align: left;
+    padding: 14px 10px;
+    background: #f1f5f9;
+    border-bottom: 2px solid #e2e8f0;
+    color: #334155;
+    font-weight: 600;
+  }
+  
+  .stats-table td {
+    padding: 14px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #374151;
+  }
+  
+  .status-normal {
+    padding: 6px 12px;
+    background: #d1fae5;
+    color: #047857;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+  
+  .status-warning {
+    padding: 6px 12px;
+    background: #fee2e2;
+    color: #b91c1c;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+  

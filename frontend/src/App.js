@@ -7,6 +7,7 @@ import Project from "./pages/Project";
 import DataUpload from "./pages/DataUpload";
 import Detect from "./pages/Detect";
 import Stats from "./pages/Stats";
+//import Certificate from "./pages/Certificate";
 import Settings from "./pages/Settings";
 import "./App.css";
 
@@ -22,6 +23,7 @@ function App() {
             <Route path="/project" element={<Project />} />
             <Route path="/data" element={<DataUpload />} />
             <Route path="/detect" element={<Detect />} />
+            <Route path="/certificate" element={<certificate/>} />
             <Route path="/stats" element={<Stats />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
