@@ -1,3 +1,6 @@
+__pycache__/
+.DS_Store
+=======
 # 환경 변수 파일
 .env
 .env.*
@@ -51,4 +54,4 @@ backend/storage
 # Frontend Dependencies & Build
 frontend/node_modules/
 frontend/build/
-frontend/package.json
+frontend/package.jsonfrontend/package-lock.json

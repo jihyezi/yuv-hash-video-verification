@@ -2,6 +2,7 @@ import React from "react";
 import "./Dashboard.css";
 import StatCard from "../components/StatCard";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { useNavigate } from "react-router-dom";   // ✅ 추가
 
 const storageData = [
   { name: "Used", value: 30 },
@@ -28,15 +29,29 @@ const savedFiles = [
 ];
 
 export default function Dashboard() {
+  const navigate = useNavigate();   // ✅ 추가
+
+  const goToDataUpload = () => {
+    navigate("/data");       // ✅ "새 자산 등록" → /data-upload
+  };
+
+  const goToDetect = () => {
+    navigate("/detect");            // ✅ "빠른 검증" → /detect
+  };
+
   return (
     <div className="dashboard">
       {/* 상단 버튼 */}
       <div className="actions">
-        <button className="action-btn">새 자산 등록</button>
-        <button className="action-btn">빠른 검증</button>
+        <button className="action-btn" onClick={goToDataUpload}>
+          새 자산 등록
+        </button>
+        <button className="action-btn" onClick={goToDetect}>
+          빠른 검증
+        </button>
       </div>
 
-      {/* 핵심 지표 */}
+      {/* 아래는 기존 내용 그대로 */}
       <section className="stats-section">
         <h2>핵심 지표 (지난 30일)</h2>
         <div className="stat-cards">
@@ -47,7 +62,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* 현재 사용량 */}
       <section className="usage-section">
         <h2>현재 사용량 현황</h2>
         <div className="charts">
@@ -77,7 +91,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* 실시간 로그 + 파일 저장 현황 */}
       <section className="bottom-section">
         <div className="activity-log">
           <h2>실시간 활동 로그</h2>
