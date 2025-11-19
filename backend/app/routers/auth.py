@@ -1,4 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from app.db.schemas import UserCreate, UserLogin
 from app.core.supabase_client import supabase, supabase_admin
 
@@ -40,17 +42,33 @@ def create_user(user_in: UserCreate):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail_message)
 
 @router.post("/login")
-def login_user(user_in: UserLogin):
+def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
     try:
         session = supabase.auth.sign_in_with_password({
-            "email": user_in.email,
-            "password": user_in.password
+            "email": form_data.username,   # Supabase는 email을 username처럼 사용
+            "password": form_data.password
         })
-        return session
-    
+
+        user_id = session.user.id
+        user_email = session.user.email
+
+        user_data = supabase.table("user").select("username").eq("id", user_id).execute()
+
+        username =""
+        if user_data.data and len(user_data.data) > 0:
+            username = user_data.data[0]['username']
+        else: 
+            username = session.user.email.split("@")[0]
+
+        return {
+            "access_token": session.session.access_token,
+            "token_type": "bearer",
+            "expires_in": session.session.expires_in,
+            "user_info": {
+                "id": user_id,            # UUID
+                "email": user_email,      # 이메일
+                "username": username # 유저 이름
+            }
+        }
     except Exception as e:
-        print(f"DEBUG: 발생한 오류 타입: {type(e)}")
-        print(f"DEBUG: 발생한 오류 내용: {e}")
-        
-        detail_message = getattr(e, 'message', str(e))
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail_message)
+        raise HTTPException(status_code=400, detail="로그인 실패: 아이디/비번을 확인하세요.")

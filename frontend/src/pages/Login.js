@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Login.css";
+import { loginAPI } from "../api/api";
 
 export default function Login({ onLogin }) {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -10,7 +11,7 @@ export default function Login({ onLogin }) {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // ★ form이 GET 요청 보내는 문제 방지
+    e.preventDefault();
 
     if (!form.email || !form.password) {
       alert("이메일과 비밀번호를 입력해주세요.");
@@ -18,33 +19,20 @@ export default function Login({ onLogin }) {
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json", // ★ JSON으로 변경 (더 안전)
-        },
-        body: JSON.stringify({
-          username: form.email,  // Supabase auth → username = email
-          password: form.password,
-        }),
-      });
+      const response = await loginAPI(form.email, form.password);
 
-      if (!response.ok) {
-        const error = await response.json().catch(() => null);
-        alert(error?.detail || "로그인 실패");
-        return;
-      }
+      const { access_token, user_info } = response.data;
 
-      const data = await response.json();
-      const displayName = form.email.split("@")[0];
+      localStorage.setItem("access_token", access_token);
+      localStorage.setItem("user_id", user_info.id);
+      localStorage.setItem("username", user_info.username);
+      localStorage.setItem("email", user_info.email);
 
-      // 로그인 성공 → 상위 컴포넌트(App.js)에 전달
-      onLogin(displayName, data.access_token);
-      localStorage.setItem("username", displayName);
-      alert("로그인 성공!");
-    } catch (err) {
-      console.error(err);
-      alert("서버 연결 실패");
+      onLogin(user_info);
+
+    } catch (error) {
+      console.error("로그인 에러:", error);
+      alert(error.response?.data?.detail || "로그인 실패");
     }
   };
 

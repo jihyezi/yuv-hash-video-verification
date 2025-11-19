@@ -1,7 +1,8 @@
 # app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth,images
+from app.routers import auth, images
+from fastapi.openapi.docs import get_swagger_ui_html
 
 # --- FastAPI 앱 설정 ---
 app = FastAPI(
@@ -13,7 +14,8 @@ app = FastAPI(
             "url": "http://127.0.0.1:8000", # 서버 주소
             "description": "Local development server"
         }
-    ]
+    ],
+    docs_url="/docs",
 )
 
 # --- CORS (필요시 FE 도메인으로 교체) ---
