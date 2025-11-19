@@ -4,6 +4,8 @@ import StatCard from "../components/StatCard";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { useNavigate } from "react-router-dom";   // ✅ 추가
 
+
+
 const storageData = [
   { name: "Used", value: 30 },
   { name: "Free", value: 70 },

@@ -2,6 +2,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import auth,images
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 
 # --- FastAPI 앱 설정 ---
 app = FastAPI(
