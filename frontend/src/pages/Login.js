@@ -42,10 +42,30 @@ export default function Login({ onLogin }) {
         <h1 className="auth-title">로그인</h1>
         <p className="auth-subtitle">혜안 서비스를 이용하려면 로그인하세요</p>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <input type="email" name="email" placeholder="이메일" value={form.email} onChange={handleChange} required />
-          <input type="password" name="password" placeholder="비밀번호" value={form.password} onChange={handleChange} required />
-          <button type="submit" className="login-btn">로그인</button>
+        <form onSubmit={handleSubmit} className="auth-form" noValidate>
+          <input
+            type="email"
+            name="email"
+            placeholder="이메일"
+            value={form.email}
+            onChange={handleChange}
+            required
+            autoComplete="username"
+          />
+
+          <input
+            type="password"
+            name="password"
+            placeholder="비밀번호"
+            value={form.password}
+            onChange={handleChange}
+            required
+            autoComplete="current-password"
+          />
+
+          <button type="submit" className="login-btn">
+            로그인
+          </button>
         </form>
 
         <p style={{ marginTop: "16px", fontSize: "14px", color: "#555" }}>
