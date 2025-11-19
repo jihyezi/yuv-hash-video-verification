@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Login.css";
+import { loginAPI } from "../api/api";
 
 export default function Login({ onLogin }) {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -9,19 +10,30 @@ export default function Login({ onLogin }) {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!form.email || !form.password) {
       alert("이메일과 비밀번호를 입력해주세요.");
       return;
     }
-    const displayName = form.email.split("@")[0]; // 예: 이메일 앞부분 사용
-  onLogin(displayName); // App.js로 전달
 
+    try {
+      const response = await loginAPI(form.email, form.password);
 
-    // 서버 연동 대신 데모 처리
-    alert(`로그인 시도: ${form.email}`);
-    onLogin(); // 로그인 성공 처리
+      const { access_token, user_info } = response.data;
+
+      localStorage.setItem("access_token", access_token);
+      localStorage.setItem("user_id", user_info.id);
+      localStorage.setItem("username", user_info.username);
+      localStorage.setItem("email", user_info.email);
+
+      onLogin(user_info);
+
+    } catch (error) {
+      console.error("로그인 에러:", error);
+      alert(error.response?.data?.detail || "로그인 실패");
+    }
   };
 
   return (
