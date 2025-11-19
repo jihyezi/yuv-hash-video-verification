@@ -1,7 +1,9 @@
 # app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, images
+from app.routers import auth,images
+import logging
+logging.basicConfig(level=logging.DEBUG)
 from fastapi.openapi.docs import get_swagger_ui_html
 
 # --- FastAPI 앱 설정 ---
