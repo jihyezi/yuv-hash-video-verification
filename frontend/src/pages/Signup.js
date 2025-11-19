@@ -1,8 +1,15 @@
 import React, { useState } from "react";
+<<<<<<< HEAD
+import { Link, useNavigate } from "react-router-dom";
+import { signupAPI } from "../api/api";
+import "./Login.css"; 
+=======
 import { Link } from "react-router-dom";
 import "./Login.css"; // 로그인과 동일한 스타일 사용 가능
+>>>>>>> be6f4e7f26f5a68542d2e2f825f563ea43ef702b
 
 export default function Signup() {
+  const navigate = useNavigate(); // 회원가입 후 로그인 페이지 이동
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -14,19 +21,28 @@ export default function Signup() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.email || !form.password || !form.confirmPassword) {
+
+    if (!form.name || !form.email || !form.password || !form.confirmPassword) {
       alert("모든 필드를 입력해주세요.");
       return;
     }
+
     if (form.password !== form.confirmPassword) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
 
-    // 서버 연동 대신 데모 처리
-    alert(`회원가입 완료: ${form.email}`);
+    try {
+      // 서버로 회원가입 요청
+      await signupAPI({ username: form.name, email: form.email, password: form.password });
+      alert("회원가입 성공! 로그인 페이지로 이동합니다.");
+      navigate("/"); // 로그인 페이지로 이동
+    } catch (err) {
+      console.error(err);
+      alert("회원가입 실패: " + (err.response?.data?.detail || err.message));
+    }
   };
 
   return (
@@ -36,7 +52,7 @@ export default function Signup() {
         <p className="auth-subtitle">계정을 만들어 혜안 서비스를 이용하세요</p>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          <input type="name" name="name" placeholder="사용자 이름" value={form.name} onChange={handleChange} required />
+          <input type="text" name="name" placeholder="사용자 이름" value={form.name} onChange={handleChange} required />
           <input type="email" name="email" placeholder="이메일" value={form.email} onChange={handleChange} required />
           <input type="password" name="password" placeholder="비밀번호" value={form.password} onChange={handleChange} required />
           <input type="password" name="confirmPassword" placeholder="비밀번호 확인" value={form.confirmPassword} onChange={handleChange} required />
