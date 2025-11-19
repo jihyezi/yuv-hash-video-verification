@@ -1,7 +1,11 @@
-# 다른 파일에서 필요한 함수들을 가져옵니다 (import).
-from backend.au import generate_user_secret_key
-from backend.hash import generate_chroma_hash, save_image_with_hash
-from backend.db_integration import insert_gallery_record
+
+# 사용자 비밀 키 생성 (security/au.py)
+from security.au import generate_user_secret_key 
+# 해시 생성 및 저장 (security/hash.py)
+from security.hash import generate_chroma_hash, save_image_with_hash
+# Supabase DB 삽입 (security/db_integration.py)
+from security.db_integration import insert_gallery_record 
+# -----------------------------------------------------------
 import os
 from PIL import Image
 import pillow_heif
@@ -94,4 +98,3 @@ if __name__ == "__main__":
     
     # 메인 프로세스 실행
     run_main_process(CURRENT_USER, TARGET_IMAGE, SYSTEM_PEPPER)
-
