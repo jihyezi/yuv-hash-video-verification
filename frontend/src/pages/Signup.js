@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../supabaseClient"; 
 import "./Login.css"; // 로그인과 동일한 스타일 사용 가능
 
 export default function Signup() {
@@ -41,6 +40,23 @@ export default function Signup() {
           <input type="email" name="email" placeholder="이메일" value={form.email} onChange={handleChange} required />
           <input type="password" name="password" placeholder="비밀번호" value={form.password} onChange={handleChange} required />
           <input type="password" name="confirmPassword" placeholder="비밀번호 확인" value={form.confirmPassword} onChange={handleChange} required />
+
+           {/* 🔥 부서 드롭다운 (기존 스타일 유지 위해 가벼운 스타일만 추가) */}
+          <select
+            name="department"
+            value={form.department}
+            onChange={handleChange}
+            required
+            className="auth-input" // input과 동일한 느낌
+            style={{ marginBottom: "12px" }}
+          >
+            <option value="">부서를 선택하세요</option>
+            <option value="개발">법무팀</option>
+            <option value="디자인">SW개발팀</option>
+            <option value="영업">디자인팀</option>
+            <option value="경영지원">인사팀</option>
+            <option value="기획">기획팀</option>
+          </select>
 
           <button type="submit" className="login-btn">회원가입</button>
         </form>
