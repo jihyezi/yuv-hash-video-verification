@@ -28,8 +28,8 @@ os.makedirs(TEMP_DIR, exist_ok=True)
 TEMP_USER_UUID = "00000000-0000-0000-0000-000000000001" 
 
 @router.post("/upload", 
-             response_model=Dict[str, Any],
-             summary="원본 이미지 업로드 및 해시 저장") 
+            response_model=Dict[str, Any],
+            summary="원본 이미지 업로드 및 해시 저장") 
 async def upload_original_image(
     file: UploadFile = File(...)
     # current_user = Depends(get_current_user) # 사용자 인증 시 주석 해제

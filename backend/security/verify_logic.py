@@ -5,7 +5,7 @@ import piexif
 import os
 
 # hash.py
-from hash import generate_chroma_hash, save_image_with_hash 
+from security.hash import generate_chroma_hash, save_image_with_hash 
 
 pillow_heif.register_heif_opener()
 

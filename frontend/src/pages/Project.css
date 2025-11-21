@@ -332,3 +332,18 @@
 .close-btn:hover {
   background-color: #2d6ae0;
 }
+
+
+.folder-list .team {
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* 클릭한 팀 강조 */
+.folder-list .team.active {
+  background-color: #4a90e2; /* 원하는 색상 */
+  color: #fff;
+  font-weight: 600;
+}
