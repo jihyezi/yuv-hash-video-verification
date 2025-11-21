@@ -19,7 +19,17 @@ def get_current_user(authorization: Optional[str] = Header(None)):
         return user.user
     except Exception:
         raise HTTPException(status_code=401, detail="인증 실패")
+    
+# --- 부서 목록 조회 ---
+@router.get("/departments")
+def get_departments():
+    try:
+        response = supabase.table("department").select("id, name").execute()
+        return response.data if response.data else []
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"부서 목록 조회 실패: {str(e)}")
 
+# --- 회원가입 ---
 @router.post("/signup")
 def create_user(user_in: UserCreate):
     try:
@@ -35,54 +45,54 @@ def create_user(user_in: UserCreate):
         auth_user_id = auth_response.user.id
         auth_creation_time = auth_response.user.created_at
 
-        department_to_save = getattr(user_in, "department", "미지정") 
-        if not department_to_save: 
-            department_to_save = "미지정"
-
-        # 2. public.user 테이블에 추가 정보 (사용자 이름) 삽입
-        response = supabase.table("user").insert({
+        insert_data = {
             "id": auth_user_id,
             "username": user_in.username,
-            "department": department_to_save,
+            "department_id": user_in.department_id,
             "created_at": str(auth_creation_time)
-        }).execute()
+        }
         
-        if not response.data:  # 성공 시 data에 리스트 있음, 실패 시 []
+        response = supabase.table("user").insert(insert_data).execute()
+        
+        if not response.data:
             supabase_admin.auth.admin.delete_user(auth_user_id)
-            raise HTTPException(status_code=400, detail="프로필 생성 실패")
+            raise HTTPException(status_code=400, detail="DB 프로필 생성 실패")
 
         return {"auth_user": auth_response.user, "db_profile": response.data}
 
     except Exception as e:
-        print(f"DEBUG: 발생한 오류 타입: {type(e)}")
-        print(f"DEBUG: 발생한 오류 내용: {e}")
-        
-        detail_message = getattr(e, 'message', str(e))
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail_message)
+        print(f"Signup Error: {e}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
+# --- 로그인 ---
 @router.post("/login")
-def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
+def login_user(user_in: UserLogin):
     try:
         session = supabase.auth.sign_in_with_password({
-            "email": form_data.username,   # Supabase는 email을 username처럼 사용
-            "password": form_data.password
+            "email": user_in.email,  
+            "password": user_in.password
         })
 
         user_id = session.user.id
         user_email = session.user.email
 
-        user_data = supabase.table("user").select("username, department").eq("id", user_id).execute()
+        user_data = supabase.table("user").select("username, department_id").eq("id", user_id).execute()
 
         username =""
-        department = ""
+        department_name = "부서 미지정"
 
         if user_data.data and len(user_data.data) > 0:
             data = user_data.data[0]
             username = data['username']
-            department = data.get('department') or "미지정"
+            
+            dept_id_uuid = data.get('department_id')
+
+            if dept_id_uuid:
+                dept_res = supabase.table("department").select("name").eq("id", dept_id_uuid).execute()
+                if dept_res.data:
+                    dept_name_korean = dept_res.data[0]['name']
         else: 
             username = session.user.email.split("@")[0]
-            department = "미지정"
 
         return {
             "access_token": session.session.access_token,
@@ -92,7 +102,7 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
                 "id": user_id,            # UUID
                 "email": user_email,      # 이메일
                 "username": username,     # 유저 이름
-                "department": department
+                "department": dept_name_korean # 부서 이름
             }
         }
     except Exception as e:
