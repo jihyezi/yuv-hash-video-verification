@@ -1,10 +1,24 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Header
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm
+from typing import Optional
+
 from app.db.schemas import UserCreate, UserLogin
 from app.core.supabase_client import supabase, supabase_admin
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
+
+def get_current_user(authorization: Optional[str] = Header(None)):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="토큰이 없습니다.")
+    try:
+        token = authorization.split(" ")[1]
+        user = supabase.auth.get_user(token)
+        if not user:
+            raise HTTPException(status_code=401, detail="유효하지 않은 토큰")
+        return user.user
+    except Exception:
+        raise HTTPException(status_code=401, detail="인증 실패")
 
 @router.post("/signup")
 def create_user(user_in: UserCreate):
@@ -21,10 +35,15 @@ def create_user(user_in: UserCreate):
         auth_user_id = auth_response.user.id
         auth_creation_time = auth_response.user.created_at
 
+        department_to_save = getattr(user_in, "department", "미지정") 
+        if not department_to_save: 
+            department_to_save = "미지정"
+
         # 2. public.user 테이블에 추가 정보 (사용자 이름) 삽입
         response = supabase.table("user").insert({
             "id": auth_user_id,
             "username": user_in.username,
+            "department": department_to_save,
             "created_at": str(auth_creation_time)
         }).execute()
         
@@ -52,13 +71,18 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
         user_id = session.user.id
         user_email = session.user.email
 
-        user_data = supabase.table("user").select("username").eq("id", user_id).execute()
+        user_data = supabase.table("user").select("username, department").eq("id", user_id).execute()
 
         username =""
+        department = ""
+
         if user_data.data and len(user_data.data) > 0:
-            username = user_data.data[0]['username']
+            data = user_data.data[0]
+            username = data['username']
+            department = data.get('department') or "미지정"
         else: 
             username = session.user.email.split("@")[0]
+            department = "미지정"
 
         return {
             "access_token": session.session.access_token,
@@ -67,7 +91,8 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
             "user_info": {
                 "id": user_id,            # UUID
                 "email": user_email,      # 이메일
-                "username": username # 유저 이름
+                "username": username,     # 유저 이름
+                "department": department
             }
         }
     except Exception as e:

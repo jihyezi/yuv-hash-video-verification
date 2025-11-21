@@ -17,7 +17,8 @@ function App() {
   const [user, setUser] = useState({
     name: "",
     id: "",
-    email: ""
+    email: "",
+    department: ""
   });
 
   // 새로고침 시 로그인 유지 (useEffect 필수!)
@@ -29,12 +30,14 @@ function App() {
       const savedName = localStorage.getItem("username");
       const savedId = localStorage.getItem("user_id");
       const savedEmail = localStorage.getItem("email");
+      const savedDept = localStorage.getItem("department");
 
       // 상태 복구
       setUser({
         name: savedName || "사용자",
         id: savedId || "",
-        email: savedEmail || ""
+        email: savedEmail || "",
+        department: savedDept || ""
       });
       setIsLoggedIn(true);
     }
@@ -46,7 +49,8 @@ function App() {
     setUser({
       name: userInfo.username,
       id: userInfo.id,
-      email: userInfo.email
+      email: userInfo.email,
+      department: userInfo.department || ""
     });
     setIsLoggedIn(true);
   };
@@ -57,9 +61,10 @@ function App() {
     localStorage.removeItem("username");
     localStorage.removeItem("user_id");
     localStorage.removeItem("email");
+    localStorage.removeItem("department");
 
     setIsLoggedIn(false);
-    setUser({ name: "", id: "", email: "" });
+    setUser({ name: "", id: "", email: "", department: "" });
   };
 
   return (
@@ -73,7 +78,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/project" element={<Project />} />
-              <Route path="/data" element={<DataUpload />} />
+              <Route path="/data" element={<DataUpload userDept={user.department} />} />
               <Route path="/detect" element={<Detect />} />
               <Route path="/stats" element={<Stats />} />
               <Route path="/settings" element={<Settings />} />

@@ -1,7 +1,12 @@
 import React, { useState } from "react";
+<<<<<<< HEAD
+import { Link } from "react-router-dom";
+import "./Login.css"; // 로그인과 동일한 스타일 사용 가능
+=======
 import { Link, useNavigate } from "react-router-dom";
 import { signupAPI } from "../api/api";
 import "./Login.css"; 
+>>>>>>> ec4077c911fcdc2ed5088880abbd53fb6abc693f
 
 export default function Signup() {
   const navigate = useNavigate(); // 회원가입 후 로그인 페이지 이동
