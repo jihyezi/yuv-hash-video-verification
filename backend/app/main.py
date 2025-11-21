@@ -1,7 +1,7 @@
 # app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth,images
+from app.routers import auth,images, verify
 import logging
 logging.basicConfig(level=logging.DEBUG)
 from fastapi.openapi.docs import get_swagger_ui_html
@@ -32,7 +32,7 @@ app.add_middleware(
 # --- 라우터 등록 ---
 app.include_router(auth.router)
 app.include_router(images.router)
-
+app.include_router(verify.router)
 
 
 # --- 기본/헬스 체크 ---
