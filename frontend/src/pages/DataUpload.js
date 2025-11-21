@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./DataUpload.css";
 import axiosInstance from "../api";
+import uploadIcon from "../img/upload_.svg";
 
 export default function DataUpload() {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  // 로그인 시 받아온 사용자 부서
+  // 로그인 시 받아온 사용자 부서 (예시)
   const userTeam = "프론트엔드팀";
 
   const handleFileChange = (e) => {
@@ -27,7 +28,7 @@ export default function DataUpload() {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("team", userTeam); // 업로드 팀 정보도 같이 전송
+    formData.append("team", userTeam); // ← 팀 정보 추가
 
     try {
       const response = await axiosInstance.post(
@@ -77,12 +78,9 @@ export default function DataUpload() {
                 onChange={handleFileChange}
                 className="file-input"
               />
+
               <div className="drop-content">
-                <img
-                  src={require("../img/upload_.svg")}
-                  alt="업로드"
-                  className="upload-icon"
-                />
+                <img src={uploadIcon} alt="업로드" className="upload-icon" />
                 <p>
                   이미지 파일을 선택<br />
                   또는 파일을 여기로 끌어 놓으세요
