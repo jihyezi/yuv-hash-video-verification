@@ -6,8 +6,13 @@ import datetime
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
+<<<<<<< HEAD
     username: str # 사용자 이름
     department: str   # 부서 추가
+=======
+    username: str
+    department_id: Optional[str] = None
+>>>>>>> b266ea55353fa7dcbef0b3f30bf16e1efed76d3a
 
 class UserLogin(BaseModel):
     email: EmailStr

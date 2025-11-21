@@ -1,24 +1,26 @@
 import apiClient from "./axiosConfig";
 
+<<<<<<< HEAD
 
 // --- 1. 인증 (Auth) ---
 
 // 회원가입 (JSON 전송)
+=======
+// --- 1. 회원가입 (Auth) ---
+>>>>>>> b266ea55353fa7dcbef0b3f30bf16e1efed76d3a
 export const signupAPI = (userData) => {
-   return apiClient.post("/auth/signup", userData);
- };
+    return apiClient.post("/auth/signup", userData);
+};
 
-// 로그인 (Form Data 전송 - FastAPI 요구사항)
+// --- 2. 로그인 (Login) ---
 export const loginAPI = (email, password) => {
-    const formData = new URLSearchParams();
-    formData.append("username", email);
-    formData.append("password", password);
-
-    return apiClient.post("/auth/login", formData, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    return apiClient.post("/auth/login", {
+        email: email,
+        password: password
     });
 };
 
+<<<<<<< HEAD
 // --- 2. 대시보드 (Dashboard 데이터 가져오기) --- 
 
 // 전체 gallery 총 개수
@@ -40,3 +42,19 @@ export const getUserCount = () => {
 // --- 3. 이미지 관련 (Images/Verify) ---
 
 
+=======
+// --- 3. 부서 목록 조회 (Departments) ---
+export const getDepartmentsAPI = () => {
+    return apiClient.get("/auth/departments");
+};
+
+// --- 4. 이미지 등록 (Images) ---
+export const uploadImageAPI = (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return apiClient.post("/gallery/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+};
+>>>>>>> b266ea55353fa7dcbef0b3f30bf16e1efed76d3a
