@@ -25,6 +25,7 @@ def create_user(user_in: UserCreate):
         response = supabase.table("user").insert({
             "id": auth_user_id,
             "username": user_in.username,
+            "department": user_in.department,     # ⭐⭐⭐ 부서 저장 추가!!
             "created_at": str(auth_creation_time)
         }).execute()
         

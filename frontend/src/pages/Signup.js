@@ -10,6 +10,7 @@ export default function Signup() {
     email: "",
     password: "",
     confirmPassword: "",
+    department: "", /*부서 드롭다운 데이터베이스*/ 
   });
 
   const handleChange = (e) => {
@@ -31,7 +32,7 @@ export default function Signup() {
 
     try {
       // 서버로 회원가입 요청
-      await signupAPI({ username: form.name, email: form.email, password: form.password });
+      await signupAPI({ username: form.name, email: form.email, password: form.password, department: form.department,/*드롭다운 데이터베이스 연결*/ });
       alert("회원가입 성공! 로그인 페이지로 이동합니다.");
       navigate("/"); // 로그인 페이지로 이동
     } catch (err) {
@@ -62,11 +63,11 @@ export default function Signup() {
             style={{ marginBottom: "12px" }}
           >
             <option value="">부서를 선택하세요</option>
-            <option value="개발">법무팀</option>
-            <option value="디자인">SW개발팀</option>
-            <option value="영업">디자인팀</option>
-            <option value="경영지원">인사팀</option>
-            <option value="기획">기획팀</option>
+            <option value="법무팀">법무팀</option>
+            <option value="SW개발팀">SW개발팀</option>
+            <option value="디자인팀">디자인팀</option>
+            <option value="인사팀">인사팀</option>
+            <option value="기획팀">기획팀</option>
           </select>
 
           <button type="submit" className="login-btn">회원가입</button>
