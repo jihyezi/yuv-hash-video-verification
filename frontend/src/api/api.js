@@ -7,16 +7,18 @@ export const signupAPI = (userData) => {
 
 // --- 2. 로그인 (Login) ---
 export const loginAPI = (email, password) => {
-    const formData = new URLSearchParams();
-    formData.append("username", email);
-    formData.append("password", password);
-
-    return apiClient.post("/auth/login", formData, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    return apiClient.post("/auth/login", {
+        email: email,
+        password: password
     });
 };
 
-// --- 3. 이미지 등록 (Images) ---
+// --- 3. 부서 목록 조회 (Departments) ---
+export const getDepartmentsAPI = () => {
+    return apiClient.get("/auth/departments");
+};
+
+// --- 4. 이미지 등록 (Images) ---
 export const uploadImageAPI = (file) => {
     const formData = new FormData();
     formData.append("file", file);
