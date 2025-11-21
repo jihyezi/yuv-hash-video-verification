@@ -1,10 +1,7 @@
 import React, { useState } from "react";
-
-
 import { Link, useNavigate } from "react-router-dom";
 import { signupAPI } from "../api/api.js";
 import "./Login.css"; 
-
 export default function Signup() {
   const navigate = useNavigate(); // 회원가입 후 로그인 페이지 이동
   const [form, setForm] = useState({
