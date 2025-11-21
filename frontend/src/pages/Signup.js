@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 
+
 import { Link, useNavigate } from "react-router-dom";
 import { signupAPI } from "../api/api.js";
 import "./Login.css"; 
-
-
 
 export default function Signup() {
   const navigate = useNavigate(); // 회원가입 후 로그인 페이지 이동
@@ -55,7 +54,7 @@ export default function Signup() {
           <input type="password" name="password" placeholder="비밀번호" value={form.password} onChange={handleChange} required />
           <input type="password" name="confirmPassword" placeholder="비밀번호 확인" value={form.confirmPassword} onChange={handleChange} required />
 
-           {/* 🔥 부서 드롭다운 (기존 스타일 유지 위해 가벼운 스타일만 추가) */}
+          {/* 🔥 부서 드롭다운 (기존 스타일 유지 위해 가벼운 스타일만 추가) */}
           <select
             name="department"
             value={form.department}

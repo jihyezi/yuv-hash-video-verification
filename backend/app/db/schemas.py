@@ -7,7 +7,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     username: str
-    department: str = "미지정"
+    department_id: Optional[str] = None
 
 class UserLogin(BaseModel):
     email: EmailStr
