@@ -4,17 +4,24 @@ import { signupAPI } from "../api/api";
 import "./Login.css";
 
 export default function Signup() {
-  const navigate = useNavigate(); // 회원가입 후 로그인 페이지 이동
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
-    department: "", /*부서 드롭다운 데이터베이스*/ 
+    department_id: "",
   });
 
+  // 모든 input 변화 처리
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+
+    console.log("변경됨:", e.target.name, "=", e.target.value);
   };
 
   const handleSubmit = async (e) => {
@@ -30,13 +37,27 @@ export default function Signup() {
       return;
     }
 
+    if (!form.department_id) {
+      alert("부서를 선택해주세요.");
+      return;
+    }
+
+    // 실제로 axios에 전달되는 데이터 확인
+    const payload = {
+      username: form.name,
+      email: form.email,
+      password: form.password,
+      department_id: form.department_id,
+    };
+
+    console.log("📤 전송되는 payload:", payload);
+
     try {
-      // 서버로 회원가입 요청
-      await signupAPI({ username: form.name, email: form.email, password: form.password, department: form.department,/*드롭다운 데이터베이스 연결*/ });
-      alert("회원가입 성공! 로그인 페이지로 이동합니다.");
-      navigate("/"); // 로그인 페이지로 이동
+      await signupAPI(payload);
+      alert("회원가입 성공!");
+      navigate("/");
     } catch (err) {
-      console.error(err);
+      console.error("❌ 회원가입 오류:", err);
       alert("회원가입 실패: " + (err.response?.data?.detail || err.message));
     }
   };
@@ -48,26 +69,57 @@ export default function Signup() {
         <p className="auth-subtitle">계정을 만들어 혜안 서비스를 이용하세요</p>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          <input type="text" name="name" placeholder="사용자 이름" value={form.name} onChange={handleChange} required />
-          <input type="email" name="email" placeholder="이메일" value={form.email} onChange={handleChange} required />
-          <input type="password" name="password" placeholder="비밀번호" value={form.password} onChange={handleChange} required />
-          <input type="password" name="confirmPassword" placeholder="비밀번호 확인" value={form.confirmPassword} onChange={handleChange} required />
-
-          {/* 🔥 부서 드롭다운 (기존 스타일 유지 위해 가벼운 스타일만 추가) */}
-          <select
-            name="department"
-            value={form.department}
+          <input
+            type="text"
+            name="name"
+            placeholder="사용자 이름"
+            value={form.name}
             onChange={handleChange}
             required
-            className="auth-input" // input과 동일한 느낌
+          />
+
+          <input
+            type="email"
+            name="email"
+            placeholder="이메일"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            type="password"
+            name="password"
+            placeholder="비밀번호"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            type="password"
+            name="confirmPassword"
+            placeholder="비밀번호 확인"
+            value={form.confirmPassword}
+            onChange={handleChange}
+            required
+          />
+
+          {/* ⭐ 부서 선택 */}
+          <select
+            name="department_id"
+            value={form.department_id}
+            onChange={handleChange}
+            required
+            className="auth-input"
             style={{ marginBottom: "12px" }}
           >
             <option value="">부서를 선택하세요</option>
-            <option value="법무팀">법무팀</option>
-            <option value="SW개발팀">SW개발팀</option>
-            <option value="디자인팀">디자인팀</option>
-            <option value="인사팀">인사팀</option>
-            <option value="기획팀">기획팀</option>
+            <option value="7cc1f471-f275-48eb-895d-ed0337d7f435">법무팀</option>
+            <option value="c556e9d9-da6d-4b11-b946-de24e4f1f610">SW개발팀</option>
+            <option value="76293a95-a138-4137-8d5a-c75a0b1b26a8">디자인팀</option>
+            <option value="98040d12-5465-40f3-8865-d3bfec54ac37">인사팀</option>
+            <option value="16df947b-4248-45d6-b177-47a5bc790b1d">기획팀</option>
           </select>
 
           <button type="submit" className="login-btn">회원가입</button>

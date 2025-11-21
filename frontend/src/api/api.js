@@ -1,13 +1,10 @@
 import apiClient from "./axiosConfig";
 
-<<<<<<< HEAD
 
 // --- 1. 인증 (Auth) ---
 
 // 회원가입 (JSON 전송)
-=======
 // --- 1. 회원가입 (Auth) ---
->>>>>>> b266ea55353fa7dcbef0b3f30bf16e1efed76d3a
 export const signupAPI = (userData) => {
     return apiClient.post("/auth/signup", userData);
 };
@@ -20,7 +17,6 @@ export const loginAPI = (email, password) => {
     });
 };
 
-<<<<<<< HEAD
 // --- 2. 대시보드 (Dashboard 데이터 가져오기) --- 
 
 // 전체 gallery 총 개수
@@ -42,7 +38,6 @@ export const getUserCount = () => {
 // --- 3. 이미지 관련 (Images/Verify) ---
 
 
-=======
 // --- 3. 부서 목록 조회 (Departments) ---
 export const getDepartmentsAPI = () => {
     return apiClient.get("/auth/departments");
@@ -57,4 +52,3 @@ export const uploadImageAPI = (file) => {
         headers: { "Content-Type": "multipart/form-data" },
     });
 };
->>>>>>> b266ea55353fa7dcbef0b3f30bf16e1efed76d3a
