@@ -90,7 +90,7 @@ def login_user(user_in: UserLogin):
             if dept_id_uuid:
                 dept_res = supabase.table("department").select("name").eq("id", dept_id_uuid).execute()
                 if dept_res.data:
-                    dept_name_korean = dept_res.data[0]['name']
+                    department_name = dept_res.data[0]['name']
         else: 
             username = session.user.email.split("@")[0]
 
@@ -102,7 +102,7 @@ def login_user(user_in: UserLogin):
                 "id": user_id,            # UUID
                 "email": user_email,      # 이메일
                 "username": username,     # 유저 이름
-                "department": dept_name_korean # 부서 이름
+                "department": department_name # 부서 이름
             }
         }
     except Exception as e:
