@@ -3,35 +3,41 @@ from typing import Optional
 import datetime
 
 # --- auth ---
+
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
     username: str
-    department_id: Optional[str] = None
+    department_id: Optional[str] = None   # 부서 UUID
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+
 # --- user ---
 class UserDisplay(BaseModel):
-    id: str  
+    id: str
     username: str
+    department_id: Optional[str] = None
     created_at: datetime.datetime
-    updated_at: datetime.datetime
+    updated_at: Optional[datetime.datetime] = None
+
 
 # --- gallery ---
 class GalleryCreate(BaseModel):
-    title: str       # 제목
-    image_url: str   # 이미지_URL
-    hash: str        # 해시
+    title: str
+    image_url: str
+    hash: str
+
 
 class GalleryDisplay(BaseModel):
     id: str
-    created_at: datetime.datetime 
+    created_at: datetime.datetime
     title: str
     image_url: str
-    user_id: str     # 사용자_아이디
+    user_id: str
+    department_id: Optional[str] = None
 
     class Config:
-        orm_mode = True # ORM 객체를 Pydantic 모델로 변환
+        orm_mode = True
