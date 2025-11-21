@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signupAPI } from "../api/api.js";
-import "./Login.css";
-
+import "./Login.css"; 
 export default function Signup() {
   const navigate = useNavigate();
 
@@ -11,24 +10,23 @@ export default function Signup() {
     email: "",
     password: "",
     confirmPassword: "",
-    department: "", 
+    department_id: "",
   });
 
+  // 모든 input 변화 처리
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+
+    console.log("변경됨:", e.target.name, "=", e.target.value);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 필드 검증
-    if (
-      !form.name ||
-      !form.email ||
-      !form.password ||
-      !form.confirmPassword ||
-      !form.department
-    ) {
+    if (!form.name || !form.email || !form.password || !form.confirmPassword) {
       alert("모든 필드를 입력해주세요.");
       return;
     }
@@ -38,19 +36,27 @@ export default function Signup() {
       return;
     }
 
-    try {
-      // 서버로 회원가입 요청 (부서 포함)
-      await signupAPI({
-        username: form.name,
-        email: form.email,
-        password: form.password,
-        department: form.department, // ✅ 부서 전달
-      });
+    if (!form.department_id) {
+      alert("부서를 선택해주세요.");
+      return;
+    }
 
-      alert("회원가입 성공! 로그인 페이지로 이동합니다.");
+    // 실제로 axios에 전달되는 데이터 확인
+    const payload = {
+      username: form.name,
+      email: form.email,
+      password: form.password,
+      department_id: form.department_id,
+    };
+
+    console.log("📤 전송되는 payload:", payload);
+
+    try {
+      await signupAPI(payload);
+      alert("회원가입 성공!");
       navigate("/");
     } catch (err) {
-      console.error(err);
+      console.error("❌ 회원가입 오류:", err);
       alert("회원가입 실패: " + (err.response?.data?.detail || err.message));
     }
   };
@@ -98,26 +104,24 @@ export default function Signup() {
             required
           />
 
-          {/* 🔥 부서 선택 드롭다운 */}
+          {/* ⭐ 부서 선택 */}
           <select
-            name="department"
-            value={form.department}
+            name="department_id"
+            value={form.department_id}
             onChange={handleChange}
             required
             className="auth-input"
             style={{ marginBottom: "12px" }}
           >
             <option value="">부서를 선택하세요</option>
-            <option value="법무팀">법무팀</option>
-            <option value="SW개발팀">SW개발팀</option>
-            <option value="디자인팀">디자인팀</option>
-            <option value="인사팀">인사팀</option>
-            <option value="기획팀">기획팀</option>
+            <option value="7cc1f471-f275-48eb-895d-ed0337d7f435">법무팀</option>
+            <option value="c556e9d9-da6d-4b11-b946-de24e4f1f610">SW개발팀</option>
+            <option value="76293a95-a138-4137-8d5a-c75a0b1b26a8">디자인팀</option>
+            <option value="98040d12-5465-40f3-8865-d3bfec54ac37">인사팀</option>
+            <option value="16df947b-4248-45d6-b177-47a5bc790b1d">기획팀</option>
           </select>
 
-          <button type="submit" className="login-btn">
-            회원가입
-          </button>
+          <button type="submit" className="login-btn">회원가입</button>
         </form>
 
         <p style={{ marginTop: "16px", fontSize: "14px", color: "#555" }}>

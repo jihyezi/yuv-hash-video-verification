@@ -43,11 +43,15 @@ def get_departments():
 # --- 회원가입 ---
 @router.post("/signup")
 def create_user(user_in: UserCreate):
+    print("🔥 DEBUG user_in:", user_in)
+    print("🔥 받은 department_id:", user_in.department_id)
     try:
         # 1. Supabase auth.users 테이블에 사용자 생성
         auth_response = supabase.auth.sign_up({
             "email": user_in.email,
             "password": user_in.password
+
+        
         })
 
         if not auth_response.user or not auth_response.user.id:
