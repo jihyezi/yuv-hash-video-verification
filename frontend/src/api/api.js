@@ -1,18 +1,9 @@
 import apiClient from "./axiosConfig";
 
-<<<<<<< HEAD
 // --- 1. 회원가입 (Auth) ---
-// export const signupAPI = (userData) => {
-//   return apiClient.post("/auth/signup", userData);
-// };
-=======
-// --- 1. 인증 (Auth) ---
-
-// 회원가입 (JSON 전송)
 export const signupAPI = (userData) => {
-   return apiClient.post("/auth/signup", userData);
- };
->>>>>>> ec4077c911fcdc2ed5088880abbd53fb6abc693f
+    return apiClient.post("/auth/signup", userData);
+};
 
 // --- 2. 로그인 (Login) ---
 export const loginAPI = (email, password) => {
