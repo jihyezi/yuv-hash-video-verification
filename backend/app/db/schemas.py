@@ -6,7 +6,8 @@ import datetime
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
-    username: str # 사용자 이름
+    username: str
+    department: str = "미지정"
 
 class UserLogin(BaseModel):
     email: EmailStr

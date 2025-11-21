@@ -1,10 +1,24 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Header
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm
+from typing import Optional
+
 from app.db.schemas import UserCreate, UserLogin
 from app.core.supabase_client import supabase, supabase_admin
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
+
+def get_current_user(authorization: Optional[str] = Header(None)):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="토큰이 없습니다.")
+    try:
+        token = authorization.split(" ")[1]
+        user = supabase.auth.get_user(token)
+        if not user:
+            raise HTTPException(status_code=401, detail="유효하지 않은 토큰")
+        return user.user
+    except Exception:
+        raise HTTPException(status_code=401, detail="인증 실패")
 
 @router.post("/signup")
 def create_user(user_in: UserCreate):
@@ -21,10 +35,15 @@ def create_user(user_in: UserCreate):
         auth_user_id = auth_response.user.id
         auth_creation_time = auth_response.user.created_at
 
+        department_to_save = getattr(user_in, "department", "미지정") 
+        if not department_to_save: 
+            department_to_save = "미지정"
+
         # 2. public.user 테이블에 추가 정보 (사용자 이름) 삽입
         response = supabase.table("user").insert({
             "id": auth_user_id,
             "username": user_in.username,
+            "department": department_to_save,
             "created_at": str(auth_creation_time)
         }).execute()
         
