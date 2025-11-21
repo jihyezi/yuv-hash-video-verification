@@ -6,61 +6,46 @@ import "./Project.css";
 const Project = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const newImage = location.state?.newImage || null; // DataUpload에서 넘어온 이미지
+  const newImage = location.state?.newImage || null;
 
-  const [selectedTeam, setSelectedTeam] = useState("프론트엔드팀");
-  const [selectedImage, setSelectedImage] = useState(null); // 빠른검증용 선택 이미지
-  const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태
-  const [folderModal, setFolderModal] = useState(null); // 폴더 클릭 시 모달 상태
+  const [selectedTeam, setSelectedTeam] = useState("SW 개발팀");
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [folderModal, setFolderModal] = useState(null);
 
   const [folderData, setFolderData] = useState({
-    프론트엔드팀: [
-      { type: "folder", name: "참고자료", images: [
-        { name: "샘플1", img: "/images/sample1.png" },
-        { name: "샘플2", img: "/images/sample2.png" },
-      ] },
-      { type: "image", name: "picture-001", date: "2025.05.29", img: "/images/sample1.png" },
-      { type: "image", name: "picture-002", date: "2025.05.29", img: "/images/sample2.png" },
+    "SW 개발팀": [
+      { type: "folder", name: "팀 자료", images: [] },
     ],
-    백엔드팀: [
-      { type: "folder", name: "API 문서", images: [
-        { name: "샘플3", img: "/images/sample3.png" },
-      ] },
-      { type: "image", name: "server-log", date: "2025.05.29", img: "/images/sample3.png" },
-    ],
-    데이터베이스팀: [
-      { type: "folder", name: "DB 설계서", images: [
-        { name: "샘플4", img: "/images/sample4.png" },
-      ] },
-      { type: "image", name: "ERD-001", date: "2025.05.29", img: "/images/sample4.png" },
-    ],
+    법무팀: [],
+    디자인팀: [],
+    인사팀: [],
+    기획팀: [],
   });
 
-  // ✅ DataUpload에서 넘어온 이미지가 있으면 folderData에 추가
-  
+  // DataUpload에서 넘어온 이미지 추가
   useEffect(() => {
-  if (newImage) {
-    setFolderData((prev) => {
-      const exists = prev[newImage.team].some(item => item.img === newImage.img);
-      if (exists) return prev; // 이미 추가되어 있으면 그대로
-      return {
-        ...prev,
-        [newImage.team]: [
-          ...prev[newImage.team],
-          {
-            type: "image",
-            name: newImage.name,
-            date: new Date().toISOString().split("T")[0],
-            img: newImage.img,
-          },
-        ],
-      };
-    });
-    setSelectedTeam(newImage.team);
-    navigate(location.pathname, { replace: true, state: {} });
-  }
-}, [newImage, navigate, location.pathname]);
-  
+    if (newImage) {
+      setFolderData((prev) => {
+        const exists = prev[newImage.team]?.some(item => item.img === newImage.img);
+        if (exists) return prev;
+        return {
+          ...prev,
+          [newImage.team]: [
+            ...(prev[newImage.team] || []),
+            {
+              type: "image",
+              name: newImage.name,
+              date: new Date().toISOString().split("T")[0],
+              img: newImage.img,
+            },
+          ],
+        };
+      });
+      setSelectedTeam(newImage.team);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [newImage, navigate, location.pathname]);
 
   // 폴더 생성
   const handleCreateFolder = () => {
@@ -68,7 +53,7 @@ const Project = () => {
     if (!folderName) return;
     setFolderData((prev) => ({
       ...prev,
-      [selectedTeam]: [...prev[selectedTeam], { type: "folder", name: folderName, images: [] }],
+      [selectedTeam]: [...(prev[selectedTeam] || []), { type: "folder", name: folderName, images: [] }],
     }));
   };
 
@@ -99,7 +84,7 @@ const Project = () => {
   };
 
   // 검색 필터
-  const filteredFiles = folderData[selectedTeam].filter((item) => {
+  const filteredFiles = (folderData[selectedTeam] || []).filter((item) => {
     if (item.type === "folder") return true;
     return item.name.toLowerCase().includes(searchTerm.toLowerCase());
   });
@@ -110,22 +95,15 @@ const Project = () => {
       <div className="folder-sidebar">
         <h3>부서별 폴더</h3>
         <ul className="folder-list">
-          <li className="team">📁 법무팀</li>
-          <li className="team open">
-            📂 SW 개발팀
-            <ul className="sub-folder">
-              {Object.keys(folderData).map((team) => (
-                <li
-                  key={team}
-                  className={selectedTeam === team ? "active" : ""}
-                  onClick={() => setSelectedTeam(team)}
-                >
-                  {team}
-                </li>
-              ))}
-            </ul>
-          </li>
-          <li className="team">📁 디자인팀</li>
+          {["법무팀", "SW 개발팀", "디자인팀", "인사팀", "기획팀"].map((team) => (
+            <li
+              key={team}
+              className={`team ${selectedTeam === team ? "active" : ""}`}
+              onClick={() => setSelectedTeam(team)}
+            >
+              📁 {team}
+            </li>
+          ))}
         </ul>
 
         <button className="trash-btn">
@@ -143,7 +121,7 @@ const Project = () => {
         </div>
 
         <div className="path-search">
-          <div className="current-path">SW 개발팀 &gt; {selectedTeam}</div>
+          <div className="current-path">{selectedTeam}</div>
           <div className="search-bar">
             <input
               type="text"

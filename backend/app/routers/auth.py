@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Header
 from fastapi import Depends
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm, HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
 
 from app.db.schemas import UserCreate, UserLogin
@@ -8,17 +8,28 @@ from app.core.supabase_client import supabase, supabase_admin
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-def get_current_user(authorization: Optional[str] = Header(None)):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="토큰이 없습니다.")
+security = HTTPBearer()
+
+# ★ [수정 2] 토큰 검증 함수 변경 (Header -> Depends(security))
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """
+    Swagger UI의 'Authorize' 버튼을 활성화하고, 
+    입력된 토큰을 자동으로 파싱해서 검증합니다.
+    """
     try:
-        token = authorization.split(" ")[1]
+        # HTTPBearer가 자동으로 "Bearer "를 떼고 토큰만 줍니다.
+        token = credentials.credentials 
+        
         user = supabase.auth.get_user(token)
         if not user:
             raise HTTPException(status_code=401, detail="유효하지 않은 토큰")
         return user.user
     except Exception:
-        raise HTTPException(status_code=401, detail="인증 실패")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="인증 실패",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     
 # --- 부서 목록 조회 ---
 @router.get("/departments")

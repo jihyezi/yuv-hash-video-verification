@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./DataUpload.css";
 import axiosInstance from "../api";
+import uploadIcon from "../img/upload_.svg";
 
 export default function DataUpload() {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [selectedTeam, setSelectedTeam] = useState("프론트엔드팀");
+
+  // 로그인 시 받아온 사용자 부서 (예시)
+  const userTeam = "프론트엔드팀";
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -17,10 +20,7 @@ export default function DataUpload() {
     }
   };
 
-  // 실제 업로드 함수
   const uploadImage = async () => {
-    console.log("--- 업로드 함수 실행됨 ---");
-
     if (!file) {
       alert("파일을 선택해주세요.");
       return;
@@ -28,27 +28,25 @@ export default function DataUpload() {
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("team", userTeam); // ← 팀 정보 추가
 
     try {
       const response = await axiosInstance.post(
         "http://localhost:8000/gallery/upload",
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
       console.log("업로드 성공:", response.data);
 
-      // 업로드 성공 후 Project 페이지로 이동
       navigate("/project", {
         state: {
           newImage: {
             name: file.name,
             img: previewUrl,
-            team: selectedTeam,
+            team: userTeam,
           },
         },
       });
@@ -80,8 +78,9 @@ export default function DataUpload() {
                 onChange={handleFileChange}
                 className="file-input"
               />
+
               <div className="drop-content">
-                <img src="/img/upload_.svg" alt="업로드" className="upload-icon" />
+                <img src={uploadIcon} alt="업로드" className="upload-icon" />
                 <p>
                   이미지 파일을 선택<br />
                   또는 파일을 여기로 끌어 놓으세요
@@ -93,18 +92,6 @@ export default function DataUpload() {
               <img src={previewUrl} alt="미리보기" className="drop-preview" />
             </div>
           )}
-
-          <div className="team-select">
-            <label>폴더 선택: </label>
-            <select
-              value={selectedTeam}
-              onChange={(e) => setSelectedTeam(e.target.value)}
-            >
-              <option value="프론트엔드팀">프론트엔드팀</option>
-              <option value="백엔드팀">백엔드팀</option>
-              <option value="데이터베이스팀">데이터베이스팀</option>
-            </select>
-          </div>
 
           <div className="button-container">
             {previewUrl && (
