@@ -27,6 +27,7 @@ export default function Login({ onLogin }) {
       localStorage.setItem("user_id", user_info.id);
       localStorage.setItem("username", user_info.username);
       localStorage.setItem("email", user_info.email);
+      localStorage.setItem("department", user_info.department || "");
 
       onLogin(user_info);
 

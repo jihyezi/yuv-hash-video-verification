@@ -1,13 +1,11 @@
 import apiClient from "./axiosConfig";
 
-// --- 1. 인증 (Auth) ---
-
-// 회원가입 (JSON 전송)
+// --- 1. 회원가입 (Auth) ---
 // export const signupAPI = (userData) => {
 //   return apiClient.post("/auth/signup", userData);
 // };
 
-// 로그인 (Form Data 전송 - FastAPI 요구사항)
+// --- 2. 로그인 (Login) ---
 export const loginAPI = (email, password) => {
     const formData = new URLSearchParams();
     formData.append("username", email);
@@ -18,4 +16,12 @@ export const loginAPI = (email, password) => {
     });
 };
 
-// --- 2. 이미지 관련 (Images/Verify) ---
+// --- 3. 이미지 등록 (Images) ---
+export const uploadImageAPI = (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return apiClient.post("/gallery/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+};

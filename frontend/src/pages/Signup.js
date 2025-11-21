@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../supabaseClient"; 
 import "./Login.css"; // 로그인과 동일한 스타일 사용 가능
 
 export default function Signup() {

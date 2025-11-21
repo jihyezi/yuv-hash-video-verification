@@ -52,13 +52,18 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
         user_id = session.user.id
         user_email = session.user.email
 
-        user_data = supabase.table("user").select("username").eq("id", user_id).execute()
+        user_data = supabase.table("user").select("username, department").eq("id", user_id).execute()
 
         username =""
+        department = ""
+
         if user_data.data and len(user_data.data) > 0:
-            username = user_data.data[0]['username']
+            data = user_data.data[0]
+            username = data['username']
+            department = data.get('department') or "미지정"
         else: 
             username = session.user.email.split("@")[0]
+            department = "미지정"
 
         return {
             "access_token": session.session.access_token,
@@ -67,7 +72,8 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
             "user_info": {
                 "id": user_id,            # UUID
                 "email": user_email,      # 이메일
-                "username": username # 유저 이름
+                "username": username,     # 유저 이름
+                "department": department
             }
         }
     except Exception as e:
