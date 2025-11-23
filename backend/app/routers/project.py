@@ -16,9 +16,6 @@ STORAGE_BUCKET_NAME = "Gallery"
 def get_project_images(
     current_user = Depends(get_current_user) 
 ):
-    """
-    내 부서(Department)에 올라온 이미지 목록을 조회합니다.
-    """
     try:
         user_id = current_user.id 
         
