@@ -1,10 +1,11 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, status
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, status, Depends
 import os
 import shutil
 import uuid
 from app.core.supabase_client import supabase
 from security.au import generate_user_secret_key
 from security.verify_logic import verify_image
+from app.routers.auth import get_current_user 
 
 router = APIRouter(prefix="/verify", tags=["Verify"])
 
@@ -18,12 +19,13 @@ os.makedirs(TEMP_DIR, exist_ok=True)
 @router.post("/detect")
 async def detect_forgery(
     file: UploadFile = File(...),      # 검증할 파일
-    original_file_id: str = Form(...)  # 비교 대상인 원본 ID
+    original_file_id: str = Form(...),  # 비교 대상인 원본 ID
+    current_user = Depends(get_current_user) 
 ):
     
+    user_id = current_user.id
     # 임시 파일명 생성 (충돌 방지용 UUID 사용)
     request_uuid = str(uuid.uuid4())
-
     temp_original_path = None
     temp_suspect_path = None
     
@@ -82,8 +84,22 @@ async def detect_forgery(
         dept_arg = str(owner_dept_id) if owner_dept_id else "unknown"
         secret_key = generate_user_secret_key(owner_user_id, dept_arg, SYSTEM_PEPPER)
 
-        # --- [Step 5] 검증 로직 실행 ---
+        # --- [5] 검증 로직 실행 ---
         is_authentic, message = verify_image(temp_original_path, temp_suspect_path, secret_key)
+
+        try:
+            supabase.table("api_calls").insert({
+                "user_id": user_id,
+                "type": "verify" 
+            }).execute()
+
+            supabase.table("verification_logs").insert({
+                "user_id": user_id,
+                "file_name": file.filename,
+                "is_authentic": is_authentic # 여기서 False면 대시보드 숫자가 +1 됨
+            }).execute()
+        except Exception:
+            pass
 
         return {
             "status": "success",
