@@ -9,9 +9,8 @@ from security.hash import generate_chroma_hash, save_image_with_hash
 
 pillow_heif.register_heif_opener()
 
-# -----------------------------------------------------------------
+
 # (1) 메타데이터에서 해시 읽기
-# -----------------------------------------------------------------
 def read_hash_from_metadata(image_path):
     try:
         img = Image.open(image_path)
@@ -36,9 +35,7 @@ def read_hash_from_metadata(image_path):
         print(f"메타데이터 읽기 중 오류 발생 ({os.path.basename(image_path)}): {e}")
         return None
 
-# -----------------------------------------------------------------
 # (2) 두 이미지 비교 및 검증
-# -----------------------------------------------------------------
 def verify_image(original_image_path, uploaded_image_path, secret_key):
     print(f"\n--- 🔎 이미지 검증 시작 ---")
     print(f"  [DB 원본]: {os.path.basename(original_image_path)}")
