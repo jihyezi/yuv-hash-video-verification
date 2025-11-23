@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 import { loginAPI } from "../api/api";
 
 export default function Login({ onLogin }) {
+  const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
 
   const handleChange = (e) => {
@@ -23,13 +24,18 @@ export default function Login({ onLogin }) {
 
       const { access_token, user_info } = response.data;
 
-      localStorage.setItem("access_token", access_token);
+      // 1️⃣ 로그인 토큰과 유저 정보를 로컬스토리지에 저장
+      localStorage.setItem("token", access_token);
       localStorage.setItem("user_id", user_info.id);
       localStorage.setItem("username", user_info.username);
       localStorage.setItem("email", user_info.email);
       localStorage.setItem("department", user_info.department || "");
 
+      // 2️⃣ 로그인 후 유저 상태 전달
       onLogin(user_info);
+
+      // 3️⃣ 로그인 성공 후 데이터 등록 페이지로 이동
+      navigate("/data-upload");
 
     } catch (error) {
       console.error("로그인 에러:", error);
