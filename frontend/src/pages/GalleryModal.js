@@ -1,37 +1,51 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./GalleryModal.css";
+import { getDepartmentGalleryAPI } from "../api/api";
 
 export default function GalleryModal({ isOpen, onClose, onSelect }) {
+  const [images, setImages] = useState([]);
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const res = await getDepartmentGalleryAPI();
+        console.log("갤러리 API 응답:", res.data); // ← 여기 확인
+  
+        const imgs = (res.data.images || res.data || []).map(img => ({
+          ...img,
+          full_url: img.full_url || img.image_url
+        }));
+        setImages(imgs);
+      } catch (err) {
+        console.error("갤러리 로드 실패:", err);
+      }
+    };
+  
+    if (isOpen) fetchImages();
+  }, [isOpen]);
+  
+ 
   if (!isOpen) return null;
-
-  const images = [
-    "/img/sample1.jpg",
-    "/img/sample2.jpg",
-    "/img/sample3.jpg",
-    "/img/sample4.jpg",
-  ];
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
         <h2>사진 선택</h2>
         <div className="gallery-grid">
-          {images.map((img, idx) => (
+          {images.length === 0 && <p>이미지를 불러오는 중입니다...</p>}
+          {images.map(img => (
             <img
-              key={idx}
-              src={img}
-              alt={`gallery-${idx}`}
+              key={img.id}
+              src={img.full_url}
+              alt={img.name}
               className="gallery-item"
               onClick={() => {
-                onSelect(img);  // 부모에 선택 전달
-                onClose();      // 모달 닫기
+                onSelect(img);
+                onClose();
               }}
             />
           ))}
         </div>
-        <button className="close-btn" onClick={onClose}>
-          닫기
-        </button>
+        <button className="close-btn" onClick={onClose}>닫기</button>
       </div>
     </div>
   );

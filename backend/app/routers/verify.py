@@ -121,3 +121,22 @@ async def detect_forgery(
             os.remove(temp_original_path)
         if temp_suspect_path and os.path.exists(temp_suspect_path):
             os.remove(temp_suspect_path)
+
+
+@router.get("/list")
+async def get_department_gallery_list(current_user=Depends(get_current_user)):
+    try:
+        # 기존 users → user 테이블로 변경
+        user_response = supabase.table("user").select("department_id").eq("id", current_user.id).single().execute()
+        
+        if user_response.data is None:
+            return {"error": "department_id를 찾을 수 없음"}
+        
+        department_id = user_response.data["department_id"]
+
+        # 여기서 department_id로 갤러리 리스트 조회
+        gallery_response = supabase.table("gallery").select("*").eq("department_id", department_id).execute()
+        return gallery_response.data
+
+    except Exception as e:
+        return {"error": str(e)}

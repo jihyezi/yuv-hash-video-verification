@@ -1,34 +1,30 @@
 // src/pages/Stats.js
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 import "./Stats.css";
 
 export default function Stats() {
-  const logs = [
-    {
-      time: "2025-01-14 09:12",
-      user: "홍길동(마케팅팀)",
-      type: "파일 업로드",
-      file: "test_v1_factory.png",
-      status: "정상",
-      ip: "10.24.76.8",
-    },
-    {
-      time: "2025-01-14 09:07",
-      user: "관리자",
-      type: "파일 검증",
-      file: "final_image.png",
-      status: "위조 의심",
-      ip: "10.12.33",
-    },
-    {
-      time: "2025-01-14 08:55",
-      user: "김민수(디자인팀)",
-      type: "파일 업로드",
-      file: "draft_mockup.png",
-      status: "정상",
-      ip: "192.168.1",
-    },
-  ];
+  const [logs, setLogs] = useState([]);
+
+  useEffect(() => {
+    const socket = new SockJS("http://localhost:8080/ws/logs");
+    const client = new Client({
+      webSocketFactory: () => socket,
+      reconnectDelay: 5000,
+      onConnect: () => {
+        console.log("WebSocket connected");
+
+        client.subscribe("/topic/logs", (msg) => {
+          const log = JSON.parse(msg.body);
+          setLogs((prev) => [log, ...prev]);
+        });
+      },
+    });
+
+    client.activate();
+    return () => client.deactivate();
+  }, []);
 
   return (
     <div className="stats-container">
@@ -49,10 +45,10 @@ export default function Stats() {
           <tbody>
             {logs.map((log, index) => (
               <tr key={index}>
-                <td>{log.time}</td>
+                <td>{log.timestamp}</td>
                 <td>{log.user}</td>
-                <td>{log.type}</td>
-                <td>{log.file}</td>
+                <td>{log.actionType}</td>
+                <td>{log.image}</td>
                 <td>
                   <span
                     className={
