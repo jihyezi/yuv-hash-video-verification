@@ -38,6 +38,7 @@ export const getUserCount = () => {
 // --- 3. 이미지 관련 (Images/Verify) ---
 
 
+
 // --- 3. 부서 목록 조회 (Departments) ---
 export const getDepartmentsAPI = () => {
     return apiClient.get("/auth/departments");

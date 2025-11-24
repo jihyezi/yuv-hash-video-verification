@@ -106,12 +106,11 @@ async def upload_original_image(
 
         db_response = supabase.table("gallery").insert(db_data).execute()
 
-        # 7️⃣ API 호출 기록
         supabase.table("api_calls").insert({
             "user_id": user_id,
             "type": "upload"
         }).execute()
-
+        
         return {
             "message": "파일 업로드 및 해시 저장 성공",
             "file_data": db_response.data[0]

@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-import "./Settings.css"
+import './Settings.css'; // 외부 CSS 파일 import
 
-// 초기 팀원 데이터 (기존과 동일)
+// 초기 팀원 데이터
 const initialTeamMembers = [
   { id: 3, email: 'fakerisoverlucia@example.com', team: '경영팀', role: 'Admin' },
   { id: 4, email: 'poletrowing63@example.com', team: '변화대응팀', role: 'User' },
   { id: 5, email: 'legal_team@example.com', team: '법무팀', role: 'User' },
 ];
 
-// --- 💡 새로운 컴포넌트 1: 역할 기반 권한 설정 (사용자 관리 탭) ---
+// --- 역할 기반 권한 설정 컴포넌트 (사용자 관리 탭 내용) ---
 const RoleBasedPermissions = () => {
-    // 실제 데이터는 API에서 가져오거나 전역 상태 관리 (Redux, Context API 등)를 통해 관리
     const [roles, setRoles] = useState([
         { id: 'admin', name: 'Admin', userManagement: true, contentManagement: true, settingsAccess: true, auditLog: true },
         { id: 'institution', name: 'Institution', userManagement: false, contentManagement: true, settingsAccess: false, auditLog: false },
@@ -80,22 +79,26 @@ const RoleBasedPermissions = () => {
     );
 };
 
-// --- 💡 새로운 컴포넌트 2: 부서 권한 설정 (부서 권한 탭) ---
+// --- 부서 권한 설정 컴포넌트 (부서 권한 탭 내용) ---
 const DepartmentPermissions = () => {
-    // 실제 데이터는 API에서 가져오거나 전역 상태 관리를 통해 관리
     const [departments, setDepartments] = useState([
-        { id: 'management', name: 'Management', type: '경영팀', defaultPermissions: true },
-        { id: 'accounting', name: 'Accounting', type: '회계팀', defaultPermissions: false },
-        { id: 'legal', name: 'Legal', type: '법무팀', defaultPermissions: true },
-        { id: 'fieldResponse', name: 'Field Response', type: '현장대응팀', defaultPermissions: false },
+      { id: 'legal', name: 'Legal', type: '법무팀', autoVerify: true, apiAccess: true },
+      { id: 'swDev', name: 'SW 개발팀', type: 'SW개발팀', autoVerify: true, apiAccess: true },
+      { id: 'design', name: 'Design', type: '디자인팀', autoVerify: false, apiAccess: false },
+      { id: 'hr', name: 'HR', type: '인사팀', autoVerify: true, apiAccess: true },
+      { id: 'planning', name: 'Planning', type: '기획팀', autoVerify: false, apiAccess: false },
     ]);
 
-    const handlePermissionChange = (deptId) => {
-        setDepartments(prevDepts => prevDepts.map(dept =>
-            dept.id === deptId
-                ? { ...dept, defaultPermissions: !dept.defaultPermissions }
-                : dept
-        ));
+    const handleAutoVerifyChange = (deptId) => {
+        setDepartments(prev =>
+            prev.map(d => d.id === deptId ? { ...d, autoVerify: !d.autoVerify } : d)
+        );
+    };
+
+    const handleApiAccessChange = (deptId) => {
+        setDepartments(prev =>
+            prev.map(d => d.id === deptId ? { ...d, apiAccess: !d.apiAccess } : d)
+        );
     };
 
     return (
@@ -119,15 +122,15 @@ const DepartmentPermissions = () => {
                                 <td className="checkbox-cell">
                                     <input 
                                         type="checkbox" 
-                                        checked={dept.defaultPermissions} 
-                                        onChange={() => handlePermissionChange(dept.id)} 
+                                        checked={dept.autoVerify} 
+                                        onChange={() => handleAutoVerifyChange(dept.id)} 
                                     />
                                 </td>
                                 <td className="checkbox-cell">
-                                <input 
+                                    <input 
                                         type="checkbox" 
-                                        checked={dept.defaultPermissions} 
-                                        onChange={() => handlePermissionChange(dept.id)} 
+                                        checked={dept.apiAccess} 
+                                        onChange={() => handleApiAccessChange(dept.id)} 
                                     />
                                 </td>
                             </tr>
@@ -140,7 +143,7 @@ const DepartmentPermissions = () => {
 };
 
 
-// --- Settings 메인 컴포넌트 (기존과 유사하나 TabPanel 내부 변경) ---
+// --- Settings 메인 컴포넌트 ---
 const Settings = () => {
   const [tabValue, setTabValue] = useState('팀원 관리');
   const [teamMembers, setTeamMembers] = useState(initialTeamMembers);
@@ -152,19 +155,17 @@ const Settings = () => {
   
   const [newMember, setNewMember] = useState({
     email: '',
-    team: '경영', // '경영팀' 대신 '경영'으로 변경하여 select option 값과 일치
+    team: '경영', 
     role: 'User',
   });
 
   const handleInvite = () => {
-    console.log('초대 클릭됨:', newMember);
     const newId = Date.now();
-    // '경영'을 '경영팀'으로 다시 조합
     setTeamMembers([...teamMembers, { id: newId, ...newMember, team: `${newMember.team}팀` }]); 
     setNewMember({ email: '', team: '경영', role: 'User' });
   };
   
-  const departmentOptions = ['모든 부서', '경영', '법무'];
+  const departmentOptions = ['모든 부서', '경영', '변화대응', '법무'];
   
   const filteredMembers = teamMembers.filter(member => 
     selectedDepartment === '모든 부서' || member.team.includes(selectedDepartment)
@@ -192,7 +193,7 @@ const Settings = () => {
         ))}
       </div>
       
-      {/* 팀원 관리 탭 패널 (기존과 동일) */}
+      {/* 팀원 관리 탭 패널 */}
       <TabPanel tabName="팀원 관리">
         <h3 style={{ margin: '15px 0' }}>새 팀원 초대</h3>
         <div className="invite-form-container">
@@ -208,9 +209,11 @@ const Settings = () => {
             onChange={(e) => setNewMember({...newMember, team: e.target.value})}
             className="select-field"
           >
-            <option value="경영">부서 (팀) 배정: 경영팀</option>
-            <option value="변화대응">부서 (팀) 배정: 변화대응팀</option>
             <option value="법무">부서 (팀) 배정: 법무팀</option>
+            <option value="sw개발">부서 (팀) 배정: sw개발팀</option>
+            <option value="디자인">부서 (팀) 배정: 디자인팀</option>
+            <option value="인사">부서 (팀) 배정: 인사팀</option>
+            <option value="기획">부서 (팀) 배정: 기획팀</option>
           </select>
           <select 
             value={newMember.role} 
@@ -264,20 +267,22 @@ const Settings = () => {
                     {member.email}
                     {member.email === 'fakerisoverlucia@example.com' && <span style={{ marginLeft: '5px', color: 'gray', fontSize: '12px' }}>(본인)</span>}
                   </td>
-                  <td>
+                  <td className="table-center-cell">
                     <select value={member.team} className="select-inline">
-                        <option value="경영팀">경영팀</option>
-                        <option value="변화대응팀">변화대응팀</option>
-                        <option value="법무팀">법무팀</option>
+                        <option value="경영팀">법무팀</option>
+                        <option value="sw개발팀">sw개발팀</option>
+                        <option value="디자인팀">디자인팀</option>
+                        <option value="인사팀">인사팀</option>
+                        <option value="기획팀">기획팀</option>
                     </select>
                   </td>
-                  <td>
+                  <td className="table-center-cell">
                     <select value={member.role} className="select-inline">
                         <option value="Admin">Admin</option>
                         <option value="User">User</option>
                     </select>
                   </td>
-                  <td>
+                  <td className="table-center-cell">
                     {member.email !== 'fakerisoverlucia@example.com' ? (
                       <button 
                         className="delete-button"
@@ -297,12 +302,12 @@ const Settings = () => {
 
       </TabPanel>
 
-      {/* 💡 사용자 관리 탭 패널 (새로운 컴포넌트 렌더링) */}
+      {/* 사용자 관리 탭 패널 */}
       <TabPanel tabName="사용자 관리">
         <RoleBasedPermissions />
       </TabPanel>
 
-      {/* 💡 부서 권한 탭 패널 (새로운 컴포넌트 렌더링) */}
+      {/* 부서 권한 탭 패널 */}
       <TabPanel tabName="부서 권한">
         <DepartmentPermissions />
       </TabPanel>
