@@ -1,8 +1,12 @@
-from dotenv import load_dotenv # 💡 환경변수 로딩 추가
-load_dotenv() # .env 파일 로드
+from dotenv import load_dotenv
+load_dotenv() 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+<<<<<<< HEAD
 from app.routers import auth,images, verify, project, dashboard
+=======
+from app.routers import auth,images, verify, project,origincert, verifyresult
+>>>>>>> seoyun
 import logging
 
 
@@ -39,6 +43,8 @@ app.include_router(images.router)
 app.include_router(verify.router)
 app.include_router(project.router)
 app.include_router(dashboard.router)
+app.include_router(origincert.router)
+app.include_router(verifyresult.router) 
 
 
 
