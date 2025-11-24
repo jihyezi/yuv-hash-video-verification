@@ -106,7 +106,16 @@ export default function Project() {
           <button>폴더생성</button>
           <button
             onClick={() =>
-              navigate("/detect", { state: { quickImage: selectedImage } })
+               navigate("/detect", {
+                 state: {
+                 quickImage: {
+                 id: selectedImage.id,
+                url: selectedImage.url
+                 }
+                    }
+                   }) /*11.24 17:41 hr 수정*/ 
+
+
             }
           >
             빠른 검증
@@ -145,7 +154,12 @@ export default function Project() {
                 className={`file-card ${
                   selectedImage?.id === img.id ? "selected" : ""
                 }`}
-                onClick={() => setSelectedImage(img)}
+                onClick={() => setSelectedImage({  /*11.24 hr수정*/
+                  id: img.id,
+                  url:img.full_url,
+                  title: img.title
+                })
+              }
               >
                 <img src={img.full_url} alt={img.title} />
                 <p>{img.title}</p>
