@@ -3,12 +3,12 @@ from typing import Optional
 import datetime
 
 # --- auth ---
-
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
     username: str
-    department_id: Optional[str] = None   # 부서 UUID
+    department_id: Optional[str] = None
+
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -22,6 +22,10 @@ class UserDisplay(BaseModel):
     department_id: Optional[str] = None
     created_at: datetime.datetime
     updated_at: Optional[datetime.datetime] = None
+
+    model_config = {
+        "from_attributes": True
+    }
 
 
 # --- gallery ---
@@ -39,5 +43,6 @@ class GalleryDisplay(BaseModel):
     user_id: str
     department_id: Optional[str] = None
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True  # ❗ pydantic v2 호환 설정
+    }

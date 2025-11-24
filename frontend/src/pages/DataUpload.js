@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import apiClient from "../api/axiosConfig";
+import uploadIcon from "../img/upload_.svg";
 import "./DataUpload.css";
-import uploadIcon from "../img/upload_.svg"; // 이미지 경로 확인 필요
-import { uploadImageAPI } from "../api/api"; // ★ 우리가 만든 API 함수 사용
+import { uploadImageAPI } from "../api/api";
+
 
 export default function DataUpload() {
   const navigate = useNavigate();
@@ -78,7 +80,7 @@ export default function DataUpload() {
       <main className="upload-page">
         <h1 className="upload-title">데이터 등록</h1>
         <p className="upload-subtitle">
-          진위 검증을 위해 원본 영상을 안전하게 등록하고 보관하세요.
+          진위 검증을 위해 원본 영상을 안전하게 등록하세요.
         </p>
 
         <div className="upload-box">
@@ -86,16 +88,13 @@ export default function DataUpload() {
             <label className="drop-zone">
               <input
                 type="file"
-                accept="image/*, video/*"
+                accept="image/*"
                 onChange={handleFileChange}
                 className="file-input"
               />
               <div className="drop-content">
                 <img src={uploadIcon} alt="업로드" className="upload-icon" />
-                <p>
-                  이미지 파일을 선택<br />
-                  또는 파일을 여기로 끌어 놓으세요
-                </p>
+                <p>이미지 파일을 선택하거나<br />여기로 끌어오세요.</p>
               </div>
             </label>
           ) : (
