@@ -102,6 +102,11 @@ async def upload_original_image(
         }
         
         db_response = supabase.table("gallery").insert(db_data).execute()
+
+        supabase.table("api_calls").insert({
+            "user_id": user_id,
+            "type": "upload"
+        }).execute()
         
         return {
             "message": "성공",
