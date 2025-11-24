@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import apiClient from "../api/axiosConfig";   // ★ 검증 API 호출용
 import GalleryModal from "./GalleryModal";
+import uploadIcon from "../img/upload_.svg";
 import "./Detect.css";
+
 
 export default function Detect() {
   const location = useLocation();
@@ -115,7 +117,8 @@ export default function Detect() {
                 className="file-input"
               />
               <div className="drop-content">
-                <img src="/img/upload_.svg" alt="업로드" className="upload-icon" />
+              <img src={uploadIcon} alt="업로드" className="upload-icon" />
+
                 <p>원본 이미지를 선택하거나<br/>파일을 이곳에 끌어 놓으세요</p>
               </div>
             </label>
@@ -151,8 +154,9 @@ export default function Detect() {
                 className="file-input"
               />
               <div className="drop-content">
-                <img src="/img/upload_.svg" alt="업로드" className="upload-icon" />
-                <p>의심 이미지를 선택하거나<br />파일을 이곳에 끌어 놓으세요</p>
+              <img src={uploadIcon} alt="업로드" className="upload-icon" />
+
+              <p>의심 이미지를 선택하거나<br />파일을 이곳에 끌어 놓으세요</p>
               </div>
             </label>
           )}

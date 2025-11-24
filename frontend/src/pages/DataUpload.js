@@ -105,25 +105,6 @@ export default function DataUpload() {
             </div>
           )}
 
-          <div className="team-select" style={{ marginTop: "20px" }}>
-            <label>업로드 폴더 (자동 지정): </label>
-            <input
-              type="text"
-              value={myDepartment}
-              readOnly
-              className="dept-input"
-              style={{
-                width: "100%",
-                padding: "10px",
-                backgroundColor: "#f0f0f0",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-                color: "#555",
-                fontWeight: "bold",
-                marginTop: "5px"
-              }}
-            />
-          </div>
 
           <div className="button-container">
             {previewUrl && (
