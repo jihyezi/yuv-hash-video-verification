@@ -1,66 +1,131 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException
 from typing import Optional, Dict, Any, List
 import os
 
 # Supabase 클라이언트
 from app.core.supabase_client import supabase
-# Auth에서 유저 확인 함수 가져오기
-from app.routers.auth import get_current_user 
+# 인증된 사용자 정보 가져오기
+from app.routers.auth import get_current_user
 
 router = APIRouter(prefix="/project", tags=["Project"])
 
-SUPABASE_URL = os.getenv("SUPABASE_URL") 
+SUPABASE_URL = os.getenv("SUPABASE_URL")
 STORAGE_BUCKET_NAME = "Gallery"
+
 
 @router.get("/list")
 def get_project_images(
-    current_user = Depends(get_current_user) 
+    department_id: Optional[str] = None,
+    current_user=Depends(get_current_user)
 ):
+    """
+    📌 특정 부서(department_id)의 이미지를 불러오는 API
+    - department_id가 전달되면 해당 부서 이미지 조회
+    - 전달되지 않으면 로그인한 유저의 부서 기준 조회
+    """
+
     try:
-        user_id = current_user.id 
-        
-        # ▼ [확인용 로그 1] 요청한 사람 확인
-        print(f"\n========== [프로젝트 이미지 조회 시작] ==========")
-        print(f"1. 요청자 ID: {user_id}")
+        user_id = current_user.id
+        print("\n========== [프로젝트 이미지 조회 시작] ==========")
+        print(f"1. 요청자 사용자 ID: {user_id}")
 
-        # 1. 내 부서 ID 찾기
-        user_data = supabase.table("user").select("department_id").eq("id", user_id).execute()
-        
-        if not user_data.data or not user_data.data[0].get('department_id'):
-            print("🚨 [주의] 이 유저는 department_id가 없습니다.")
-            return []
+        # 1) department_id가 없으면 로그인 유저의 부서 사용
+        if not department_id:
+            user_data = (
+                supabase.table("user")
+                .select("department_id")
+                .eq("id", user_id)
+                .execute()
+            )
 
-        my_dept_id = user_data.data[0]['department_id']
-        
-        # ▼ [확인용 로그 2] 부서 ID 확인
-        print(f"2. 조회된 부서 ID: {my_dept_id}")
+            if not user_data.data or not user_data.data[0].get("department_id"):
+                print("🚨 이 유저는 department_id가 없습니다.")
+                return []
 
-        # 2. 내 부서의 사진들만 조회
-        response = supabase.table("gallery")\
-            .select("*")\
-            .eq("department_id", my_dept_id)\
-            .order("created_at", desc=True)\
+            department_id = user_data.data[0]["department_id"]
+
+        print(f"2. 조회할 부서 ID: {department_id}")
+
+        # 2) 부서별 이미지 조회
+        response = (
+            supabase.table("gallery")
+            .select("*")
+            .eq("department_id", department_id)
+            .order("created_at", desc=True)
             .execute()
-        
-        images = response.data
-        
-        # ▼ [확인용 로그 3] 가져온 이미지 개수 확인
-        print(f"3. DB에서 찾은 이미지 개수: {len(images)}개")
+        )
 
-        # 3. 이미지 URL 완성하기
+        images = response.data
+        print(f"3. 조회된 이미지 개수: {len(images)}개")
+
+        # 3) Storage URL 변환
         for img in images:
-            path = img['image_url']
+            path = img["image_url"]
             full_url = f"{SUPABASE_URL}/storage/v1/object/public/{STORAGE_BUCKET_NAME}/{path}"
-            img['full_url'] = full_url 
-            
-        # ▼ [확인용 로그 4] 첫 번째 이미지 URL 확인 (잘 만들어졌나?)
-        if len(images) > 0:
+            img["full_url"] = full_url
+
+        if images:
             print(f"4. 첫 번째 이미지 URL 예시: {images[0]['full_url']}")
-            
-        print(f"=============================================\n")
+
+        print("=============================================\n")
 
         return images
 
     except Exception as e:
-        print(f"🔥 이미지 조회 에러 발생: {e}")
-        raise HTTPException(status_code=500, detail="이미지 목록을 불러오지 못했습니다.")
+        print("🔥 이미지 조회 오류:", e)
+        raise HTTPException(status_code=500, detail="이미지 목록 불러오기 실패")
+
+@router.delete("/delete")
+def delete_image(
+    image_id: str,
+    current_user=Depends(get_current_user)
+):
+    """
+    📌 이미지 삭제 API
+    - gallery 테이블에서 해당 row 삭제
+    - Supabase Storage에서도 파일 삭제
+    """
+
+    try:
+        print("\n========== [이미지 삭제 시작] ==========")
+        print(f"1. 요청한 사용자: {current_user.id}")
+        print(f"2. 삭제 요청한 이미지 ID: {image_id}")
+
+        # 1) gallery 테이블에서 이미지 정보 가져오기
+        image_data = (
+            supabase.table("gallery")
+            .select("*")
+            .eq("id", image_id)
+            .single()
+            .execute()
+        )
+
+        if not image_data.data:
+            raise HTTPException(status_code=404, detail="이미지를 찾을 수 없습니다.")
+
+        image_row = image_data.data
+        file_path = image_row["image_url"]  # 예: "법무팀/파일명.png"
+
+        print(f"3. 삭제할 Storage 파일 경로: {file_path}")
+
+        # 2) Supabase Storage 파일 삭제
+        storage_res = supabase.storage.from_(STORAGE_BUCKET_NAME).remove([file_path])
+
+        print("4. Storage 삭제 결과:", storage_res)
+
+        # 3) gallery 테이블에서 row 삭제
+        delete_res = (
+            supabase.table("gallery")
+            .delete()
+            .eq("id", image_id)
+            .execute()
+        )
+
+        print("5. DB 삭제 결과:", delete_res)
+        print("=====================================\n")
+
+        return {"message": "삭제 완료"}
+
+    except Exception as e:
+        print("🔥 삭제 중 오류:", e)
+        raise HTTPException(status_code=500, detail="이미지 삭제 실패")
