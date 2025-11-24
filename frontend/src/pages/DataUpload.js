@@ -1,16 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./DataUpload.css";
-import axiosInstance from "../api";
+import apiClient from "../api/axiosConfig";
 import uploadIcon from "../img/upload_.svg";
+import "./DataUpload.css";
 
 export default function DataUpload() {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-
-  // 로그인 시 받아온 사용자 부서 (예시)
-  const userTeam = "프론트엔드팀";
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -28,11 +25,10 @@ export default function DataUpload() {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("team", userTeam); // ← 팀 정보 추가
 
     try {
-      const response = await axiosInstance.post(
-        "http://localhost:8000/gallery/upload",
+      const response = await apiClient.post(
+        "/gallery/upload",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -40,16 +36,8 @@ export default function DataUpload() {
       );
 
       console.log("업로드 성공:", response.data);
+      navigate("/project");
 
-      navigate("/project", {
-        state: {
-          newImage: {
-            name: file.name,
-            img: previewUrl,
-            team: userTeam,
-          },
-        },
-      });
     } catch (error) {
       console.error("업로드 실패:", error);
       alert("업로드 중 오류가 발생했습니다.");
@@ -66,7 +54,7 @@ export default function DataUpload() {
       <main className="upload-page">
         <h1 className="upload-title">데이터 등록</h1>
         <p className="upload-subtitle">
-          진위 검증을 위해 원본 영상을 안전하게 등록하고 보관하세요.
+          진위 검증을 위해 원본 영상을 안전하게 등록하세요.
         </p>
 
         <div className="upload-box">
@@ -74,17 +62,14 @@ export default function DataUpload() {
             <label className="drop-zone">
               <input
                 type="file"
-                accept="image/*, video/*"
+                accept="image/*"
                 onChange={handleFileChange}
                 className="file-input"
               />
 
               <div className="drop-content">
                 <img src={uploadIcon} alt="업로드" className="upload-icon" />
-                <p>
-                  이미지 파일을 선택<br />
-                  또는 파일을 여기로 끌어 놓으세요
-                </p>
+                <p>이미지 파일을 선택하거나<br />여기로 끌어오세요.</p>
               </div>
             </label>
           ) : (
