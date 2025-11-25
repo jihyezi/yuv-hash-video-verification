@@ -28,43 +28,33 @@ async def upload_original_image(
     file: UploadFile = File(...),
     current_user = Depends(get_current_user) 
 ):
-    # 1. 유저 ID 및 이름 추출 (AttributeError 방지)
-    username_placeholder = "Unknown User"
-    
     if isinstance(current_user, dict):
-        user_id = current_user.get('id')
-        # 딕셔너리에서 username 추출 시도
-        username_placeholder = current_user.get('username', username_placeholder)
+        # 딕셔너리인 경우: 키 접근 사용
+        user_id = current_user.get("id")
     else:
-        # 객체에서 ID 및 username 추출 시도 (getattr 사용)
-        user_id = getattr(current_user, 'id', None)
-        username_placeholder = getattr(current_user, 'username', username_placeholder)
-
+        # 객체/모델인 경우: 속성 접근 사용 (Fallback)
+        user_id = current_user.id
+        
     if not user_id:
-        raise HTTPException(status_code=401, detail="유저 ID를 찾을 수 없습니다.")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="사용자 ID를 찾을 수 없습니다.")
     
     folder_name = "unassigned" 
     department_id = None
 
     # --- 2. [DB 조회] 부서 정보 가져오기 ---
     try:
-        user_res = supabase.table("user").select("department_id, username").eq("id", user_id).execute()
+        user_res = supabase.table("user").select("department_id").eq("id", user_id).execute()
         
-        if user_res.data and user_res.data[0]:
-            user_data = user_res.data[0]
+        if user_res.data and user_res.data[0].get('department_id'):
+            department_id = user_res.data[0]['department_id']
             
-            # 조회된 사용자 이름으로 갱신
-            username_placeholder = user_data.get('username', username_placeholder)
-            department_id = user_data.get('department_id')
+            dept_res = supabase.table("department").select("folder_name").eq("id", department_id).execute()
             
-            if department_id:
-                dept_res = supabase.table("department").select("folder_name").eq("id", department_id).execute()
-                
-                if dept_res.data and dept_res.data[0].get('folder_name'):
-                    folder_name = dept_res.data[0]['folder_name'] 
+            if dept_res.data and dept_res.data[0].get('folder_name'):
+                folder_name = dept_res.data[0]['folder_name'] 
 
     except Exception as e:
-        print(f"부서/사용자 정보 조회 실패: {e}")
+        print(f"부서 정보 조회 실패: {e}")
     
     # --- 3. 경로 설정 ---
     storage_prefix = f"originals/{folder_name}" 
@@ -78,13 +68,15 @@ async def upload_original_image(
             raise HTTPException(status_code=500, detail="HASHING_SECRET 설정 오류")
             
         with open(temp_original_path, "wb") as buffer:
-            # 파일을 임시 경로에 복사
             shutil.copyfileobj(file.file, buffer)
             
+        # ★ [수정된 부분] 인자를 3개 전달합니다! (user_id, department_id, pepper)
+        # 만약 department_id가 없으면 빈 문자열("")이라도 보내야 에러가 안 납니다.
         dept_arg = str(department_id) if department_id else "unknown"
+        
         user_secret_key = generate_user_secret_key(user_id, dept_arg, SYSTEM_PEPPER)
 
-        # 해시 생성 및 저장
+        # 해시 생성
         hash_value = generate_chroma_hash(temp_original_path, user_secret_key)
         
         if not hash_value:
@@ -118,23 +110,11 @@ async def upload_original_image(
         
         db_response = supabase.table("gallery").insert(db_data).execute()
 
-        # API 호출 로그 기록
         supabase.table("api_calls").insert({
             "user_id": user_id,
             "type": "upload"
         }).execute()
         
-        # 활동 로그 기록 (Activity Log)
-        supabase.table("activity_log").insert({
-            "user_id": user_id,
-            "username": username_placeholder,
-            "activity_type": "파일 등록",
-            "target_object": file.filename,
-            "status": "완료"
-        }).execute()
-        # -----------------------------------------------------------
-
-
         return {
             "message": "성공",
             "file_data": db_response.data[0]
@@ -147,7 +127,6 @@ async def upload_original_image(
         raise HTTPException(status_code=500, detail=f"오류 발생: {str(e)}")
     
     finally:
-        # 임시 파일 정리 (오류 발생 여부와 관계없이 실행)
         if os.path.exists(temp_original_path):
             os.remove(temp_original_path)
         if os.path.exists(temp_hashed_path):
