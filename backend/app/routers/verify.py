@@ -93,7 +93,7 @@ async def detect_forgery(
                 "type": "verify" 
             }).execute()
 
-            supabase.table("verification_logs").insert({
+            supabase.table("verification_log").insert({
                 "user_id": user_id,
                 "file_name": file.filename,
                 "is_authentic": is_authentic # 여기서 False면 대시보드 숫자가 +1 됨

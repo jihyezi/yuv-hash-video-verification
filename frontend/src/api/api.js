@@ -74,3 +74,7 @@ export const uploadImageAPI = (file) => {
 
     });
 };
+
+export const getDashboardStatsAPI = () => {
+    return apiClient.get("/dashboard/stats");
+};

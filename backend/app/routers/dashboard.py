@@ -20,7 +20,7 @@ def get_dashboard_stats():
 
         # 4. 위조 의심 발견 (verification_logs 테이블 카운트)
         # (검증 로그 테이블이 있다면 거기서 '위조' 판정된 수만 카운트)
-        forgery_res = supabase.table("verification_logs")\
+        forgery_res = supabase.table("verification_log")\
             .select("*", count="exact", head=True)\
             .eq("is_authentic", False)\
             .execute()

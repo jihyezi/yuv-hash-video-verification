@@ -1,10 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import Optional, Dict, Any, List
 import os
-
-# Supabase 클라이언트
 from app.core.supabase_client import supabase
-# 인증된 사용자 정보 가져오기
 from app.routers.auth import get_current_user
 
 router = APIRouter(prefix="/project", tags=["Project"])
@@ -25,7 +22,13 @@ def get_project_images(
     """
 
     try:
-        user_id = current_user.id
+        if isinstance(current_user, dict):
+            user_id = current_user.get('id')
+        else:
+            user_id = getattr(current_user, 'id', None)
+
+        if not user_id:
+            raise HTTPException(status_code=401, detail="유저 ID를 찾을 수 없습니다.")
         print("\n========== [프로젝트 이미지 조회 시작] ==========")
         print(f"1. 요청자 사용자 ID: {user_id}")
 
@@ -87,14 +90,19 @@ def delete_image(
     """
 
     try:
+        if isinstance(current_user, dict):
+            user_id = current_user.get('id')
+        else:
+            user_id = getattr(current_user, 'id', None)
+
         print("\n========== [이미지 삭제 시작] ==========")
-        print(f"1. 요청한 사용자: {current_user.id}")
+        print(f"1. 요청한 사용자: {user_id}")
         print(f"2. 삭제 요청한 이미지 ID: {image_id}")
 
         # 1) gallery 테이블에서 이미지 정보 가져오기
         image_data = (
             supabase.table("gallery")
-            .select("*")
+            .select("image_url")
             .eq("id", image_id)
             .single()
             .execute()
