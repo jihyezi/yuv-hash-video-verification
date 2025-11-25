@@ -36,7 +36,26 @@ export const getUserCount = () => {
 
 
 // --- 3. 이미지 관련 (Images/Verify) ---
+// 3-1. 이미지 위변조 검증
+export const verifyImageAPI = (file, original_file_id) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("original_file_id", original_file_id);
 
+    return apiClient.post("/verify/detect", formData, {
+        headers: { 
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("access_token")}` 
+        },
+    });
+};
+
+// 3-2. 내 부서 이미지 목록 조회 (GalleryModal용)
+export const getDepartmentGalleryAPI = () => {
+    return apiClient.get("/project/list", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` }
+    });
+};
 
 
 // --- 3. 부서 목록 조회 (Departments) ---
@@ -46,11 +65,13 @@ export const getDepartmentsAPI = () => {
 
 // --- 4. 이미지 등록 (Images) ---
 export const uploadImageAPI = (file) => {
+    const token = localStorage.getItem("access_token");
     const formData = new FormData();
     formData.append("file", file);
 
     return apiClient.post("/gallery/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
+
     });
 };
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Header
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm, HTTPBearer, HTTPAuthorizationCredentials
-from typing import Optional
+from typing import Optional, Dict, Any 
 
 from app.db.schemas import UserCreate, UserLogin
 from app.core.supabase_client import supabase, supabase_admin
@@ -10,20 +10,42 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 security = HTTPBearer()
 
-# ★ [수정 2] 토큰 검증 함수 변경 (Header -> Depends(security))
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """
-    Swagger UI의 'Authorize' 버튼을 활성화하고, 
-    입력된 토큰을 자동으로 파싱해서 검증합니다.
-    """
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Dict[str, Any]:
     try:
-        # HTTPBearer가 자동으로 "Bearer "를 떼고 토큰만 줍니다.
         token = credentials.credentials 
         
-        user = supabase.auth.get_user(token)
-        if not user:
+        user_auth_res = supabase.auth.get_user(token)
+        if not user_auth_res or not user_auth_res.user:
             raise HTTPException(status_code=401, detail="유효하지 않은 토큰")
-        return user.user
+        
+        auth_user = user_auth_res.user
+        user_id = auth_user.id
+        user_email = auth_user.email
+
+        # DB에서 username, department_id 조회
+        user_db_res = supabase.table("user").select("username, department_id").eq("id", user_id).execute()
+
+        username = "이름 정보 없음"
+        department_name = "부서 미지정"
+
+        if user_db_res.data:
+            username = user_db_res.data[0].get('username')
+            dept_id_uuid = user_db_res.data[0].get("department_id")
+
+            if dept_id_uuid:
+                dept = supabase.table("department").select("name").eq("id", dept_id_uuid).execute()
+                if dept.data:
+                    department_name = dept.data[0]["name"]
+
+        return {
+            "id": user_id,
+            "email": user_email,
+            "username": username,
+            "department": department_name
+        }
+
+    except HTTPException:
+        raise
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
