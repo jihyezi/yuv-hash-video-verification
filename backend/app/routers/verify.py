@@ -23,7 +23,10 @@ async def detect_forgery(
     current_user = Depends(get_current_user) 
 ):
     
-    user_id = current_user.id
+    if isinstance(current_user, dict):
+            user_id = current_user.get('id')
+    else:
+            user_id = getattr(current_user, 'id', None)
     # 임시 파일명 생성 (충돌 방지용 UUID 사용)
     request_uuid = str(uuid.uuid4())
     temp_original_path = None
