@@ -167,14 +167,10 @@ async def get_department_gallery_list(current_user=Depends(get_current_user)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="유저 ID를 찾을 수 없습니다.")
 
     try:
-<<<<<<< HEAD
+
         # 기존 users → user 테이블로 변경
         user_response = supabase.table("user").select("department_id").eq("id", user_id).single().execute()
-=======
-       
-        user_response = supabase.table("user").select("department_id").eq("id", current_user.id).single().execute()
->>>>>>> 3cc8b91 (d)
-        
+
         if user_response.data is None:
             # 부서 정보가 없는 경우 빈 리스트 반환 가능
             return []
