@@ -8,7 +8,7 @@ export default function Stats() {
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    const socket = new SockJS("http://localhost:8080/ws/logs");
+    const socket = new SockJS("http://localhost:8000/ws/logs");
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,

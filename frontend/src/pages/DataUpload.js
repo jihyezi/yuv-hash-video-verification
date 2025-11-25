@@ -13,11 +13,12 @@ export default function DataUpload() {
 
   // 페이지 로드 시 로그인 확인 및 부서 정보 세팅
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("access_token");
     const savedDept = localStorage.getItem("department");
 
     if (!token) {
       alert("로그인이 필요합니다.");
+      console.log(`토큰 값: ${token}`);
       navigate("/"); // 로그인 페이지로 이동
       return;
     }
