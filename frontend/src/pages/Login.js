@@ -25,7 +25,7 @@ export default function Login({ onLogin }) {
       const { access_token, user_info } = response.data;
 
       // 1️⃣ 로그인 토큰과 유저 정보를 로컬스토리지에 저장
-      localStorage.setItem("token", access_token);
+      localStorage.setItem("access_token", access_token);
       localStorage.setItem("user_id", user_info.id);
       localStorage.setItem("username", user_info.username);
       localStorage.setItem("email", user_info.email);

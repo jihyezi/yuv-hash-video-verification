@@ -53,3 +53,7 @@ export const uploadImageAPI = (file) => {
         headers: { "Content-Type": "multipart/form-data" },
     });
 };
+
+export const getDashboardStatsAPI = () => {
+    return apiClient.get("/dashboard/stats");
+};

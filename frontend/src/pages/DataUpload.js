@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./DataUpload.css";
-import uploadIcon from "../img/upload_.svg"; // 이미지 경로 확인 필요
-import { uploadImageAPI } from "../api/api"; // ★ 우리가 만든 API 함수 사용
+import uploadIcon from "../img/upload_.svg";
+import { uploadImageAPI } from "../api/api";
 
 export default function DataUpload() {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  
+
   // 내 부서 정보 (화면 표시용)
   const [myDepartment, setMyDepartment] = useState("");
 
@@ -57,7 +57,7 @@ export default function DataUpload() {
             name: file.name,
             img: previewUrl,
             team: myDepartment,
-            id: response.data.file_data?.id 
+            id: response.data.file_data?.id
           },
         },
       });
