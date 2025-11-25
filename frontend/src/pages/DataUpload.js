@@ -5,9 +5,6 @@ import uploadIcon from "../img/upload_.svg";
 import "./DataUpload.css";
 import { uploadImageAPI } from "../api/api";
 
-
-
-
 export default function DataUpload() {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
