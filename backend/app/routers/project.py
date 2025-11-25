@@ -25,7 +25,13 @@ def get_project_images(
     """
 
     try:
-        user_id = current_user.id
+        if isinstance(current_user, dict):
+            user_id = current_user.get("id")
+        else:
+            user_id = current_user.id
+            
+        if not user_id:
+             raise HTTPException(status_code=401, detail="인증된 사용자 ID를 찾을 수 없습니다.")
         print("\n========== [프로젝트 이미지 조회 시작] ==========")
         print(f"1. 요청자 사용자 ID: {user_id}")
 

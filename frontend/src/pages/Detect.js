@@ -118,7 +118,6 @@ export default function Detect() {
               />
               <div className="drop-content">
               <img src={uploadIcon} alt="업로드" className="upload-icon" />
-
                 <p>원본 이미지를 선택하거나<br/>파일을 이곳에 끌어 놓으세요</p>
               </div>
             </label>

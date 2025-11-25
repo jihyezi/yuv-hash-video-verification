@@ -16,7 +16,7 @@ export default function DataUpload() {
 
   // 페이지 로드 시 로그인 확인 및 부서 정보 세팅
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("access_token");
     const savedDept = localStorage.getItem("department");
 
     if (!token) {

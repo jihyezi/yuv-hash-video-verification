@@ -126,7 +126,7 @@ async def detect_forgery(
 @router.get("/list")
 async def get_department_gallery_list(current_user=Depends(get_current_user)):
     try:
-        # 기존 users → user 테이블로 변경
+       
         user_response = supabase.table("user").select("department_id").eq("id", current_user.id).single().execute()
         
         if user_response.data is None:
