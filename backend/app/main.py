@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 load_dotenv() 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth,images, verify, project,origincert, verifyresult, dashboard
+from app.routers import auth,images, verify, project, origincert, verifyresult, dashboard
 import logging
 
 

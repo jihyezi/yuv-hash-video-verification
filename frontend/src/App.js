@@ -10,10 +10,11 @@ import Stats from "./pages/Stats";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Certificate from "./pages/Certificate";   // ⭐ 추가된 부분
 import "./App.css";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 관리
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState({
     name: "",
     id: "",
@@ -21,18 +22,16 @@ function App() {
     department: ""
   });
 
-  // 새로고침 시 로그인 유지 (useEffect 필수!)
+  // 새로고침 시 로그인 유지
   useEffect(() => {
     const token = localStorage.getItem("access_token");
 
     if (token) {
-      // 토큰이 있으면 로컬스토리지에서 정보들을 싹 긁어옵니다.
       const savedName = localStorage.getItem("username");
       const savedId = localStorage.getItem("user_id");
       const savedEmail = localStorage.getItem("email");
       const savedDept = localStorage.getItem("department");
 
-      // 상태 복구
       setUser({
         name: savedName || "사용자",
         id: savedId || "",
@@ -55,7 +54,6 @@ function App() {
     setIsLoggedIn(true);
   };
 
-  // 로그아웃 핸들러
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("username");
@@ -70,11 +68,11 @@ function App() {
   return (
     <Router>
       {isLoggedIn ? (
-        // 로그인 후 화면
         <div className="app-container">
           <Sidebar />
           <div className="main-content">
             <Header username={user.name} onLogout={handleLogout} />
+
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/project" element={<Project />} />
@@ -82,13 +80,16 @@ function App() {
               <Route path="/detect" element={<Detect />} />
               <Route path="/stats" element={<Stats />} />
               <Route path="/settings" element={<Settings />} />
-              {/* 로그인 상태면 로그인/회원가입 페이지 접근 불가 */}
+
+              {/* ⭐ 여기가 증명서 페이지 라우트 */}
+              <Route path="/certificate" element={<Certificate />} />
+
+              {/* 로그인 상태에서 잘못된 경로 → 홈으로 */}
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </div>
         </div>
       ) : (
-        // 로그인 전 화면
         <Routes>
           <Route path="/signup" element={<Signup />} />
           <Route path="*" element={<Login onLogin={handleLogin} />} />

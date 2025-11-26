@@ -15,7 +15,7 @@ export default function Detect() {
   const [suspiciousImage, setSuspiciousImage] = useState(null);
   const [showGallery, setShowGallery] = useState(false);
 
-  // 이미지 미리보기 (url 또는 File 모두 처리)
+  // 이미지 미리보기 (url 또는 File 모두 backend/app/routers/project.py 처리)
   const getPreviewSrc = (img) => {
     if (!img) return null;
 
