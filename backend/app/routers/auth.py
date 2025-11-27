@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from app.db.schemas import UserCreate, UserLogin
 from app.core.supabase_client import supabase, supabase_admin
+# activity_log 기록을 위해 supabase 클라이언트 재사용
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -92,8 +93,22 @@ def create_user(user_in: UserCreate):
         response = supabase.table("user").insert(insert_data).execute()
         
         if not response.data:
+            # DB 생성 실패 시 Supabase auth의 유저도 삭제
             supabase_admin.auth.admin.delete_user(auth_user_id)
             raise HTTPException(status_code=400, detail="DB 프로필 생성 실패")
+        
+        # -----------------------------------------------------------
+        # 활동 로그 기록: 회원가입 성공
+        # -----------------------------------------------------------
+        supabase.table("activity_log").insert({
+            "user_id": auth_user_id,
+            "username": user_in.username,
+            "activity_type": "회원가입",
+            "target_object": user_in.email,
+            "status": "완료"
+        }).execute()
+        # -----------------------------------------------------------
+
 
         return {"auth_user": auth_response.user, "db_profile": response.data}
 
@@ -129,7 +144,22 @@ def login_user(user_in: UserLogin):
                 if dept_res.data:
                     department_name = dept_res.data[0]['name']
         else: 
+            # user 테이블에 정보가 없을 경우 auth 테이블의 이메일 사용
             username = session.user.email.split("@")[0]
+
+        # -----------------------------------------------------------
+        # 활동 로그 기록: 로그인 성공
+        # -----------------------------------------------------------
+        supabase.table("activity_log").insert({
+            "user_id": user_id,
+            "username": username,
+            "activity_type": "로그인",
+            "target_object": "관리자 시스템",
+            "status": "성공",
+            # IP 주소는 FastAPI Request 객체에서 가져올 수 있으나, 현재 함수 시그니처에는 없음
+        }).execute()
+        # -----------------------------------------------------------
+
 
         return {
             "access_token": session.session.access_token,
