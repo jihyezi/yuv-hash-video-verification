@@ -2,11 +2,15 @@ from fastapi import APIRouter, HTTPException, status, Header
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm, HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional, Dict, Any 
+from pydantic import BaseModel
 
 from app.db.schemas import UserCreate, UserLogin
 from app.core.supabase_client import supabase, supabase_admin
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
+
+class RefreshTokenReq(BaseModel):
+    refresh_token: str
 
 security = HTTPBearer()
 
@@ -22,7 +26,6 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         user_id = auth_user.id
         user_email = auth_user.email
 
-        # DB에서 username, department_id 조회
         user_db_res = supabase.table("user").select("username, department_id").eq("id", user_id).execute()
 
         username = "이름 정보 없음"
@@ -68,12 +71,9 @@ def create_user(user_in: UserCreate):
     print("🔥 DEBUG user_in:", user_in)
     print("🔥 받은 department_id:", user_in.department_id)
     try:
-        # 1. Supabase auth.users 테이블에 사용자 생성
         auth_response = supabase.auth.sign_up({
             "email": user_in.email,
             "password": user_in.password
-
-        
         })
 
         if not auth_response.user or not auth_response.user.id:
@@ -133,6 +133,7 @@ def login_user(user_in: UserLogin):
 
         return {
             "access_token": session.session.access_token,
+            "refresh_token": session.session.refresh_token,
             "token_type": "bearer",
             "expires_in": session.session.expires_in,
             "user_info": {
@@ -143,4 +144,22 @@ def login_user(user_in: UserLogin):
             }
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail="로그인 실패: 아이디/비번을 확인하세요.")
+        raise HTTPException(status_code=400, detail="로그인 실패")
+
+# --- 토근 갱신 함수 ---
+@router.post("/refresh")
+def refresh_token(req: RefreshTokenReq):
+    try:
+        # Supabase가 알아서 갱신해줌
+        res = supabase.auth.refresh_session(req.refresh_token)
+        
+        if not res.session:
+            raise HTTPException(status_code=401, detail="토큰 갱신 실패")
+
+        return {
+            "access_token": res.session.access_token,
+            "refresh_token": res.session.refresh_token, 
+            "token_type": "bearer"
+        }
+    except Exception:
+        raise HTTPException(status_code=401, detail="유효하지 않은 토큰")
