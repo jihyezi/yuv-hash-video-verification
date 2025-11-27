@@ -1,9 +1,5 @@
 import apiClient from "./axiosConfig";
 
-
-// --- 1. 인증 (Auth) ---
-
-// 회원가입 (JSON 전송)
 // --- 1. 회원가입 (Auth) ---
 export const signupAPI = (userData) => {
     return apiClient.post("/auth/signup", userData);
@@ -18,7 +14,6 @@ export const loginAPI = (email, password) => {
 };
 
 // --- 2. 대시보드 (Dashboard 데이터 가져오기) --- 
-
 // 전체 gallery 총 개수
 export const getTotalGalleryCount = () => {
     return apiClient.get("/dashboard/gallery-count");
@@ -34,23 +29,33 @@ export const getUserCount = () => {
     return apiClient.get("/dashboard/user-count");
 };
 
+// 활동 로그 조회 
+export const getActivityLogsAPI = () => {
+    return apiClient.get("/log/activity");
+};
+
+// 최신 파일 목록 조회
+export const getRecentFilesAPI = () => {
+    return apiClient.get("/dashboard/files");
+};
+
 
 // --- 3. 이미지 관련 (Images/Verify) ---
-// 3-1. 이미지 위변조 검증
+// 이미지 위변조 검증
 export const verifyImageAPI = (file, original_file_id) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("original_file_id", original_file_id);
 
     return apiClient.post("/verify/detect", formData, {
-        headers: { 
+        headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem("access_token")}` 
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`
         },
     });
 };
 
-// 3-2. 내 부서 이미지 목록 조회 (GalleryModal용)
+// 내 부서 이미지 목록 조회 (GalleryModal용)
 export const getDepartmentGalleryAPI = () => {
     return apiClient.get("/project/list", {
         headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` }
