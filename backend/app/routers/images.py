@@ -28,6 +28,7 @@ async def upload_original_image(
     file: UploadFile = File(...),
     current_user = Depends(get_current_user) 
 ):
+<<<<<<< HEAD
     # 1. 유저 ID 추출
     if isinstance(current_user, dict):
             user_id = current_user.get('id')
@@ -36,6 +37,17 @@ async def upload_original_image(
 
     if not user_id:
         raise HTTPException(status_code=401, detail="유저 ID를 찾을 수 없습니다.")
+=======
+    if isinstance(current_user, dict):
+        # 딕셔너리인 경우: 키 접근 사용
+        user_id = current_user.get("id")
+    else:
+        # 객체/모델인 경우: 속성 접근 사용 (Fallback)
+        user_id = current_user.id
+        
+    if not user_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="사용자 ID를 찾을 수 없습니다.")
+>>>>>>> 2f9af04 (fix: 오류 해결)
     
     folder_name = "unassigned" 
     department_id = None
