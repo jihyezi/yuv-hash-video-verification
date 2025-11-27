@@ -58,3 +58,45 @@ def get_dashboard_stats():
             "forgery_count": 0,
             "storage_usage": "0 MB"
         }
+    
+@router.get("/files")
+def get_recent_files(limit: int = 5):
+    try:
+        # gallery 테이블을 조회하면서
+        # 1. user_id를 통해 user 테이블의 username 가져오기
+        # 2. department_id를 통해 department 테이블의 name 가져오기
+        response = (
+            supabase.table("gallery")
+            .select("""
+                id, 
+                title, 
+                created_at,
+                user:user_id ( username ),
+                department:department_id ( name )
+            """)
+            .order("created_at", desc=True)
+            .limit(limit)
+            .execute()
+        )
+        
+        formatted_data = []
+        if response.data:
+            for item in response.data:
+                # 관계 데이터 가져오기 (없을 경우 대비해 .get 사용)
+                user_obj = item.get("user") or {}
+                dept_obj = item.get("department") or {}
+                
+                formatted_data.append({
+                    "id": item["id"],
+                    "file_name": item["title"],  # DB의 title을 프론트엔드에선 file_name으로 쓰거나 title로 맞춰주면 됨
+                    "created_at": item["created_at"],
+                    "username": user_obj.get("username", "알 수 없음"),   # user 테이블의 username
+                    "department": dept_obj.get("name", "공용")            # department 테이블의 name
+                })
+            
+        return formatted_data
+
+    except Exception as e:
+        print(f"파일 목록 조회 실패: {e}")
+        # 에러 발생 시 빈 배열 반환해서 프론트엔드 멈춤 방지
+        return []
