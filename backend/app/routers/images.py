@@ -23,6 +23,7 @@ async def upload_original_image(
     file: UploadFile = File(...),
     current_user = Depends(get_current_user)
 ):
+<<<<<<< HEAD
     if isinstance(current_user, dict):
             user_id = current_user.get('id')
     else:
@@ -30,6 +31,9 @@ async def upload_original_image(
 
     if not user_id:
         raise HTTPException(status_code=401, detail="유저 ID를 찾을 수 없습니다.")
+=======
+    user_id = current_user.id 
+>>>>>>> a760379 (feat:  수정사항 구현)
     
     folder_name = "unassigned" 
     department_id = None
@@ -78,7 +82,11 @@ async def upload_original_image(
         if dup_check.data:
             raise HTTPException(
                 status_code=409,
+<<<<<<< HEAD
                 detail="중복된 이미지입니다."#11.26 18:30 하린 수정
+=======
+                detail="중복된 이미지입니다."
+>>>>>>> a760379 (feat:  수정사항 구현)
             )
 
         # 3) 메타데이터 포함한 이미지 생성
