@@ -1,29 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useState , useEffect} from "react";
 import { useNavigate } from "react-router-dom";
-import apiClient from "../api/axiosConfig";
 import uploadIcon from "../img/upload_.svg";
 import "./DataUpload.css";
 import { uploadImageAPI } from "../api/api";
-
-export default function DataUpload() {
+export default function DataUpload({ userDept }) {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [isDragging, setIsDragging] = useState(false);
-
   const [myDepartment, setMyDepartment] = useState("");
-
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    const savedDept = localStorage.getItem("department");
-
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      navigate("/");
-      return;
-    }
-    setMyDepartment(savedDept || "부서 정보 없음");
-  }, [navigate]);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleFileChange = (fileObj) => {
     if (fileObj) {
@@ -54,6 +39,11 @@ export default function DataUpload() {
     }
   };
 
+  const handleReset = () => {
+    setFile(null);
+    setPreviewUrl(null);
+  };
+
   const uploadImage = async () => {
     if (!file) {
       alert("파일을 선택해주세요.");
@@ -69,19 +59,23 @@ export default function DataUpload() {
           newImage: {
             name: file.name,
             img: previewUrl,
-            team: myDepartment,
-            id: response.data.file_data?.id,
+            team: userDept || "부서 정보 없음",
+            id: response.data.file_data?.id
           },
         },
       });
     } catch (error) {
-      alert(error.response?.data?.detail || "업로드 중 오류가 발생했습니다.");
-    }
-  };
+      console.error("업로드 실패:", error);
 
-  const handleReset = () => {
-    setFile(null);
-    setPreviewUrl(null);
+      // 403일 경우 권한 관련 안내
+      if (error.response?.status === 403) {
+        alert("권한이 없습니다. 로그인 상태를 확인하세요.");
+        navigate("/"); // 필요 시 로그인 페이지로 이동
+      } else {
+        // 백엔드 메시지 출력 또는 기본 안내
+        alert(error.response?.data?.detail || "업로드 중 오류가 발생했습니다.");
+      }
+    }
   };
 
   return (
@@ -119,27 +113,6 @@ export default function DataUpload() {
               <img src={previewUrl} alt="미리보기" className="drop-preview" />
             </div>
           )}
-
-          {/* 부서 정보 표시 */}
-          <div className="team-select" style={{ marginTop: "20px" }}>
-            <label>업로드 폴더 (자동 지정):</label>
-            <input
-              type="text"
-              value={myDepartment}
-              readOnly
-              className="dept-input"
-              style={{
-                width: "100%",
-                padding: "10px",
-                backgroundColor: "#f0f0f0",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-                color: "#555",
-                fontWeight: "bold",
-                marginTop: "5px",
-              }}
-            />
-          </div>
 
           <div className="button-container">
     <button className="upload-btn" onClick={uploadImage}>

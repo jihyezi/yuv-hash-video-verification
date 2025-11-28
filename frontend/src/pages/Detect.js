@@ -164,13 +164,13 @@ export default function Detect() {
             <img src={getPreviewSrc(originalImage)} className="image-preview" alt="원본" />
           )}
 
-          <button
-  className="detect-btn"
-  onClick={() => setShowGallery(true)}
-  disabled={!!originalImage}  
->
-  내 갤러리에서 선택
-</button>
+          <button   /*11.27hr*/ 
+          className="detect-btn"
+          onClick={() => setShowGallery(true)}
+          disabled={!!originalImage}  
+                  >
+                    내 갤러리에서 선택
+            </button>
 
         </div>
 

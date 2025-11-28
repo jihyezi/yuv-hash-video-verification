@@ -72,7 +72,7 @@ async def upload_original_image(
         if dup_check.data:
             raise HTTPException(
                 status_code=409,
-                detail="중복된 이미지입니다."
+                detail="중복된 이미지입니다."#11.26 18:30 하린 수정
             )
 
         # 3) 메타데이터 포함한 이미지 생성

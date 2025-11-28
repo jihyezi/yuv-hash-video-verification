@@ -5,7 +5,7 @@ import uuid
 from app.core.supabase_client import supabase
 from security.au import generate_user_secret_key
 from security.verify_logic import verify_image
-from app.routers.auth import get_current_user 
+from app.routers.auth import get_current_user # 현재 사용자 정보 가져오기
 
 router = APIRouter(prefix="/verify", tags=["Verify"])
 
@@ -13,7 +13,7 @@ SYSTEM_PEPPER = os.getenv("HASHING_SECRET")
 TEMP_DIR = "temp_verify"
 STORAGE_BUCKET_NAME = "Gallery"
 
-# 임시 폴더 생성 (여기에 잠깐 저장했다가 지울 겁니다)
+# 임시 폴더 생성
 os.makedirs(TEMP_DIR, exist_ok=True)
 
 @router.post("/detect")
@@ -23,7 +23,19 @@ async def detect_forgery(
     current_user = Depends(get_current_user) 
 ):
     
-    user_id = current_user.id
+    # 1. 유저 ID 및 이름 추출 (AttributeError 방지 및 로그용)
+    username_placeholder = "Unknown User"
+    
+    if isinstance(current_user, dict):
+        user_id = current_user.get('id')
+        username_placeholder = current_user.get('username', username_placeholder)
+    else:
+        user_id = getattr(current_user, 'id', None)
+        username_placeholder = getattr(current_user, 'username', username_placeholder)
+
+    if not user_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="유저 ID를 찾을 수 없습니다.")
+
     # 임시 파일명 생성 (충돌 방지용 UUID 사용)
     request_uuid = str(uuid.uuid4())
     temp_original_path = None
@@ -32,7 +44,7 @@ async def detect_forgery(
     try:
         # --- [1] DB에서 원본 정보 조회 ---
         response = supabase.table("gallery")\
-            .select("image_url, user_id, department_id")\
+            .select("image_url, user_id, department_id, title")\
             .eq("id", original_file_id)\
             .execute()
         
@@ -43,7 +55,8 @@ async def detect_forgery(
         
         storage_path = original_data['image_url']     
         owner_user_id = original_data['user_id']       
-        owner_dept_id = original_data['department_id'] 
+        owner_dept_id = original_data['department_id']
+        original_title = original_data['title'] # 로그에 사용할 파일 제목 추출
 
         # ▼▼▼ [디버깅 코드 추가] ▼▼▼
         print(f"\n🔎 [다운로드 경로 확인]")
@@ -86,19 +99,39 @@ async def detect_forgery(
 
         # --- [5] 검증 로직 실행 ---
         is_authentic, message = verify_image(temp_original_path, temp_suspect_path, secret_key)
+        
+        # 검증 상태 설정 (로그 및 반환용)
+        verification_status = "통과" if is_authentic else "실패"
 
         try:
+            # API 호출 로그 기록
             supabase.table("api_calls").insert({
                 "user_id": user_id,
                 "type": "verify" 
             }).execute()
 
-            supabase.table("verification_logs").insert({
+            # verification_log 기록 (대시보드 통계용)
+            supabase.table("verification_log").insert({
                 "user_id": user_id,
                 "file_name": file.filename,
-                "is_authentic": is_authentic # 여기서 False면 대시보드 숫자가 +1 됨
+                "is_authentic": is_authentic 
             }).execute()
-        except Exception:
+            
+            # -----------------------------------------------------------
+            # 활동 로그 기록 (Activity Log)
+            # -----------------------------------------------------------
+            supabase.table("activity_log").insert({
+                "user_id": user_id,
+                "username": username_placeholder,
+                "activity_type": "파일 검증",
+                "target_object": original_title, # 원본 파일명을 로그 대상으로 기록
+                "status": verification_status # '통과' 또는 '실패'
+            }).execute()
+            # -----------------------------------------------------------
+
+        except Exception as log_e:
+            print(f"로그 기록 실패 (activity_log/verification_log): {log_e}")
+            # 로그 기록 실패는 500 오류를 발생시키지 않음 (주요 기능 아님)
             pass
 
         return {
@@ -116,8 +149,38 @@ async def detect_forgery(
     
     finally:
         # --- [Step 6] 뒷정리 ---
-        # 파일이 생성되었는지 확인하고 삭제 (변수가 None일 수도 있음)
         if temp_original_path and os.path.exists(temp_original_path):
             os.remove(temp_original_path)
         if temp_suspect_path and os.path.exists(temp_suspect_path):
             os.remove(temp_suspect_path)
+
+
+@router.get("/list")
+async def get_department_gallery_list(current_user=Depends(get_current_user)):
+    # 1. 유저 ID 추출 (AttributeError 방지)
+    if isinstance(current_user, dict):
+        user_id = current_user.get('id')
+    else:
+        user_id = getattr(current_user, 'id', None)
+
+    if not user_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="유저 ID를 찾을 수 없습니다.")
+
+    try:
+
+        # 기존 users → user 테이블로 변경
+        user_response = supabase.table("user").select("department_id").eq("id", user_id).single().execute()
+
+        if user_response.data is None:
+            # 부서 정보가 없는 경우 빈 리스트 반환 가능
+            return []
+        
+        department_id = user_response.data["department_id"]
+
+        # 여기서 department_id로 갤러리 리스트 조회
+        gallery_response = supabase.table("gallery").select("*").eq("department_id", department_id).execute()
+        return gallery_response.data
+
+    except Exception as e:
+        # 오류 발생 시 HTTPException 반환
+        raise HTTPException(status_code=500, detail=f"갤러리 목록 조회 실패: {str(e)}")
