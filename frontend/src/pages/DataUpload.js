@@ -1,13 +1,13 @@
-import React, { useState , useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import uploadIcon from "../img/upload_.svg";
 import "./DataUpload.css";
 import { uploadImageAPI } from "../api/api";
+
 export default function DataUpload({ userDept }) {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [myDepartment, setMyDepartment] = useState("");
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFileChange = (fileObj) => {
@@ -115,10 +115,10 @@ export default function DataUpload({ userDept }) {
           )}
 
           <div className="button-container">
-    <button className="upload-btn" onClick={uploadImage}>
-        업로드
-    </button>
-</div> 
+            <button className="upload-btn" onClick={uploadImage}>
+              업로드
+            </button>
+          </div>
         </div>
       </main>
     </div>
