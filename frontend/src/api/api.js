@@ -78,3 +78,28 @@ export const uploadImageAPI = (file) => {
 export const getDashboardStatsAPI = () => {
     return apiClient.get("/dashboard/stats");
 };
+
+// --- 5. 증명서 발급 ---
+export const generateCertificateAPI = (image, verification_result = "MATCH") => {
+    const token = localStorage.getItem("access_token");
+
+    // 이미지 객체에서 원본 등록자와 등록일시 가져오기 (없으면 기본값)
+    const originalUploader = image.originalUploader || "정보 없음";
+    const originalUploadDate = image.originalUploadDate || "";
+
+    return apiClient.post(
+        "/verifyresult/issue",
+        {
+            report_id: `VR-${Date.now()}`,       // 발급번호
+            original_file_id: image.id,         // Gallery 테이블 id
+            target_file_name: image.title,      // 검증 대상 파일명
+            verification_result: verification_result,
+        },
+        {
+            headers: { Authorization: `Bearer ${token}` },
+            responseType: "blob", // PDF 다운로드용
+        }
+    );
+};
+
+

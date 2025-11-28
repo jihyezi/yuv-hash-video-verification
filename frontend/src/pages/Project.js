@@ -3,6 +3,8 @@ import { FaTrashAlt, FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axiosConfig";
 import "./Project.css";
+import CertificateModal from "./CertificateModal";
+import { generateCertificateAPI } from "../api/api";
 
 export default function Project() {
   const navigate = useNavigate();
@@ -12,6 +14,8 @@ export default function Project() {
   const [images, setImages] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
+  const [showCertificate, setShowCertificate] = useState(false);
+  const [certificateData, setCertificateData] = useState(null);
 
   useEffect(() => {
     fetchDepartments();
@@ -21,7 +25,6 @@ export default function Project() {
     try {
       const res = await apiClient.get("/auth/departments");
       setDepartments(res.data || []);
-
       if (res.data.length > 0) {
         setSelectedDept(res.data[0]);
         fetchImages(res.data[0].id);
@@ -36,35 +39,26 @@ export default function Project() {
       const res = await apiClient.get("/project/list", {
         params: { department_id: deptId },
       });
-
       setImages(res.data || []);
     } catch (error) {
       console.error("이미지 불러오기 실패:", error);
     }
   };
 
-  // 🔥🔥🔥 삭제 기능 구현
   const handleDelete = async () => {
     if (!selectedImage) return alert("삭제할 이미지를 선택하세요!");
 
     try {
-      const confirmDelete = window.confirm(
-        `${selectedImage.title} 파일을 정말 삭제하시겠습니까?`
-      );
+      const confirmDelete = window.confirm(`${selectedImage.title} 파일을 정말 삭제하시겠습니까?`);
       if (!confirmDelete) return;
 
-      // 백엔드 삭제 API 호출
       const res = await apiClient.delete("/project/delete", {
         params: { image_id: selectedImage.id },
       });
 
       if (res.status === 200) {
         alert("삭제 완료!");
-
-        // 화면 갱신
         fetchImages(selectedDept.id);
-
-        // 선택 해제
         setSelectedImage(null);
       }
     } catch (error) {
@@ -76,6 +70,29 @@ export default function Project() {
   const filteredImages = images.filter((img) =>
     img.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleGenerateCertificate = async () => {
+    if (!selectedImage) return alert("증명서를 발급할 이미지를 선택하세요!");
+
+    try {
+      const res = await generateCertificateAPI(selectedImage);
+
+      const pdfBlob = new Blob([res.data], { type: "application/pdf" });
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+
+      setCertificateData({
+        certificateId: `CERT-${selectedImage.id}`,
+        fileName: selectedImage.title,
+        requestedAt: new Date().toISOString().split("T")[0],
+        pdfUrl: pdfUrl,
+      });
+
+      setShowCertificate(true);
+    } catch (e) {
+      console.error("증명서 생성 실패:", e);
+      alert("증명서 생성 중 오류가 발생했습니다.");
+    }
+  };
 
   return (
     <div className="project-container">
@@ -105,34 +122,32 @@ export default function Project() {
         <div className="file-actions">
           <button>폴더생성</button>
           <button
-            onClick={() =>
-               navigate("/detect", {
-                 state: {
-                 quickImage: {
-                 id: selectedImage.id,
-                url: selectedImage.url
-                 }
-                    }
-                   }) /*11.24 17:41 hr 수정*/ 
+            onClick={() => {
+               if (!selectedImage) {
+              alert("사진을 선택해주세요!");
+        return;
+          }
 
-
-            }
+    navigate("/detect", {
+      state: {
+        quickImage: { id: selectedImage.id, url: selectedImage.url },
+          },
+      });
+          }}
           >
-            빠른 검증
+          빠른 검증
           </button>
-          <button>증명서 발급</button>
 
-          {/* 🔥 삭제 버튼 */}
+          <button onClick={handleGenerateCertificate}>
+            증명서 발급
+          </button>
           <button className="delete" onClick={handleDelete}>
             삭제
           </button>
         </div>
 
         <div className="path-search">
-          <div className="current-path">
-            {selectedDept ? selectedDept.name : "부서 선택"}
-          </div>
-
+          <div className="current-path">{selectedDept ? selectedDept.name : "부서 선택"}</div>
           <div className="search-bar">
             <input
               type="text"
@@ -148,18 +163,17 @@ export default function Project() {
 
         <div className="file-list">
           {filteredImages.length > 0 ? (
-            filteredImages.map((img, index) => (
+            filteredImages.map((img) => (
               <div
-                key={index}
-                className={`file-card ${
-                  selectedImage?.id === img.id ? "selected" : ""
-                }`}
-                onClick={() => setSelectedImage({  /*11.24 hr수정*/
-                  id: img.id,
-                  url:img.full_url,
-                  title: img.title
-                })
-              }
+                key={img.id}
+                className={`file-card ${selectedImage?.id === img.id ? "selected" : ""}`}
+                onClick={() =>
+                  setSelectedImage({
+                    id: img.id,
+                    url: img.full_url,
+                    title: img.title,
+                  })
+                }
               >
                 <img src={img.full_url} alt={img.title} />
                 <p>{img.title}</p>
@@ -171,6 +185,10 @@ export default function Project() {
           )}
         </div>
       </div>
+
+      {showCertificate && (
+        <CertificateModal data={certificateData} onClose={() => setShowCertificate(false)} />
+      )}
     </div>
   );
 }
