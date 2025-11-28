@@ -1,27 +1,13 @@
-import React, { useState , useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import uploadIcon from "../img/upload_.svg";
 import "./DataUpload.css";
 import { uploadImageAPI } from "../api/api";
+
 export default function DataUpload({ userDept }) {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [myDepartment, setMyDepartment] = useState("");
-
-  // 페이지 로드 시 로그인 확인 및 부서 정보 세팅
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    const savedDept = localStorage.getItem("department");
-
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      navigate("/"); // 로그인 페이지로 이동
-      return;
-    }
-
-    setMyDepartment(savedDept || "부서 정보 없음");
-  }, [navigate]);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
