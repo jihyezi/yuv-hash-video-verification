@@ -155,9 +155,7 @@ export default function Project() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <button>
-              <FaSearch /> 검색
-            </button>
+           
           </div>
         </div>
 
