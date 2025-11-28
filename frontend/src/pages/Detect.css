@@ -21,7 +21,7 @@
   text-align: center;
 }
 
-/* ✅ 두 박스 나란히 */
+/* 두 박스 나란히 */
 .detect-steps {
   display: flex;
   justify-content: center;
@@ -32,18 +32,23 @@
   width: 100%;
 }
 
+/* =============================================
+   🔥 수정됨: 버튼 하단 고정 (position:relative 추가)
+============================================= */
 .upload-box {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 420px;
-  height: 420px;
+  height: 480px;     /* ← 기존 420px → 480px 로 늘림 */
   padding: 20px;
   background-color: white;
   border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+
 
 .upload-box:hover {
   transform: translateY(-4px);
@@ -67,7 +72,7 @@
   justify-content: center;
   align-items: center;
   width: 90%;
-  height: 260px;
+  height: 230px;
   border: 2px dashed #ccc;
   border-radius: 12px;
   background-color: #fafafa;
@@ -100,55 +105,34 @@
   border-radius: 8px;
 }
 
-/* ===== 버튼 기본 스타일 통합 ===== */
-/* ===== 버튼 컨테이너 통일 ===== */
-.button-container {
-  display: flex;
-  justify-content: flex-start; /* 버튼 좌측 정렬 가능 */
-  gap: 15px;
-  flex-wrap: wrap; /* 버튼 많으면 자동 줄바꿈 */
-  width: 100%;
+/* ============================================================
+   🔥 수정됨: 모든 버튼을 박스 하단에 절대 위치로 고정, 버튼 이름 dataupload랑 분리
+============================================================ */
+.detect-action-btn {
+  position: absolute;
+  bottom: 20px;        /* ← 원하면 25~30px 로 조정 가능 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 260px;
+  height: 45px;
+  border-radius: 10px;
+  background-color: #4a90e2;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
 }
-
-button:hover {
+.detect-action-btn:hover {
   background-color: #357abd;
 }
 
-/* 비활성화 버튼 */
-button:disabled {
+.detect-action-btn:disabled {
   background-color: #ccc;
   cursor: not-allowed;
   color: #fff;
 }
 
-/* ===== 버튼 컨테이너 ===== */
-.button-container {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  width: 100%;
-  margin-top: 20px;
-}
-
-.button-container button {
-  flex: 1 1 150px;
-}
-
-button {
-  height: 45px;
-  padding: 0 20px;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  color: #fff;
-  background-color: #4a90e2;
-  transition: all 0.25s ease;
-  white-space: nowrap;
-}
-
-/* ✅ 반응형: 화면이 작을 때는 세로 배치 */
+/* 반응형 */
 @media (max-width: 900px) {
   .detect-steps {
     flex-direction: column;
@@ -160,9 +144,9 @@ button {
     width: 90%;
   }
 }
+
 .file-input {
   display: none;
 }
-
 
 
