@@ -84,6 +84,7 @@ export const getDashboardStatsAPI = () => {
     return apiClient.get("/dashboard/stats");
 };
 
+
 // --- 5. 증명서 발급 ---
 export const generateCertificateAPI = (image, verification_result = "MATCH") => {
     const token = localStorage.getItem("access_token");
