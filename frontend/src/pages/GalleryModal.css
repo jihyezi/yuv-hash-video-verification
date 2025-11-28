@@ -37,12 +37,38 @@
     transform: scale(1.1);
   }
   
-  .close-btn {
-    padding: 8px 16px;
-    cursor: pointer;
-    border: none;
-    background: #333;
-    color: #fff;
-    border-radius: 5px;
-  }
-  
+/* 오른쪽 상단 X 버튼 (세련되게) */
+.modal-close-x {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  background: #f0f0f0;       /* 버튼 배경 색 */
+  border: none;
+  border-radius: 50%;        /* 둥근 원형 버튼 */
+  font-size: 20px;
+  font-weight: bold;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  outline: none;
+  z-index: 1500;
+}
+
+.modal-close-x:hover {
+  background: #e0e0e0;       /* hover 시 배경색 진하게 */
+  color: #222;                /* 글자색 진하게 */
+  transform: scale(1.1);      /* 살짝 확대 효과 */
+}
+
+.modal-close-x:focus,
+.modal-close-x:active {
+  outline: none !important;   
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15); /* 클릭 시 그림자 유지 */
+}
+
