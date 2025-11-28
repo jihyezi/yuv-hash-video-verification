@@ -12,18 +12,16 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.colors import HexColor, black, white
+from reportlab.lib.colors import HexColor, black, white, red
 from reportlab.lib.utils import ImageReader 
 
 # 사용자 인증 함수 및 Supabase 클라이언트
 from app.routers.auth import get_current_user 
 from app.core.supabase_client import supabase 
-
-# 파일명이 verifyresult.py이므로 라우터 이름도 verifyresult.router로 사용합니다.
 router = APIRouter(prefix="/verifyresult", tags=["Verification Report"])
 
 # -----------------------------------------------------------------
-# 🎨 PDF 스타일 및 파일 경로 설정 (origincert.py와 동일하게 설정)
+# 🎨 PDF 스타일 및 파일 경로 설정 
 # -----------------------------------------------------------------
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -41,6 +39,7 @@ HYEAN_GRAY = HexColor('#666666')
 HYEAN_DARK_GRAY = HexColor('#333333')
 HYEAN_LIGHT_GRAY = HexColor('#F0F0F0')
 HYEAN_GREEN = HexColor('#008000') # 원본 일치 색상
+HYEAN_RED = HexColor('#FF0000') # 위변조 발견 색상
 
 # --- 한글 폰트 등록 ---
 try:
@@ -100,9 +99,10 @@ def draw_data_box(c, x, y, title, data_list, width, height, line_height=18):
         
         current_y -= line_height
 
-def create_verify_report_pdf(report_id, verify_date, result_data):
+def create_verify_report_pdf(report_id, verify_date, result_data, verification_result):
     """
     검증 결과 데이터를 바탕으로 PDF 리포트를 생성합니다.
+    verification_result: "MATCH" 또는 "MISMATCH"
     """
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
@@ -110,7 +110,32 @@ def create_verify_report_pdf(report_id, verify_date, result_data):
     margin = 50
     line_height = 18
 
-    # --- 1. 상단 헤더 ---
+    # --- 1. 최종 판정 결과에 따른 동적 변수 설정 ---
+    if verification_result == "MATCH":
+        final_text = "✓ 원본 일치 (Authentic)"
+        final_color = HYEAN_GREEN
+        opinion_lines = [
+            "본 시스템(혜안)의 Chroma Hash 알고리즘을 통해 검증 대상 파일과 원본 파일의 디지털 지문(Hash)을",
+            "정밀 대조하였습니다.",
+            "",
+            "분석 결과, 두 파일의 고유 해시값이 100% 일치하는 것으로 확인되었습니다. 이에 따라 상기 검증 대상 파",
+            "일은 원본 데이터와 동일하며, 등록 시점 이후 어떠한 픽셀 변조나 손상이 발생하지 않았음을 증명합니다."
+        ]
+    else: # MISMATCH (위변조 발견)
+        final_text = "✕ 위변조 의심 (Mismatched)" # <--- 텍스트 태그 제거
+        final_color = HYEAN_RED
+        opinion_lines = [
+            ""
+            "본 시스템(혜안)의 Chroma Hash 알고리즘을 통해 검증 대상 파일과 원본 파일의 디지털 지문(Hash)을",
+            "정밀 대조하였습니다.",
+            "",
+            "분석 결과, 두 파일의 고유 해시값이 일치하지 않는 것으로 확인되었습니다. 이는 검증 대상 파일이 원본",
+            "등록 시점 이후 픽셀 변조, 수정, 또는 손상이 발생했을 가능성이 높음을 의미합니다.",
+            "", # 한 줄 추가하여 소견의 높이 유지
+            "주의: 이 파일은 원본으로 간주할 수 없습니다."
+        ]
+    
+    # --- 2. 상단 헤더 ---
     # 로고
     logo_path = os.path.normpath(os.path.join(CURRENT_DIR, '..', '..', 'static', LOGO_FILENAME))
     if os.path.exists(logo_path):
@@ -140,44 +165,35 @@ def create_verify_report_pdf(report_id, verify_date, result_data):
     c.setLineWidth(1)
     c.line(margin, height - 85, width - margin, height - 85)
 
-    # --- 2. 최종 판정 결과 박스 ---
+    # --- 3. 최종 판정 결과 박스 (동적 텍스트 및 색상 적용) ---
     
     current_y = height - 120 
-    
-    # 연한 회색 배경 박스
     box_x = margin
     box_width_full = width - margin * 2
-    box_height_result = 120 # 박스 높이 유지 (120pt)
-    box_y = current_y - box_height_result + 10 # 박스 하단 y 좌표
+    box_height_result = 120 
+    box_y = current_y - box_height_result + 10 
     
     c.setFillColor(HYEAN_LIGHT_GRAY)
     c.roundRect(box_x, box_y, box_width_full, box_height_result, 5, fill=1, stroke=0)
     
-    # --- 텍스트 위치 재계산 (겹침 방지) ---
-    
-    # 박스 상단 패딩 (1.1배 높이): 120pt 박스 내에서 상단 20pt 여백
     padding_top = 30 
-    
-    # "최종 판정 결과" 텍스트 위치: 박스 상단에서 30pt 내려온 위치
     final_text_y = box_y + box_height_result - padding_top 
     
     c.setFont('NanumGothic', 12)
     c.setFillColor(HYEAN_DARK_GRAY)
-    c.drawCentredString(width / 2, final_text_y, "최종 판정 결과") 
+    c.drawCentredString(width / 2, final_text_y, "최종 판정 결과") # <--- 가운데 정렬 적용
     
-    # "원본 일치" 메인 메시지 위치: 최종 판정 결과 텍스트 아래 50pt 간격 확보 (겹침 방지)
+    # 메인 메시지 (색상 동적 적용)
     c.setFont('NanumGothicBold', 32)
-    c.setFillColor(HYEAN_GREEN)
+    c.setFillColor(final_color) # MATCH/MISMATCH에 따른 색상 적용
     authentic_text_y = final_text_y - 50 
-    c.drawCentredString(width / 2, authentic_text_y, "✓ 원본 일치 (Authentic)")
+    c.drawCentredString(width / 2, authentic_text_y, final_text) # MATCH/MISMATCH에 따른 텍스트 적용
     
-    # --- 3. 검증 대상 vs 원본 대조 정보 ---
+    # --- 4. 검증 대상 vs 원본 대조 정보 ---
     
-    # 박스 끝(box_y)에서 30pt 아래로 시작 (회색 박스 커진 만큼 아래로 내림)
     current_y_data_start = box_y - 30 
-    
-    box_height_info = 130 # 정보 박스 높이
-    box_width = (width - margin * 2 - 20) / 2 # 중간 간격 20pt
+    box_height_info = 130 
+    box_width = (width - margin * 2 - 20) / 2 
     
     # A. 검증 대상 정보 (TARGET)
     target_filename_truncated = truncate_filename(result_data['targetFileName']) 
@@ -200,8 +216,7 @@ def create_verify_report_pdf(report_id, verify_date, result_data):
     draw_data_box(c, margin + box_width + 20, current_y_data_start, "원본 대조 정보 (ORIGINAL)", original_data, box_width, box_height_info, line_height)
 
 
-    # --- 4. 종합 소견 ---
-    # 데이터 박스의 가장 아래 위치에서 충분한 여백 (30pt)을 더합니다.
+    # --- 5. 종합 소견 (동적 소견 적용) ---
     current_y_bottom_data_box = current_y_data_start - 18 - box_height_info
     current_y = current_y_bottom_data_box - 30 
     
@@ -212,47 +227,40 @@ def create_verify_report_pdf(report_id, verify_date, result_data):
     c.setFillColor(HYEAN_BLUE)
     c.rect(margin, current_y - 10, 3, 14, fill=1, stroke=0) 
     
-    # 텍스트는 수직 바 옆에 그립니다.
     c.setFillColor(HYEAN_DARK_GRAY)
     c.drawString(margin + 10, current_y, "종합 소견 (OPINION)")
-    
-    # 종합 소견 아래 선 제거 (새로운 디자인은 선 대신 박스를 사용하므로)
-    # c.setStrokeColor(HYEAN_DARK_GRAY)
-    # c.setLineWidth(1)
-    # c.line(margin, current_y - 5, width - margin, current_y - 5) 
-    
-    opinion_text = [
-        "본 시스템(혜안)의 Chroma Hash 알고리즘을 통해 검증 대상 파일과 원본 파일의 디지털 지문(Hash)을",
-        "정밀 대조하였습니다.",
-        "",
-        "분석 결과, 두 파일의 고유 해시값이 100% 일치하는 것으로 확인되었습니다. 이에 따라 상기 검증 대상 파",
-        "일은 원본 데이터와 동일하며, 등록 시점 이후 어떠한 픽셀 변조나 손상이 발생하지 않았음을 증명합니다."
-    ]
-    
-    # 종합 소견 텍스트를 박스 안에 넣기 위해 위치 조정
-    text_start_y = current_y - 10 - line_height # 제목 아래 여백
     
     # 텍스트 박스 그리기
     text_box_x = margin
     text_box_width = width - margin * 2
-    # 텍스트 높이 계산: 5줄 + 상하 여백
-    text_height_estimated = line_height * 5 + 30 
-    text_box_y_bottom = text_start_y - text_height_estimated
+    # 텍스트 높이 계산: MISMATCH는 줄이 더 많으므로 최대 7줄 기준으로 계산
+    text_height_estimated = line_height * 7 + 30 
+    text_box_y_bottom = current_y - 10 - text_height_estimated
     
-    c.setStrokeColor(HYEAN_LIGHT_GRAY) # 연한 회색 테두리
+    c.setStrokeColor(HYEAN_LIGHT_GRAY) 
     c.setLineWidth(1)
     c.roundRect(text_box_x, text_box_y_bottom, text_box_width, text_height_estimated, 5, stroke=1, fill=0)
     
-    # 첫 문단 위에 공백 한 줄($18pt) 삽입
-    current_y = text_start_y - line_height * 1.5 # 박스 안쪽 여백 시작점 조정 (0.5줄 + 1줄 공백)
+    # 텍스트 시작 위치 조정
+    text_start_y = current_y - 10 - line_height * 0.5 
     
     c.setFont('NanumGothic', 11)
     c.setFillColor(black)
-    for line in opinion_text:
-        c.drawString(margin + 10, current_y, line) # 박스 안쪽으로 10pt 여백
+    
+    # 텍스트 출력 (동적 소견 적용)
+    current_y = text_start_y 
+    for line in opinion_lines:
+        # **굵게** 표시 처리 (MISMATCH 소견용)
+        if line.startswith('**'):
+             c.setFont('NanumGothicBold', 11)
+             c.drawString(margin + 10, current_y, line.strip('*'))
+             c.setFont('NanumGothic', 11) # 다시 일반 폰트로
+        else:
+            c.drawString(margin + 10, current_y, line) 
+            
         current_y -= line_height
 
-    # --- 5. 발급 기관 정보 (Footer) ---
+    # --- 6. 발급 기관 정보 (Footer) ---
     c.setStrokeColor(HYEAN_LIGHT_GRAY)
     c.setLineWidth(1)
     c.line(margin, 90, width - margin, 90)
@@ -284,7 +292,7 @@ async def issue_verification_report(
             "report_id": "VR-20251125-0001",
             "original_file_id": "a1b2c3d4-e5f6-7890-a1b2-c3d4e5f67890",
             "target_file_name": "screenshot_2025-08-19_3.03.26.png",
-            "verification_result": "MATCH"
+            "verification_result": "MATCH" # <--- 이 값을 PDF 함수로 전달합니다.
         }
     )
 ):
@@ -374,6 +382,7 @@ async def issue_verification_report(
             report_id=report_id,
             verify_date=report_issue_date_str,
             result_data=result_data,
+            verification_result=verification_result, # <-- MISMATCH 로직을 위해 추가
         )
     except Exception as e:
         print(f"PDF 생성 중 오류 발생: {e}")
@@ -398,6 +407,7 @@ async def issue_verification_report(
     }
 
     try:
+        # Note: verification_log 테이블의 컬럼 이름이 'verification_result'인지 확인 필요
         supabase.table("verification_log").insert(log_data).execute()
     except Exception as log_e:
         print(f"Warning: Failed to log verification report to DB: {log_e}")
