@@ -7,9 +7,7 @@ import "./Detect.css";
 export default function Detect() {
   const location = useLocation();
   const navigate = useNavigate();
-
   const quickImage = location.state?.quickImage || null;
-
   const [originalImage, setOriginalImage] = useState(quickImage);
   const [suspiciousImage, setSuspiciousImage] = useState(null);
   const [showGallery, setShowGallery] = useState(false);

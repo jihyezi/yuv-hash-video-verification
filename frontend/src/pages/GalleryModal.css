@@ -69,6 +69,6 @@
 .modal-close-x:focus,
 .modal-close-x:active {
   outline: none !important;   
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15); /* 클릭 시 그림자 유지 */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
