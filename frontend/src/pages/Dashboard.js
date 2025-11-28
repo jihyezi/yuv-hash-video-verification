@@ -5,21 +5,6 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import StatCard from "../components/StatCard";
 import { getDashboardStatsAPI, getActivityLogsAPI, getRecentFilesAPI } from "../api/api";
 
-const activityLogs = [
-  "🔹 사용자 '홍길동'이 파일을 등록했습니다.",
-  "🔹 시스템에서 자동 검증이 수행되었습니다.",
-  "🔹 관리자 계정으로 로그인했습니다.",
-  "🔹 파일 'sample01.jpg'이 검증 통과했습니다.",
-  "🔹 파일 'report_2025.pdf' 업로드 완료.",
-];
-
-const savedFiles = [
-  { name: "sample01.jpg", date: "2025-10-30 15:42", size: "1.2MB" },
-  { name: "report_2025.pdf", date: "2025-10-29 20:11", size: "3.8MB" },
-  { name: "logo.png", date: "2025-10-29 13:02", size: "512KB" },
-  { name: "document.docx", date: "2025-10-28 09:55", size: "2.4MB" },
-];
-
 export default function Dashboard() {
   const navigate = useNavigate();
 
@@ -206,7 +191,6 @@ export default function Dashboard() {
               {files.length > 0 ? (
                 files.map((file, index) => (
                   <tr key={index}>
-                    {/* file_name과 title 중 백엔드가 보내주는 키값 사용 */}
                     <td>{file.file_name || file.title}</td>
                     <td>{formatDate(file.created_at)}</td>
                     <td>{file.username} ({file.department})</td>
