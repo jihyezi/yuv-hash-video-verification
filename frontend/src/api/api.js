@@ -108,3 +108,16 @@ export const generateCertificateAPI = (image, verification_result = "MATCH") => 
 };
 
 
+// --- 6. 실시간 활동 로그 ---
+
+export const fetchActivityLogAPI = async (limit = 100) => {
+  try {
+    const response = await apiClient.get(`/log/activity`, {
+      params: { limit },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("활동 로그 조회 실패:", error);
+    throw error;
+  }
+};
