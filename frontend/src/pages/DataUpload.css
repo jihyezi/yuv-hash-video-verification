@@ -15,7 +15,6 @@
   color: #222;
 }
 
-
 .upload-subtitle {
   font-size: 15px;
   color: #666;
@@ -31,7 +30,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   width: 720px;
   min-height: 400px;  /* ⭐ 고정 높이로 버튼 위치 고정 11.27*/
-  
   display: flex;
   flex-direction: column;
   justify-content: space-between; /* ⭐ 버튼 항상 맨 아래11.27 */
@@ -131,7 +129,7 @@ button:disabled {
   align-items: center;
   gap: 15px;
   width: 100%;
-  margin-top: 20px;
+  margin-top: 20px; 
 }
 
 
@@ -178,18 +176,4 @@ button:disabled {
 
 .team-select select:hover {
   border-color: #888;
-}
-
-.image-preview-container {
-  width: 500px;      /* 원하는 고정 너비 */
-  height: 300px;     /* 원하는 고정 높이 */
-  overflow: hidden;
-  border-radius: 10px;
-  margin-bottom: 15px;
-}
-
-.drop-preview {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;   /* 🔥 비율 유지하면서 꽉 채우기 */
 }
