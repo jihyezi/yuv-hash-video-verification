@@ -8,26 +8,34 @@ export default function DataUpload({ userDept }) {
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [myDepartment, setMyDepartment] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
 
-  // 페이지 로드 시 로그인 확인 및 부서 정보 세팅
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    const savedDept = localStorage.getItem("department");
-
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      navigate("/"); // 로그인 페이지로 이동
-      return;
+  const handleFileChange = (fileObj) => {
+    if (fileObj) {
+      setFile(fileObj);
+      setPreviewUrl(URL.createObjectURL(fileObj));
     }
+  };
 
-    setMyDepartment(savedDept || "부서 정보 없음");
-  }, [navigate]);
+  // -------------------------------
+  // 🔥 드래그 앤 드롭 기능 추가
+  // ------------------------------- #11.26하린 수정
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setPreviewUrl(URL.createObjectURL(selectedFile));
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const droppedFile = e.dataTransfer.files[0];
+    if (droppedFile) {
+      handleFileChange(droppedFile);
     }
   };
 
@@ -44,8 +52,6 @@ export default function DataUpload({ userDept }) {
 
     try {
       const response = await uploadImageAPI(file);
-
-      console.log("업로드 성공:", response.data);
       alert("업로드 성공!");
 
       navigate("/project", {
@@ -80,18 +86,26 @@ export default function DataUpload({ userDept }) {
           진위 검증을 위해 원본 영상을 안전하게 등록하세요.
         </p>
 
-        <div className="upload-box">
+        <div
+          className={`upload-box ${isDragging ? "drag-active" : ""}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
           {!previewUrl ? (
             <label className="drop-zone">
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleFileChange}
+                onChange={(e) => handleFileChange(e.target.files[0])}
                 className="file-input"
               />
               <div className="drop-content">
                 <img src={uploadIcon} alt="업로드" className="upload-icon" />
-                <p>이미지 파일을 선택하거나<br />여기로 끌어오세요.</p>
+                <p>
+                  이미지 파일을 선택하거나<br />
+                  <strong>여기로 끌어오세요</strong>
+                </p>
               </div>
             </label>
           ) : (
@@ -100,17 +114,11 @@ export default function DataUpload({ userDept }) {
             </div>
           )}
 
-
           <div className="button-container">
-            {previewUrl && (
-              <button className="reset-btn" onClick={handleReset}>
-                재업로드
-              </button>
-            )}
-            <button className="upload-btn" onClick={uploadImage}>
-              업로드
-            </button>
-          </div>
+    <button className="upload-btn" onClick={uploadImage}>
+        업로드
+    </button>
+</div> 
         </div>
       </main>
     </div>
