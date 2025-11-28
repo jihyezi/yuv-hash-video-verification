@@ -23,7 +23,13 @@ async def upload_original_image(
     file: UploadFile = File(...),
     current_user = Depends(get_current_user)
 ):
-    user_id = current_user.id 
+    if isinstance(current_user, dict):
+            user_id = current_user.get('id')
+    else:
+            user_id = getattr(current_user, 'id', None)
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="유저 ID를 찾을 수 없습니다.")
     
     folder_name = "unassigned" 
     department_id = None

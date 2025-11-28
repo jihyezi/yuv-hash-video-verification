@@ -61,7 +61,7 @@
 
 /* ===== 드롭 영역 내부 ===== */
 .drop-content {
-  width: 60%; /* 내부 내용 크기 줄임 */
+  width: 90%; /* 내부 내용 크기 줄임 */
   max-width: 360px;
   text-align: center;
   display: flex;
@@ -79,7 +79,7 @@
 }
 
 .image-preview-container {
-  width: 100%;       /* 드롭존과 동일한 너비 */
+  width: 90%;       /* 드롭존과 동일한 너비 */
   height: 320px;     /* 드롭존과 동일한 높이 */
   margin: 0;         /* 마진 제거 */
   
