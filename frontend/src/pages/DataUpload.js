@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState , useEffect} from "react";
 import { useNavigate } from "react-router-dom";
-import apiClient from "../api/axiosConfig";
 import uploadIcon from "../img/upload_.svg";
 import "./DataUpload.css";
 import { uploadImageAPI } from "../api/api";
-
-export default function DataUpload() {
+export default function DataUpload({ userDept }) {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -55,7 +53,7 @@ export default function DataUpload() {
           newImage: {
             name: file.name,
             img: previewUrl,
-            team: myDepartment,
+            team: userDept || "부서 정보 없음",
             id: response.data.file_data?.id
           },
         },

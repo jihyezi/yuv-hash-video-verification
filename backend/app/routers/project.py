@@ -1,7 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Optional, Dict, Any, List
 import os
+
+# Supabase 클라이언트
 from app.core.supabase_client import supabase
+# 인증된 사용자 정보 가져오기
 from app.routers.auth import get_current_user
 
 router = APIRouter(prefix="/project", tags=["Project"])
@@ -22,6 +25,7 @@ def get_project_images(
     """
 
     try:
+        # 1. 유저 ID 추출 (AttributeError 방지)
         if isinstance(current_user, dict):
 
             user_id = current_user.get('id')
@@ -29,8 +33,9 @@ def get_project_images(
             user_id = getattr(current_user, 'id', None)
 
         if not user_id:
-            raise HTTPException(status_code=401, detail="유저 ID를 찾을 수 없습니다.")
 
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="유저 ID를 찾을 수 없습니다.")
+        
         print("\n========== [프로젝트 이미지 조회 시작] ==========")
         print(f"1. 요청자 사용자 ID: {user_id}")
 
@@ -92,19 +97,23 @@ def delete_image(
     """
 
     try:
+        # 1. 유저 ID 추출 (AttributeError 방지)
         if isinstance(current_user, dict):
             user_id = current_user.get('id')
         else:
             user_id = getattr(current_user, 'id', None)
+        
+        if not user_id:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="유저 ID를 찾을 수 없습니다.")
 
         print("\n========== [이미지 삭제 시작] ==========")
-        print(f"1. 요청한 사용자: {user_id}")
+        print(f"1. 요청한 사용자 ID: {user_id}")
         print(f"2. 삭제 요청한 이미지 ID: {image_id}")
 
-        # 1) gallery 테이블에서 이미지 정보 가져오기
+        # 1) gallery 테이블에서 이미지 정보 가져오기 (로그를 위해 title도 가져옴)
         image_data = (
             supabase.table("gallery")
-            .select("image_url")
+            .select("image_url, title")
             .eq("id", image_id)
             .single()
             .execute()
@@ -114,7 +123,8 @@ def delete_image(
             raise HTTPException(status_code=404, detail="이미지를 찾을 수 없습니다.")
 
         image_row = image_data.data
-        file_path = image_row["image_url"]  # 예: "법무팀/파일명.png"
+        file_path = image_row["image_url"]
+        file_title = image_row["title"] # 로그에 사용할 파일 제목 추출
 
         print(f"3. 삭제할 Storage 파일 경로: {file_path}")
 
@@ -132,6 +142,22 @@ def delete_image(
         )
 
         print("5. DB 삭제 결과:", delete_res)
+        
+        # 4) 사용자 이름 조회 (활동 로그 기록용)
+        username_res = supabase.table("user").select("username").eq("id", user_id).single().execute()
+        username_placeholder = username_res.data.get("username", "Unknown User") if username_res.data else "Unknown User"
+
+        # -----------------------------------------------------------
+        # 활동 로그 기록 (Activity Log)
+        supabase.table("activity_log").insert({
+            "user_id": user_id,
+            "username": username_placeholder,
+            "activity_type": "파일 삭제",
+            "target_object": file_title,
+            "status": "완료"
+        }).execute()
+        # -----------------------------------------------------------
+
         print("=====================================\n")
 
         return {"message": "삭제 완료"}

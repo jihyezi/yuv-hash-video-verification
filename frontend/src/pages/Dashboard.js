@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import StatCard from "../components/StatCard";
-import { getDashboardStatsAPI } from "../api/api";
+import { getDashboardStatsAPI, getActivityLogsAPI, getRecentFilesAPI } from "../api/api";
 
 const activityLogs = [
   "🔹 사용자 '홍길동'이 파일을 등록했습니다.",
@@ -42,51 +42,81 @@ export default function Dashboard() {
     { name: "Free", value: 100 },
   ]);
 
-  // 3. 페이지 로드 시 데이터 가져오기
+  // 3. 로그용 상태 관리
+  const [logs, setLogs] = useState([]);
+  const [files, setFiles] = useState([]);
+
+  // 4. 페이지 로드 시 데이터 가져오기
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getDashboardStatsAPI();
-        const data = response.data;
+        const [statsRes, logsRes, filesRes] = await Promise.all([
+          getDashboardStatsAPI(),
+          getActivityLogsAPI(),
+          getRecentFilesAPI()
+        ]);
+
+        // 통계 데이터 처리
+        const data = statsRes.data;
         setStats(data);
-        console.log("📊 대시보드 데이터 수신:", response.data);
+        updateCharts(data);
 
-        // --- 차트 데이터 업데이트 (시각화용 계산) ---
+        // 로그&파일 데이터 처리
+        setLogs(logsRes.data);
+        setFiles(filesRes.data);
 
-        // (1) 스토리지 차트: 1GB(1024MB)를 기준으로 사용량 계산
-        const usageValue = parseFloat(data.storage_usage.split(" ")[0]);
-        const isGB = data.storage_usage.includes("GB");
-        const usageMB = isGB ? usageValue * 1024 : usageValue;
-
-        // 전체 1024MB 중 사용량 비율
-        const storageUsed = Math.min(usageMB, 1024);
-        setStorageData([
-          { name: "Used", value: storageUsed },
-          { name: "Free", value: 1024 - storageUsed }
-        ]);
-
-        // (2) API 차트: 월 10,000회 무료라고 가정하고 비율 계산
-        const apiLimit = 1000;
-        const apiUsed = Math.min(data.api_count, apiLimit);
-        setApiData([
-          { name: "Used", value: apiUsed },
-          { name: "Free", value: apiLimit - apiUsed }
-        ]);
-
+        console.log("📊 데이터 로드 완료");
       } catch (error) {
         console.error("대시보드 데이터 로드 실패:", error);
-        console.error("상세 에러:", error.response?.data);
       }
     };
-
     fetchData();
   }, []);
 
-  // 페이지 이동 핸들러
+  const updateCharts = (data) => {
+    // (1) 스토리지 차트: 1GB(1024MB)를 기준으로 사용량 계산
+    const usageValue = parseFloat(data.storage_usage.split(" ")[0]);
+    const isGB = data.storage_usage.includes("GB");
+    const usageMB = isGB ? usageValue * 1024 : usageValue;
+
+    // 전체 1024MB 중 사용량 비율
+    const storageUsed = Math.min(usageMB, 1024);
+    setStorageData([
+      { name: "Used", value: storageUsed },
+      { name: "Free", value: 1024 - storageUsed }
+    ]);
+
+    // (2) API 차트: 월 10,000회 무료라고 가정하고 비율 계산
+    const apiLimit = 1000;
+    const apiUsed = Math.min(data.api_count, apiLimit);
+    setApiData([
+      { name: "Used", value: apiUsed },
+      { name: "Free", value: apiLimit - apiUsed }
+    ]);
+  };
+
+  const getLogMessage = (log) => {
+    switch (log.activity_type) {
+      case "UPLOAD": return `사용자 '${log.username}'님이 파일을 등록했습니다.`;
+      case "LOGIN": return `${log.username} 계정으로 로그인했습니다.`;
+      case "VERIFY": return `파일 '${log.target_object}' 검증이 수행되었습니다.`;
+      case "FORGERY_DETECTED": return `🚨 파일 '${log.target_object}'에서 위변조가 감지되었습니다.`;
+      default: return `[${log.activity_type}] ${log.target_object || ""}`;
+    }
+  };
+
+  // 5. 헬퍼 함수: 날짜 포맷팅
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return date.toLocaleString('ko-KR', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hour12: false
+    }).replace(/\./g, '-').replace(/ /g, ' ').trim();
+  };
+
   const goToDataUpload = () => navigate("/data");
   const goToDetect = () => navigate("/detect");
-
-
 
   return (
     <div className="dashboard">
@@ -143,12 +173,22 @@ export default function Dashboard() {
       </section>
 
       <section className="bottom-section">
+        {/* 로그 섹션 수정 */}
         <div className="activity-log">
           <h2>실시간 활동 로그</h2>
           <ul>
-            {activityLogs.map((log, index) => (
-              <li key={index}>{log}</li>
-            ))}
+            {logs.length > 0 ? (
+              logs.map((log, index) => (
+                <li key={index}>
+                  🔹 {getLogMessage(log)}
+                  <span style={{ fontSize: "0.8em", color: "#888", marginLeft: "8px" }}>
+                    {new Date(log.created_at).toLocaleTimeString()}
+                  </span>
+                </li>
+              ))
+            ) : (
+              <li>최근 활동 내역이 없습니다.</li>
+            )}
           </ul>
         </div>
 
@@ -159,17 +199,26 @@ export default function Dashboard() {
               <tr>
                 <th>파일명</th>
                 <th>저장일시</th>
-                <th>크기</th>
+                <th>사용자 (부서)</th>
               </tr>
             </thead>
             <tbody>
-              {savedFiles.map((file, index) => (
-                <tr key={index}>
-                  <td>{file.name}</td>
-                  <td>{file.date}</td>
-                  <td>{file.size}</td>
+              {files.length > 0 ? (
+                files.map((file, index) => (
+                  <tr key={index}>
+                    {/* file_name과 title 중 백엔드가 보내주는 키값 사용 */}
+                    <td>{file.file_name || file.title}</td>
+                    <td>{formatDate(file.created_at)}</td>
+                    <td>{file.username} ({file.department})</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" style={{ textAlign: "center", padding: "20px" }}>
+                    등록된 파일이 없습니다.
+                  </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
