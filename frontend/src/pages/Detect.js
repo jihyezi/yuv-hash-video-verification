@@ -82,10 +82,13 @@ export default function Detect() {
 
       setVerifyResult(res.data);
 
+      const suspiciousUrl = URL.createObjectURL(suspiciousImage);
+
       // 결과와 상관없이 항상 Certificate 페이지로 이동
       navigate("/certificate", {
         state: {
           original: originalImage,
+          suspicious: suspiciousImage,
           result: res.data,
         },
       });
