@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import apiClient from "../api/axiosConfig";
 import GalleryModal from "./GalleryModal";
+import uploadIcon from "../img/upload_.svg";
 import "./Detect.css";
 
 export default function Detect() {
