@@ -1,26 +1,55 @@
 .cert-page {
-  padding: 40px;
-  text-align: center;
+padding: 40px 20px;
+  background-color: #f8f9fa; 
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .cert-title {
-  font-size: 32px;
-  margin-bottom: 20px;
+  font-size: 30px;
+  font-weight: 740;
+  color: #1b1b1b;
 }
 
 .cert-box {
-  width: 600px;
-  margin: 0 auto;
-  padding: 30px;
+width: 100%;
+  max-width: 500px;
+  padding: 40px;
   background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
+  text-align: center;
+}
+
+.image-wrapper {
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.img-label {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 10px;
+  font-weight: 500;
 }
 
 .cert-image {
+  width: 100%;
   max-width: 300px;
+  height: 300px;
+  max-width: 100%;
+  max-height: 100%;
   border-radius: 8px;
   margin-bottom: 20px;
+  object-fit: contain;
+  background-color: #eeeeee;
+  border-radius: 12px;  
+  border: 1px solid #ddd; 
+  display: block;
 }
 
 .cert-status {
@@ -36,13 +65,91 @@
   color: #444;
 }
 
+.divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 20px 0 30px 0;
+  width: 100%;
+}
+
+/* 🔥 검증 결과 뱃지 디자인 (핵심) */
+.result-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  text-align: left;
+  gap: 15px;
+}
+
+.result-badge .icon {
+  font-size: 36px;
+}
+
+.result-badge .text-content h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.result-badge .text-content p {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+/* 성공 (일치) 스타일: 초록색 */
+.result-badge.success {
+  background-color: #e6f8ec;
+  border: 1px solid #28a745;
+  color: #1e7e34;
+}
+
+/* 실패 (위변조) 스타일: 빨간색 */
+.result-badge.danger {
+  background-color: #fce8e6;
+  border: 1px solid #dc3545;
+  color: #c62828;
+}
+
 .cert-info {
-  background: #f5f5f5;
-  padding: 15px;
-  border-radius: 8px;
-  margin-top: 20px;
+background: #fafafa;
+  padding: 20px;
+  border-radius: 12px;
   text-align: left;
   font-size: 14px;
+  margin-bottom: 30px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #ddd;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.info-row .label {
+  color: #666;
+  font-weight: 500;
+}
+
+.info-row .value {
+  color: #333;
+  font-weight: 700;
+  text-align: right;
+  max-width: 70%;
+  word-break: break-all;
 }
 
 /* 🔹 두 버튼 가로 정렬 컨테이너 */
@@ -56,17 +163,24 @@
 /* 🔹 기존 뒤로가기 버튼 */
 .back-btn {
   padding: 12px 20px;
-  background: #0066ff;
-  color: #fff;
-  border: none;
+  background-color: #fff;      
+  border: 1px solid #4a90e2;    
+  color: #4a90e2;              
+  font-weight: 600;
   border-radius: 6px;
   cursor: pointer;
+}
+
+.back-btn:hover {
+  background-color: #f0f8ff;   
+  border-color: #357abd;       
+  color: #357abd;    
 }
 
 /* 🔹 새로 추가된 증명서 발급 버튼 */
 .issue-btn {
   padding: 12px 20px;
-  background: #00aa55;
+  background: #4a90e2;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -74,5 +188,5 @@
 }
 
 .issue-btn:hover {
-  background: #00994b;
+  background-color: #357abd;
 }

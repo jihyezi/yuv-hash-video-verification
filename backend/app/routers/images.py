@@ -29,9 +29,7 @@ async def upload_original_image(
             user_id = getattr(current_user, 'id', None)
 
     if not user_id:
-        raise HTTPException(status_code=401, detail="유저 ID를 찾을 수 없습니다.") 
-
-
+        raise HTTPException(status_code=401, detail="유저 ID를 찾을 수 없습니다.")
     
     folder_name = "unassigned" 
     department_id = None

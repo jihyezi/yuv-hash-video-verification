@@ -9,26 +9,27 @@
 }
 
 .upload-title {
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: #222;
+  font-size: 30px;
+  font-weight: 740;
+  margin-bottom: 0px;
+  color: #1b1b1b;
 }
 
 .upload-subtitle {
   font-size: 15px;
+  font-weight: 600;
   color: #666;
   margin-bottom: 30px;
   text-align: center;
 }
 
 /* ===== 업로드 박스 ===== */
-.upload-box {
+.data-upload-box {
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: 720px;
-  padding: 20px;
+  width: 520px;
+  padding: 30px;
   height: fit-content !important; 
   min-height: 0 !important;
   display: flex;
@@ -36,15 +37,14 @@
   justify-content: flex-start;
 }
 
-
 /* ===== 드롭존 ===== */
-.drop-zone {
+.upload-drop-zone {
   border: 2px dashed #ccc;
   border-radius: 15px;
-  padding: 60px 20px; /* 내부 여백 */
-  width: 90%; /* 박스보다 살짝 작게 */
-  height: 240px; /* 세로 크기 */
-  margin: 0 auto 20px auto; /* 중앙 정렬 + 아래 여백 */
+  padding: 60px 20px; 
+  width: 90%; 
+  height: 240px; 
+  margin: 0px; 
   cursor: pointer;
   transition: border-color 0.3s ease;
   background-color: #fafafa;
@@ -53,14 +53,14 @@
   align-items: center;
 }
 
-.drop-zone.drag-over {
+.upload-drop-zone.drag-over {
   border-color: #4a90e2;
   background-color: #f0f6ff;
 }
 
 /* ===== 드롭 영역 내부 ===== */
-.drop-content {
-  width: 60%; /* 내부 내용 크기 줄임 */
+.upload-drop-content {
+  width: 90%;
   max-width: 360px;
   text-align: center;
   display: flex;
@@ -78,27 +78,25 @@
 }
 
 .image-preview-container {
-  width: 100%;       /* 드롭존과 동일한 너비 */
-  height: 320px;     /* 드롭존과 동일한 높이 */
-  margin: 0;         /* 마진 제거 */
-  
+  width: 100%;       
+  height: 360px;     
+  margin: 0;         
   border-radius: 15px;
-  background-color: #eeeeee; /* 🔥 요청하신 회색 배경 */
-  border: 1px solid #ddd;    /* 얇은 테두리 */
-  
+  background-color: #eeeeee;
+  border: 1px solid #ddd;   
   display: flex;
-  justify-content: center; /* 이미지 중앙 정렬 */
+  justify-content: center; 
   align-items: center;
   overflow: hidden;
   box-sizing: border-box;
 }
 
-/* ===== 4. 실제 이미지 스타일 ===== */
-.drop-preview {
+/* ===== 실제 이미지 스타일 ===== */
+.upload-drop-preview {
   max-width: 100%;
   max-height: 100%;
   display: block;
-  object-fit: contain; /* 비율 유지하며 박스 안에 쏙 */
+  object-fit: contain;
 }
 
 /* ===== 버튼 기본 스타일 통합 ===== */
@@ -117,16 +115,16 @@ button {
   white-space: nowrap;
 }
 
-/* 호버 시 */
 button:hover {
   background-color: #357abd;
 }
 
-/* 비활성화 버튼 */
 button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  color: #fff;
+  background-color: #ccc !important;
+  cursor: not-allowed !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 /* ===== 업로드 페이지 전용 버튼 ===== */
@@ -138,58 +136,44 @@ button:disabled {
   background-color: #357abd;
 }
 
+.reset-btn {
+  background-color: #fff;      
+  border: 1px solid #4a90e2;    
+  color: #4a90e2;              
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.reset-btn:hover {
+  background-color: #f0f8ff;   
+  border-color: #357abd;       
+  color: #357abd;             
+}
 
 /* ===== 버튼 컨테이너 통일 ===== */
-.button-container {
+.upload-button-container {
   display: flex;
   justify-content: center; 
   align-items: center;
   gap: 15px;
   width: 100%;
-  margin-top: 20px; 
+  margin-top: 32px; 
 }
 
 /* ===== 버튼 통일 ===== */
-.button-container button {
+.upload-button-container button {
   flex: 0 0 auto; 
-  padding: 0 20px; /* 너비 자동, 좌우 패딩 통일 */
-  height: 42px; /* 모든 버튼 동일 높이 */
+  padding: 0 20px; 
+  height: 42px; 
   font-size: 15px;
   border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
-  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+  white-space: nowrap; 
+  flex: 1;
+  transition: all 0.25s ease;
 }
 
-/* 파일 입력 숨김 */
+/* ===== 파일 입력 숨김 ===== */
 .file-input {
   display: none;
-}
-
-/* 팀/폴더 선택 영역 */
-.team-select {
-  margin-top: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 16px;
-  color: #333;
-}
-
-.team-select label {
-  font-weight: 500;
-}
-
-.team-select select {
-  padding: 6px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #fff;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.team-select select:hover {
-  border-color: #888;
 }

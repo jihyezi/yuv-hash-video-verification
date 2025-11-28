@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import apiClient from "../api/axiosConfig";
 import GalleryModal from "./GalleryModal";
+import uploadIcon from "../img/upload_.svg";
 import "./Detect.css";
 
 export default function Detect() {
@@ -11,24 +12,18 @@ export default function Detect() {
   const [originalImage, setOriginalImage] = useState(quickImage);
   const [suspiciousImage, setSuspiciousImage] = useState(null);
   const [showGallery, setShowGallery] = useState(false);
-
   const [verifyResult, setVerifyResult] = useState(null);
-
   const [dragOriginal, setDragOriginal] = useState(false);
   const [dragSuspicious, setDragSuspicious] = useState(false);
 
-  // ==========================
   // 이미지 미리보기
-  // ==========================
   const getPreviewSrc = (img) => {
     if (!img) return null;
     if (img.url) return img.url;
     return typeof img === "string" ? img : URL.createObjectURL(img);
   };
 
-  // ==========================
   // 원본 이미지 업로드
-  // ==========================
   const handleOriginalUpload = (file) => {
     setOriginalImage({
       id: null,
@@ -37,16 +32,12 @@ export default function Detect() {
     });
   };
 
-  // ==========================
   // 의심 이미지 업로드
-  // ==========================
   const handleSuspiciousUpload = (file) => {
     setSuspiciousImage(file);
   };
 
-  // ==========================
   // 드래그 앤 드롭 이벤트
-  // ==========================  #11.26
   const handleDrag = (e, setDragState) => {
     e.preventDefault();
     e.stopPropagation();
@@ -68,9 +59,7 @@ export default function Detect() {
     if (file) uploadHandler(file);
   };
 
-  // ==========================
-  // 🔥 검증 API
-  // ==========================
+  // 검증 API
   const handleVerify = async () => {
     if (!originalImage || !suspiciousImage) {
       alert("원본 이미지와 의심 이미지를 모두 업로드해주세요.");
@@ -93,24 +82,23 @@ export default function Detect() {
 
       setVerifyResult(res.data);
 
-      
-      // ⭐ [수정] 결과와 상관없이 항상 Certificate 페이지로 이동
+      const suspiciousUrl = URL.createObjectURL(suspiciousImage);
+
+      // 결과와 상관없이 항상 Certificate 페이지로 이동
       navigate("/certificate", {
         state: {
           original: originalImage,
+          suspicious: suspiciousImage,
           result: res.data,
         },
       });
-
     } catch (err) {
       console.error("검증 에러:", err);
       alert(err.response?.data?.detail || "검증 중 오류 발생");
     }
   };
 
-  // ==========================
   // 갤러리 이미지 선택
-  // ==========================
   const handleSelectFromGallery = (img) => {
     setOriginalImage({
       id: img.id,
@@ -130,91 +118,88 @@ export default function Detect() {
 
       <div className="detect-steps">
 
-        {/* =======================
-            STEP 1 — 원본
-        ======================== */}
-       {/* Step 1 드롭존 */}
-<div
-  className={`upload-box ${dragOriginal ? "drag-active" : ""}`}
-  onDragOver={(e) => handleDrag(e, setDragOriginal)}
-  onDragLeave={(e) => handleDragLeave(e, setDragOriginal)}
-  onDrop={(e) => handleDrop(e, setDragOriginal, handleOriginalUpload)}
->
-  <h3 className="step-title">
-    Step 1. <span>원본 데이터 선택</span>
-  </h3>
-
-  {!originalImage && (
-    <label
-      className="drop-zone"
-      onClick={(e) => {
-        e.preventDefault();
-        setShowGallery(true); // 클릭하면 갤러리 모달 열기
-      }}
-    >
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => handleOriginalUpload(e.target.files[0])}
-        className="file-input"
-      />
-      <div className="drop-content">
-        <img src="/img/upload_.svg" alt="업로드" className="upload-icon" />
-        <p>원본 이미지를 선택하거나 드래그하세요</p>
-      </div>
-    </label>
-  )}
-
-  {originalImage && (
-    <img src={getPreviewSrc(originalImage)} className="image-preview" alt="원본" />
-  )}
-  <button /*11.27hr*/ className="detect-btn" onClick={() => setShowGallery(true)} disabled={!!originalImage} > 내 갤러리에서 선택 </button>
-</div>
-
-        {/* =======================
-            STEP 2 — 의심 이미지
-        ======================== */}
-        <div
-          className={`upload-box ${dragSuspicious ? "drag-active" : ""}`}
-          onDragOver={(e) => handleDrag(e, setDragSuspicious)}
-          onDragLeave={(e) => handleDragLeave(e, setDragSuspicious)}
-          onDrop={(e) => handleDrop(e, setDragSuspicious, handleSuspiciousUpload)}
-        >
-          <h3 className="step-title">
-            Step 2. <span>의심 데이터 업로드</span>
+        {/* === STEP 1 — 원본 === */}
+        <div className="step-wrapper">
+          <h3 className="step-title active-title">
+            <span>Step 1. 원본 데이터 선택</span> {originalImage && "✅"}
           </h3>
 
-          {!suspiciousImage && (
-            <label className="drop-zone">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleSuspiciousUpload(e.target.files[0])}
-                className="file-input"
-              />
-              <div className="drop-content">
-                <img src="/img/upload_.svg" alt="업로드" className="upload-icon" />
-                <p>의심 이미지를 선택하거나 드래그하세요</p>
+          <div
+            className={`upload-box ${dragOriginal ? "drag-active" : ""}`}
+            onDragOver={(e) => handleDrag(e, setDragOriginal)}
+            onDragLeave={(e) => handleDragLeave(e, setDragOriginal)}
+            onDrop={(e) => handleDrop(e, setDragOriginal, handleOriginalUpload)}
+          >
+            {!originalImage ? (
+              <label
+                className="drop-zone"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowGallery(true); // 클릭하면 갤러리 모달 열기
+                }}
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleOriginalUpload(e.target.files[0])}
+                  className="file-input"
+                />
+                <div className="drop-content">
+                  <img src={uploadIcon} alt="업로드" className="upload-icon" />
+                  <p>원본 이미지를 갤러리에서 선택하세요</p>
+                </div>
+              </label>
+            ) : (
+              <div className="preview-container">
+                <img src={getPreviewSrc(originalImage)} className="image-preview" alt="원본" />
               </div>
-            </label>
-          )}
+            )}
 
-          {suspiciousImage && (
-            <img
-              src={URL.createObjectURL(suspiciousImage)}
-              className="image-preview"
-              alt="의심"
-            />
-          )}
+            <button className="detect-action-btn" onClick={() => setShowGallery(true)}>
+              {originalImage ? "다른 이미지 선택" : "내 갤러리에서 선택"}
+            </button>
+          </div>
+        </div>
 
-          <button
-  className="detect-btn"
-  onClick={handleVerify}
-  disabled={!originalImage || !suspiciousImage}
->
-  데이터 위변조 검증하기
-</button>
+        {/* === STEP 2 — 의심 이미지 === */}
+        <div className="step-wrapper">
+          <h3 className={`step-title ${originalImage ? "active-title" : ""}`}>
+            <span>Step 2. 의심 데이터 업로드</span> {suspiciousImage && "✅"}
+          </h3>
 
+          <div
+            className={`upload-box ${dragSuspicious ? "drag-active" : ""}`}
+            onDragOver={(e) => handleDrag(e, setDragSuspicious)}
+            onDragLeave={(e) => handleDragLeave(e, setDragSuspicious)}
+            onDrop={(e) => handleDrop(e, setDragSuspicious, handleSuspiciousUpload)}
+          >
+            {!suspiciousImage ? (
+              <label className="drop-zone">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleSuspiciousUpload(e.target.files[0])}
+                  className="file-input"
+                />
+                <div className="drop-content">
+                  <img src={uploadIcon} alt="업로드" className="upload-icon" />
+                  <p>의심 이미지를 선택하거나 드래그하세요</p>
+                </div>
+              </label>
+            ) : (
+              <div className="preview-container">
+                <img src={URL.createObjectURL(suspiciousImage)} className="image-preview" alt="의심" />
+              </div>
+            )}
+
+            <button
+              className="detect-action-btn"
+              onClick={handleVerify}
+              disabled={!originalImage || !suspiciousImage}
+            >
+              데이터 위변조 검증하기
+            </button>
+          </div>
         </div>
       </div>
 
