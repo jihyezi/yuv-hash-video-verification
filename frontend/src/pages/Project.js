@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaTrashAlt, FaSearch } from "react-icons/fa";
+import { FaTrashAlt, FaSearch, FaRegFolderOpen } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axiosConfig";
 import "./Project.css";
@@ -94,6 +94,32 @@ export default function Project() {
     }
   };
 
+  const formatFileName = (fileName, nameLimit = 10) => {
+    if (!fileName) return "";
+
+    const lastDotIndex = fileName.lastIndexOf(".");
+
+    // 1. 확장자가 없는 경우: 그냥 끝을 자름
+    if (lastDotIndex === -1) {
+      if (fileName.length <= nameLimit) return fileName;
+      return fileName.substring(0, nameLimit) + "...";
+    }
+
+    const extension = fileName.substring(lastDotIndex); // .jpg
+    const namePart = fileName.substring(0, lastDotIndex); // 파일명만 추출
+
+    // 2. '파일명(확장자 제외)'이 제한 길이보다 짧으면 그대로 반환
+    if (namePart.length <= nameLimit) {
+      return fileName;
+    }
+
+    // 3. 중간 줄임 로직 (앞 6글자 + ... + 뒤 2글자 + 확장자)
+    const frontPart = namePart.substring(0, 6);
+    const backPart = namePart.substring(namePart.length - 3);
+
+    return `${frontPart}...${backPart}${extension}`;
+  };
+
   return (
     <div className="project-container">
       <div className="folder-sidebar">
@@ -119,43 +145,44 @@ export default function Project() {
       </div>
 
       <div className="file-area">
-        <div className="file-actions">
-          <button>폴더생성</button>
-          <button
-            onClick={() => {
-               if (!selectedImage) {
-              alert("사진을 선택해주세요!");
-        return;
-          }
+        <div className="file-header-area">
+          <div className="file-actions">
+            <button>폴더생성</button>
+            <button
+              onClick={() => {
+                if (!selectedImage) {
+                  alert("사진을 선택해주세요!");
+                  return;
+                }
 
-    navigate("/detect", {
-      state: {
-        quickImage: { id: selectedImage.id, url: selectedImage.url },
-          },
-      });
-          }}
-          >
-          빠른 검증
-          </button>
+                navigate("/detect", {
+                  state: {
+                    quickImage: { id: selectedImage.id, url: selectedImage.url },
+                  },
+                });
+              }}
+            >
+              빠른 검증
+            </button>
 
-          <button onClick={handleGenerateCertificate}>
-            증명서 발급
-          </button>
-          <button className="delete" onClick={handleDelete}>
-            삭제
-          </button>
-        </div>
+            <button onClick={handleGenerateCertificate}>
+              증명서 발급
+            </button>
+            <button className="delete" onClick={handleDelete}>
+              삭제
+            </button>
+          </div>
 
-        <div className="path-search">
-          <div className="current-path">{selectedDept ? selectedDept.name : "부서 선택"}</div>
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="사진 이름으로 검색해 보세요"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-           
+          <div className="path-search">
+            <div className="current-path">{selectedDept ? selectedDept.name : "부서 선택"}</div>
+            <div className="search-bar">
+              <input
+                type="text"
+                placeholder="사진 이름으로 검색해 보세요"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
         </div>
 
@@ -174,12 +201,16 @@ export default function Project() {
                 }
               >
                 <img src={img.full_url} alt={img.title} />
-                <p>{img.title}</p>
-                <span>등록일 {img.created_at?.split("T")[0]}</span>
+                <span className="image-title">{formatFileName(img.title)}</span>
+                <span className="image-date">등록일 {img.created_at?.split("T")[0]}</span>
               </div>
             ))
           ) : (
-            <p>등록된 이미지가 없습니다.</p>
+            <div className="empty-state">
+              <FaRegFolderOpen className="empty-icon" />
+              <h3>등록된 이미지가 없습니다</h3>
+              <p>새로운 파일을 업로드하거나 다른 폴더를 선택해보세요.</p>
+            </div>
           )}
         </div>
       </div>
