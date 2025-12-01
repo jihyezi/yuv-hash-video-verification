@@ -49,7 +49,7 @@ export default function Dashboard() {
         // 로그&파일 데이터 처리
         setLogs(logsRes.data);
         setFiles(filesRes.data);
-
+        console.log("📦 [전체 로그 데이터]", logsRes.data);
         console.log("📊 데이터 로드 완료");
       } catch (error) {
         console.error("대시보드 데이터 로드 실패:", error);
@@ -63,8 +63,6 @@ export default function Dashboard() {
     const usageValue = parseFloat(data.storage_usage.split(" ")[0]);
     const isGB = data.storage_usage.includes("GB");
     const usageMB = isGB ? usageValue * 1024 : usageValue;
-
-    // 전체 1024MB 중 사용량 비율
     const storageUsed = Math.min(usageMB, 1024);
     setStorageData([
       { name: "Used", value: storageUsed },
@@ -80,14 +78,71 @@ export default function Dashboard() {
     ]);
   };
 
-  const getLogMessage = (log) => {
-    switch (log.activity_type) {
-      case "UPLOAD": return `사용자 '${log.username}'님이 파일을 등록했습니다.`;
-      case "LOGIN": return `${log.username} 계정으로 로그인했습니다.`;
-      case "VERIFY": return `파일 '${log.target_object}' 검증이 수행되었습니다.`;
-      case "FORGERY_DETECTED": return `🚨 파일 '${log.target_object}'에서 위변조가 감지되었습니다.`;
-      default: return `[${log.activity_type}] ${log.target_object || ""}`;
+  const formatTimeBracket = (dateString) => {
+    if (!dateString) return "[-:-]";
+    const date = new Date(dateString);
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `[${hours}:${minutes}]`;
+  };
+
+  const renderLogContent = (log) => {
+    const user = log.username || "시스템";
+    const target = log.target_object || "";
+    const time = formatTimeBracket(log.created_at);
+
+    const type = log.activity_type;
+    const status = log.status || "";
+
+    const TimePrefix = <span className="log-time-prefix">{time}</span>;
+    const UserSpan = <span className="log-user">{user}</span>;
+
+    if (type === "로그인") {
+      return (
+        <p>{TimePrefix} {UserSpan} 님이 시스템에 로그인했습니다.</p>
+      );
     }
+
+    else if (type === "파일 등록" || type === "업로드") {
+      return (
+        <p>{TimePrefix} {UserSpan} 님이 <strong>'{target}'</strong> 을(를) 등록했습니다.</p>
+      );
+    }
+
+    else if (type === "파일 삭제") {
+      return (
+        <p>{TimePrefix} {UserSpan} 님이 <strong>'{target}'</strong> 을(를) 삭제했습니다.</p>
+      );
+    }
+
+    else if (type === "파일 검증") {
+      if (status === "실패") {
+        return (
+          <p>
+            {TimePrefix} {UserSpan} 님이 올린 <strong>'{target}'</strong> 에서
+            위변조가 감지되었습니다.
+          </p>
+        );
+      } else {
+        return (
+          <p>{TimePrefix} {UserSpan} 님이 <strong>'{target}'</strong> 의 무결성 검증을 실행했습니다.</p>
+        );
+      }
+    }
+
+    else {
+      return (
+        <p>{TimePrefix} {UserSpan}: {type} - {target}</p>
+      );
+    }
+  };
+
+  const getLogIcon = (log) => {
+    // 실패 상태이거나, 위변조 감지 타입이면 경고 아이콘
+    if (log.status === "실패" || log.activity_type === "위변조 감지") {
+      return <div className="log-icon-circle warning">⚠️</div>;
+    }
+    return <div className="log-icon-circle success">✅</div>;
   };
 
   // 5. 헬퍼 함수: 날짜 포맷팅
@@ -102,6 +157,8 @@ export default function Dashboard() {
 
   const goToDataUpload = () => navigate("/data");
   const goToDetect = () => navigate("/detect");
+
+  const goToStats = () => navigate("/stats");
 
   return (
     <div className="dashboard">
@@ -158,23 +215,29 @@ export default function Dashboard() {
       </section>
 
       <section className="bottom-section">
-        {/* 로그 섹션 수정 */}
         <div className="activity-log">
           <h2>실시간 활동 로그</h2>
           <ul>
             {logs.length > 0 ? (
-              logs.map((log, index) => (
+              logs.slice(0, 5).map((log, index) => (
                 <li key={index}>
-                  🔹 {getLogMessage(log)}
-                  <span style={{ fontSize: "0.8em", color: "#888", marginLeft: "8px" }}>
-                    {new Date(log.created_at).toLocaleTimeString()}
-                  </span>
+                  {getLogIcon(log)}
+                  <div className="log-content">
+                    {renderLogContent(log)}
+                  </div>
                 </li>
               ))
             ) : (
               <li>최근 활동 내역이 없습니다.</li>
             )}
           </ul>
+          {logs.length > 0 && (
+            <div
+              onClick={goToStats}
+              className="add-button">
+              더보기
+            </div>
+          )}
         </div>
 
         <div className="saved-files">
@@ -206,7 +269,7 @@ export default function Dashboard() {
             </tbody>
           </table>
         </div>
-      </section>
-    </div>
+      </section >
+    </div >
   );
 }
