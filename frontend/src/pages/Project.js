@@ -5,6 +5,7 @@ import apiClient from "../api/axiosConfig";
 import "./Project.css";
 import CertificateModal from "./CertificateModal";
 import { generateCertificateAPI } from "../api/api";
+import heic_icon from "../img/heic_icon.jpeg";
 
 export default function Project() {
   const navigate = useNavigate();
@@ -192,20 +193,30 @@ export default function Project() {
 
         <div className="file-list">
           {filteredImages.length > 0 ? (
-            filteredImages.map((img) => (
-              <div
-                key={img.id}
-                className={`file-card ${selectedImage?.id === img.id ? "selected" : ""}`}
-                onClick={() =>
-                  setSelectedImage(
-                    img)
-                }
-              >
-                <img src={img.full_url} alt={img.title} />
-                <span className="image-title">{formatFileName(img.title)}</span>
-                <span className="image-date">등록일 {img.created_at?.split("T")[0]}</span>
-              </div>
-            ))
+            filteredImages.map((img) => {
+              const extension = img.title ? img.title.split('.').pop().toLowerCase() : '';
+              const isHeic = extension === 'heic';
+
+              const displaySrc = isHeic ? heic_icon : img.full_url;
+              return (
+                <div
+                  key={img.id}
+                  className={`file-card ${selectedImage?.id === img.id ? "selected" : ""}`}
+                  onClick={() =>
+                    setSelectedImage(img)}
+                >
+                  <img
+                    src={displaySrc}
+                    alt={img.title}
+                    onError={(e) => {
+                      e.target.src = "https://via.placeholder.com/150?text=No+Image";
+                    }}
+                  />
+                  <span className="image-title">{formatFileName(img.title)}</span>
+                  <span className="image-date">등록일 {img.created_at?.split("T")[0]}</span>
+                </div>
+              );
+            })
           ) : (
             <div className="empty-state">
               <FaRegFolderOpen className="empty-icon" />
