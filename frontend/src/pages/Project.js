@@ -80,11 +80,15 @@ export default function Project() {
       const pdfBlob = new Blob([res.data], { type: "application/pdf" });
       const pdfUrl = URL.createObjectURL(pdfBlob);
 
+      const uploaderName = selectedImage.user?.username || "정보 없음";
+
       setCertificateData({
         certificateId: `CERT-${selectedImage.id}`,
         fileName: selectedImage.title,
         requestedAt: new Date().toISOString().split("T")[0],
         pdfUrl: pdfUrl,
+        originalUploadDate: selectedImage.created_at,
+        originalUploader: uploaderName,
       });
 
       setShowCertificate(true);
@@ -193,11 +197,8 @@ export default function Project() {
                 key={img.id}
                 className={`file-card ${selectedImage?.id === img.id ? "selected" : ""}`}
                 onClick={() =>
-                  setSelectedImage({
-                    id: img.id,
-                    url: img.full_url,
-                    title: img.title,
-                  })
+                  setSelectedImage(
+                    img)
                 }
               >
                 <img src={img.full_url} alt={img.title} />

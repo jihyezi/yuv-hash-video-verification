@@ -19,7 +19,7 @@ export default function CertificateModal({ data, onClose }) {
   const formatDateCustom = (dateStr, includeTime = true) => {
     if (!dateStr) return "-";
     const d = new Date(dateStr);
-    const datePart = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`;
+    const datePart = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
     return includeTime ? `${datePart} ${d.toLocaleTimeString("ko-KR")}` : datePart;
   };
 
@@ -60,12 +60,6 @@ export default function CertificateModal({ data, onClose }) {
           <div className="row">
             <span>원본 등록일시:</span>
             <p>{formatDateCustom(originalUploadDate)}</p>
-          </div>
-          <div className="row">
-            <span>검증 결과:</span>
-            <p style={{ color: isAuthentic ? "green" : "red", fontWeight: "bold" }}>
-              {isAuthentic ? "원본 일치 (Verified)" : "위변조됨 (Tampered)"}
-            </p>
           </div>
         </div>
 
