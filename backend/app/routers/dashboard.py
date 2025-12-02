@@ -60,7 +60,7 @@ def get_dashboard_stats():
         }
     
 @router.get("/files")
-def get_recent_files(limit: int = 5):
+def get_recent_files(limit: int = 6):
     try:
         # gallery 테이블을 조회하면서
         # 1. user_id를 통해 user 테이블의 username 가져오기

@@ -73,4 +73,3 @@ def verify_image(original_image_path, uploaded_image_path, secret_key):
         message = "❌ [검증 결과] 위조된 이미지입니다."
         print(message)
         return False, message
-

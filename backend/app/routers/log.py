@@ -6,7 +6,7 @@ router = APIRouter(prefix="/log", tags=["Activity Log"])
 
 
 @router.get("/activity")
-def get_activity_log(limit: int = 100):
+def get_activity_log(limit: int = 7):
     """최신 활동 로그를 조회하는 API"""
     try:
         response = (
