@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import uploadIcon from "../img/upload_.svg";
 import "./DataUpload.css";
 import { uploadImageAPI } from "../api/api";
+import heic_icon from "../img/heic_icon.jpeg";
 
 export default function DataUpload({ userDept }) {
   const navigate = useNavigate();
@@ -15,7 +16,13 @@ export default function DataUpload({ userDept }) {
   const handleFileChange = (fileObj) => {
     if (fileObj) {
       setFile(fileObj);
-      setPreviewUrl(URL.createObjectURL(fileObj));
+      const isHeic = fileObj.name.toLowerCase().endsWith('.heic');
+
+      if (isHeic) {
+        setPreviewUrl(heic_icon);
+      } else {
+        setPreviewUrl(URL.createObjectURL(fileObj));
+      }
     }
   };
 
@@ -60,11 +67,13 @@ export default function DataUpload({ userDept }) {
       const response = await uploadImageAPI(file);
       alert("업로드 성공!");
 
+      const isHeic = file.name.toLowerCase().endsWith('.heic');
+
       navigate("/project", {
         state: {
           newImage: {
             name: file.name,
-            img: previewUrl,
+            img: isHeic ? heic_icon : previewUrl,
             team: userDept || "부서 정보 없음",
             id: response.data.file_data?.id
           },
@@ -81,6 +90,8 @@ export default function DataUpload({ userDept }) {
       }
     }
   };
+
+  const isHeicFile = file && file.name.toLowerCase().endsWith('.heic');
 
   return (
     <div className="page-container">
