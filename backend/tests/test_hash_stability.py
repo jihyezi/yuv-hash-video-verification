@@ -6,19 +6,11 @@ import piexif
 import shutil
 import hashlib
 
-# -----------------------------------------------------------
-# 🛠️ 1. 경로 문제 해결: sys.path에 프로젝트 루트 추가
-# -----------------------------------------------------------
-# 현재 파일(__file__)의 디렉토리 (tests)의 부모 디렉토리 (backend)를 Python 경로에 추가합니다.
-# 이렇게 해야 'security' 모듈을 찾을 수 있습니다.
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-# -----------------------------------------------------------
-# --- 프로젝트 파일 임포트 (경로 문제 해결 후 가능) ---
-# -----------------------------------------------------------
 from security.hash import generate_chroma_hash, save_image_with_hash
 from security.verify_logic import read_hash_from_metadata 
 from security.au import generate_user_secret_key 
