@@ -145,6 +145,23 @@ export default function Dashboard() {
     return <div className="log-icon-circle success">✅</div>;
   };
 
+  const formatFileName = (fileName, nameLimit = 10) => {
+    if (!fileName) return "";
+    const lastDotIndex = fileName.lastIndexOf(".");
+    if (lastDotIndex === -1) {
+      if (fileName.length <= nameLimit) return fileName;
+      return fileName.substring(0, nameLimit) + "...";
+    }
+    const extension = fileName.substring(lastDotIndex);
+    const namePart = fileName.substring(0, lastDotIndex);
+
+    if (namePart.length <= nameLimit) return fileName;
+
+    const frontPart = namePart.substring(0, 6);
+    const backPart = namePart.substring(namePart.length - 3);
+    return `${frontPart}...${backPart}${extension}`;
+  };
+
   // 5. 헬퍼 함수: 날짜 포맷팅
   const formatDate = (dateString) => {
     if (!dateString) return "-";
@@ -254,7 +271,7 @@ export default function Dashboard() {
               {files.length > 0 ? (
                 files.map((file, index) => (
                   <tr key={index}>
-                    <td>{file.file_name || file.title}</td>
+                    <td>{formatFileName(file.file_name || file.title)}</td>
                     <td>{formatDate(file.created_at)}</td>
                     <td>{file.username} ({file.department})</td>
                   </tr>
