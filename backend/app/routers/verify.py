@@ -101,7 +101,7 @@ async def detect_forgery(
         is_authentic, message = verify_image(temp_original_path, temp_suspect_path, secret_key)
         
         # 검증 상태 설정 (로그 및 반환용)
-        verification_status = "통과" if is_authentic else "실패"
+        verification_status = "원본 인증" if is_authentic else "훼손 의심"
 
         try:
             # API 호출 로그 기록

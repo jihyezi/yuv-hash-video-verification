@@ -4,6 +4,7 @@ import apiClient from "../api/axiosConfig";
 import GalleryModal from "./GalleryModal";
 import uploadIcon from "../img/upload_.svg";
 import "./Detect.css";
+import heic_icon from "../img/heic_icon.jpeg";
 
 export default function Detect() {
   const location = useLocation();
@@ -16,9 +17,36 @@ export default function Detect() {
   const [dragOriginal, setDragOriginal] = useState(false);
   const [dragSuspicious, setDragSuspicious] = useState(false);
 
+  const checkIsHeic = (data) => {
+    if (!data) return false;
+
+    if (data.file && data.file.name) {
+      return data.file.name.toLowerCase().endsWith('.heic');
+    }
+    if (data.name) {
+      return data.name.toLowerCase().endsWith('.heic');
+    }
+    if (data.title) {
+      return data.title.toLowerCase().endsWith('.heic');
+    }
+    if (typeof data === 'string') {
+      return data.toLowerCase().endsWith('.heic');
+    }
+    if (data.url && typeof data.url === 'string') {
+      return data.url.toLowerCase().endsWith('.heic');
+    }
+
+    return false;
+  };
+
   // 이미지 미리보기
   const getPreviewSrc = (img) => {
     if (!img) return null;
+
+    if (checkIsHeic(img)) {
+      return heic_icon;
+    }
+
     if (img.url) return img.url;
     return typeof img === "string" ? img : URL.createObjectURL(img);
   };
@@ -111,6 +139,9 @@ export default function Detect() {
     if (quickImage) setOriginalImage(quickImage);
   }, [quickImage]);
 
+  const isOriginalHeic = checkIsHeic(originalImage);
+  const isSuspiciousHeic = checkIsHeic(suspiciousImage);
+
   return (
     <div className="detect-page">
       <h1 className="detect-title">데이터 위변조 검증</h1>
@@ -188,7 +219,7 @@ export default function Detect() {
               </label>
             ) : (
               <div className="preview-container">
-                <img src={URL.createObjectURL(suspiciousImage)} className="image-preview" alt="의심" />
+                <img src={isSuspiciousHeic ? heic_icon : URL.createObjectURL(suspiciousImage)} className="image-preview" alt="의심" />
               </div>
             )}
 

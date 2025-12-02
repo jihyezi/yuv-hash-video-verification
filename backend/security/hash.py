@@ -68,6 +68,20 @@ def save_image_with_hash(image_path, output_path, hash_value):
             user_comment_bytes = hash_value.encode('utf-8')
             exif_dict = {"Exif": {piexif.ExifIFD.UserComment: user_comment_bytes}}
             exif_bytes = piexif.dump(exif_dict)
+        elif output_format in ['heic', 'heif']:
+            # HEIC도 EXIF를 지원합니다. JPG와 동일한 방식으로 주입 시도
+            user_comment_bytes = hash_value.encode('utf-8')
+            exif_dict = {"Exif": {piexif.ExifIFD.UserComment: user_comment_bytes}}
+            try:
+                exif_bytes = piexif.dump(exif_dict)
+            except Exception as e:
+                # HEIC 원본에 EXIF가 없어서 dump 실패 시 기본 템플릿 사용
+                exif_dict = {"0th": {}, "Exif": {piexif.ExifIFD.UserComment: user_comment_bytes}, "GPS": {}, "1st": {}, "thumbnail": None}
+                exif_bytes = piexif.dump(exif_dict)
+
+            # pillow_heif가 등록되어 있으므로 format='HEIF'로 저장 가능
+            # quality는 필요에 따라 조절 (기본값은 보통 높음)
+            img.save(output_path, format="HEIF", exif=exif_bytes, quality=90)
             
             if img.mode == 'RGBA':
                 img = img.convert('RGB')

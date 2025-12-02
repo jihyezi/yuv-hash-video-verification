@@ -8,6 +8,7 @@ from datetime import datetime
 import shutil 
 import uuid 
 import mimetypes # 파일 형식(MIME type) 추론을 위해 추가
+import unicodedata
 
 # ReportLab 및 폰트 관련 라이브러리
 from reportlab.pdfgen import canvas
@@ -15,7 +16,6 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.colors import HexColor, black, white
-from reportlab.lib.utils import ImageReader 
 
 # 사용자 인증 함수 및 Supabase 클라이언트
 from app.routers.auth import get_current_user 
@@ -26,14 +26,20 @@ router = APIRouter(prefix="/certificate", tags=["Certificate"])
 # -----------------------------------------------------------------
 # 🎨 PDF 스타일 및 파일 경로 설정
 # -----------------------------------------------------------------
+# 1. 현재 파일(origincert.py)의 위치
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# 폰트 경로 정규화: 'static/fonts' 사용
-raw_bold_path = os.path.join(CURRENT_DIR, '..', '..', 'static', 'fonts', 'NanumGothicBold.ttf')
-FONT_BOLD_PATH = os.path.normpath(raw_bold_path)
+# 2. 폰트 폴더 경로 설정 (app/routers/../fonts ==> app/fonts)
+FONT_DIR = os.path.join(CURRENT_DIR, '..', 'fonts')
+FONT_DIR = os.path.normpath(FONT_DIR)
 
-raw_regular_path = os.path.join(CURRENT_DIR, '..', '..', 'static', 'fonts', 'NanumGothic.ttf')
-FONT_REGULAR_PATH = os.path.normpath(raw_regular_path)
+# 3. 폰트 파일 경로
+FONT_BOLD_PATH = os.path.join(FONT_DIR, 'NanumGothicBold.ttf')
+FONT_REGULAR_PATH = os.path.join(FONT_DIR, 'NanumGothic.ttf')
+
+# 디버깅 로그
+print(f"📂 [OriginCert] 폰트 폴더 경로: {FONT_DIR}")
+print(f"🔍 [OriginCert] 폰트 파일 확인: {FONT_BOLD_PATH}")
 
 LOGO_FILENAME = 'hyean_logo.png' # 로고 파일명 (PNG나 JPG로 가정)
 
@@ -42,6 +48,12 @@ HYEAN_GRAY = HexColor('#666666')
 HYEAN_DARK_GRAY = HexColor('#333333')
 HYEAN_LIGHT_GRAY = HexColor('#F0F0F0')
 
+if not os.path.exists(FONT_BOLD_PATH):
+    raise FileNotFoundError(f"🚨 [오류] 폰트 파일이 없습니다: {FONT_BOLD_PATH}")
+
+if not os.path.exists(FONT_REGULAR_PATH):
+    raise FileNotFoundError(f"🚨 [오류] 폰트 파일이 없습니다: {FONT_REGULAR_PATH}")
+
 # --- 한글 폰트 등록 ---
 try:
     # 폰트가 등록되어야 한글 출력이 가능합니다.
@@ -49,8 +61,13 @@ try:
     pdfmetrics.registerFont(TTFont('NanumGothic', FONT_REGULAR_PATH))
     # ReportLab 기본 폰트에 한글 맵핑 (필수)
     pdfmetrics.registerFontFamily('NanumGothic', normal='NanumGothic', bold='NanumGothicBold')
+    print("✅ [OriginCert] 한글 폰트 로드 성공!")
 except Exception as e:
-    print(f"Warning: 한글 폰트 로드 실패. 폰트 파일을 확인하세요. 오류: {e}")
+    if "is already registered" in str(e):
+        print("ℹ️ [OriginCert] 폰트가 이미 등록되어 있습니다.")
+    else:
+        print(f"❌ [OriginCert] 폰트 등록 실패: {e}")
+        raise e
 
 
 def create_certificate_pdf(result_data, certificate_id, issue_date_str):
@@ -143,20 +160,25 @@ def create_certificate_pdf(result_data, certificate_id, issue_date_str):
     c.setLineWidth(1)
     c.line(margin, current_y - 5, width - margin, current_y - 5)
     
-    # 파일명
+    # 파일명 
     c.setFont('NanumGothic', 11)
     c.setFillColor(HYEAN_GRAY)
     c.drawString(margin, current_y - line_height, "파일명")
+
+    safe_filename = unicodedata.normalize("NFC", result_data.get('dbFileName', 'N/A'))
+    c.setFont('NanumGothicBold', 11)
     c.setFillColor(black)
-    c.drawString(margin + 100, current_y - line_height, result_data.get('dbFileName', 'N/A'))
+    c.drawString(margin + 100, current_y - line_height, safe_filename)
     
     # 파일 형식
+    c.setFont('NanumGothic', 11)
     c.setFillColor(HYEAN_GRAY)
     c.drawString(margin, current_y - line_height * 2, "파일 형식")
     c.setFillColor(black)
     c.drawString(margin + 100, current_y - line_height * 2, result_data.get('fileFormat', 'N/A'))
     
     # 등록 일시
+    c.setFont('NanumGothic', 11)
     current_y_for_date = current_y - line_height * 3
     c.setFillColor(HYEAN_GRAY)
     c.drawString(margin, current_y_for_date, "등록 일시")
