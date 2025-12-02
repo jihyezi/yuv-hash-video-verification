@@ -43,12 +43,32 @@ export default function Detect() {
   const getPreviewSrc = (img) => {
     if (!img) return null;
 
-    if (checkIsHeic(img)) {
-      return heic_icon;
+    // 1. File 객체 (내 컴퓨터 업로드)
+    if (img instanceof File) {
+      if (img.name.toLowerCase().endsWith('.heic')) {
+        return heic_icon;
+      }
+      return URL.createObjectURL(img);
     }
 
-    if (img.url) return img.url;
-    return typeof img === "string" ? img : URL.createObjectURL(img);
+    // 2. DB 객체 (Project 페이지에서 옴)
+    // 🔥 full_url이 있으면 그걸 쓰고, 없으면 url을 씁니다.
+    const imageUrl = img.full_url || img.url;
+
+    if (imageUrl) {
+      const title = img.title || img.name || "";
+      if (title.toLowerCase().endsWith('.heic')) {
+        return heic_icon;
+      }
+      return imageUrl;
+    }
+
+    // 3. 문자열 (그냥 주소일 때)
+    if (typeof img === "string") {
+      return img;
+    }
+
+    return null;
   };
 
   // 원본 이미지 업로드
@@ -130,7 +150,9 @@ export default function Detect() {
   const handleSelectFromGallery = (img) => {
     setOriginalImage({
       id: img.id,
-      url: img.full_url,
+      url: img.full_url || img.url,
+      title: img.title,
+      ...img
     });
     setShowGallery(false);
   };
