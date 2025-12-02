@@ -236,7 +236,7 @@ export default function Dashboard() {
           <h2>실시간 활동 로그</h2>
           <ul>
             {logs.length > 0 ? (
-              logs.slice(0, 5).map((log, index) => (
+              logs.slice(0, 6).map((log, index) => (
                 <li key={index}>
                   {getLogIcon(log)}
                   <div className="log-content">
