@@ -29,7 +29,6 @@ export default function CertificateModal({ data, onClose }) {
         {/* HEADER */}
         <h1 className="doc-title">디지털 원본 증명서</h1>
         <h2 className="doc-subtitle">(Certificate of Origin)</h2>
-        <h1 className="doc-owner">{owner}</h1>
 
         <div className="section-divider" />
 

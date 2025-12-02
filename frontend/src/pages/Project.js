@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axiosConfig";
 import "./Project.css";
 import CertificateModal from "./CertificateModal";
-import { generateCertificateAPI } from "../api/api";
+import { originCertificateAPI } from "../api/api";
 import heic_icon from "../img/heic_icon.jpeg";
 
 export default function Project() {
@@ -76,20 +76,20 @@ export default function Project() {
     if (!selectedImage) return alert("증명서를 발급할 이미지를 선택하세요!");
 
     try {
-      const res = await generateCertificateAPI(selectedImage);
+      const certId = `CERT-${selectedImage.id}`;
+
+      const res = await originCertificateAPI(certId, selectedImage.id);
 
       const pdfBlob = new Blob([res.data], { type: "application/pdf" });
       const pdfUrl = URL.createObjectURL(pdfBlob);
 
-      const uploaderName = selectedImage.user?.username || "정보 없음";
-
       setCertificateData({
-        certificateId: `CERT-${selectedImage.id}`,
+        certificateId: certId,
         fileName: selectedImage.title,
-        requestedAt: new Date().toISOString().split("T")[0],
+        requestedAt: new Date().toISOString(),
         pdfUrl: pdfUrl,
         originalUploadDate: selectedImage.created_at,
-        originalUploader: uploaderName,
+        originalUploader: selectedImage.user?.username || "정보 없음"
       });
 
       setShowCertificate(true);
@@ -98,6 +98,7 @@ export default function Project() {
       alert("증명서 생성 중 오류가 발생했습니다.");
     }
   };
+
 
   const formatFileName = (fileName, nameLimit = 10) => {
     if (!fileName) return "";

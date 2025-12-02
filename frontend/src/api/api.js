@@ -108,17 +108,30 @@ export const generateCertificateAPI = (image, verification_result = "MATCH") => 
     );
 };
 
+export const originCertificateAPI = (certificateId, originalFileId) => {
+    return apiClient.post(
+        "/certificate/issue",
+        {
+            certificate_id: certificateId,
+            original_file_id: originalFileId,
+        },
+        {
+            responseType: "blob", // PDF 파일(binary)을 받기 위해 필수 설정
+        }
+    );
+};
+
 
 // --- 6. 실시간 활동 로그 ---
 
 export const fetchActivityLogAPI = async (limit = 100) => {
-  try {
-    const response = await apiClient.get(`/log/activity`, {
-      params: { limit },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("활동 로그 조회 실패:", error);
-    throw error;
-  }
+    try {
+        const response = await apiClient.get(`/log/activity`, {
+            params: { limit },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("활동 로그 조회 실패:", error);
+        throw error;
+    }
 };
