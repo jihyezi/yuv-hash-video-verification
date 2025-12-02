@@ -163,7 +163,7 @@ export default function Project() {
 
                 navigate("/detect", {
                   state: {
-                    quickImage: { id: selectedImage.id, url: selectedImage.url },
+                    quickImage: selectedImage,
                   },
                 });
               }}
