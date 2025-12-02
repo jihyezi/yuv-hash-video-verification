@@ -37,10 +37,6 @@ FONT_DIR = os.path.normpath(FONT_DIR)
 FONT_BOLD_PATH = os.path.join(FONT_DIR, 'NanumGothicBold.ttf')
 FONT_REGULAR_PATH = os.path.join(FONT_DIR, 'NanumGothic.ttf')
 
-# 디버깅 로그
-print(f"📂 [OriginCert] 폰트 폴더 경로: {FONT_DIR}")
-print(f"🔍 [OriginCert] 폰트 파일 확인: {FONT_BOLD_PATH}")
-
 LOGO_FILENAME = 'hyean_logo.png' # 로고 파일명 (PNG나 JPG로 가정)
 
 HYEAN_BLUE = HexColor('#003399')
@@ -61,7 +57,6 @@ try:
     pdfmetrics.registerFont(TTFont('NanumGothic', FONT_REGULAR_PATH))
     # ReportLab 기본 폰트에 한글 맵핑 (필수)
     pdfmetrics.registerFontFamily('NanumGothic', normal='NanumGothic', bold='NanumGothicBold')
-    print("✅ [OriginCert] 한글 폰트 로드 성공!")
 except Exception as e:
     if "is already registered" in str(e):
         print("ℹ️ [OriginCert] 폰트가 이미 등록되어 있습니다.")

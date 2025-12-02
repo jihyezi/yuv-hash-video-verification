@@ -63,11 +63,19 @@ def save_image_with_hash(image_path, output_path, hash_value):
             # PNG는 img.info 딕셔너리를 사용하여 메타데이터를 저장
             img.info["chroma_hash"] = hash_value
             img.save(output_path, format='PNG')
+            
         elif output_format in ['jpg', 'jpeg']:
             # JPG/JPEG는 EXIF UserComment 필드를 사용하여 메타데이터를 저장
             user_comment_bytes = hash_value.encode('utf-8')
             exif_dict = {"Exif": {piexif.ExifIFD.UserComment: user_comment_bytes}}
             exif_bytes = piexif.dump(exif_dict)
+            
+            # RGB 모드만 EXIF 저장이 가능하도록 변환
+            if img.mode == 'RGBA':
+                img = img.convert('RGB')
+                
+            img.save(output_path, format='JPEG', exif=exif_bytes, quality=95) # quality 명시
+            
         elif output_format in ['heic', 'heif']:
             # HEIC도 EXIF를 지원합니다. JPG와 동일한 방식으로 주입 시도
             user_comment_bytes = hash_value.encode('utf-8')
@@ -79,17 +87,17 @@ def save_image_with_hash(image_path, output_path, hash_value):
                 exif_dict = {"0th": {}, "Exif": {piexif.ExifIFD.UserComment: user_comment_bytes}, "GPS": {}, "1st": {}, "thumbnail": None}
                 exif_bytes = piexif.dump(exif_dict)
 
-            # pillow_heif가 등록되어 있으므로 format='HEIF'로 저장 가능
-            # quality는 필요에 따라 조절 (기본값은 보통 높음)
-            img.save(output_path, format="HEIF", exif=exif_bytes, quality=90)
-            
             if img.mode == 'RGBA':
                 img = img.convert('RGB')
-            img.save(output_path, exif=exif_bytes, quality=95)
+
+            # pillow_heif가 등록되어 있으므로 format='HEIF'로 한 번만 저장합니다.
+            img.save(output_path, format="HEIF", exif=exif_bytes, quality=95) 
+            
         elif output_format == 'webp':
             # WebP는 PNG와 마찬가지로 img.info를 사용합니다.
             img.info["chroma_hash"] = hash_value
             img.save(output_path, format='WebP')
+            
         else:
             print(f"[오류] 지원하지 않는 출력 포맷입니다: {output_format}")
             return False
@@ -100,4 +108,3 @@ def save_image_with_hash(image_path, output_path, hash_value):
     except Exception as e:
         print(f"파일 저장 중 오류가 발생했습니다: {e}")
         return False
-
