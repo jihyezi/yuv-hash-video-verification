@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { FaTrashAlt, FaSearch } from "react-icons/fa";
+import { FaTrashAlt, FaSearch, FaRegFolderOpen } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axiosConfig";
 import "./Project.css";
 import CertificateModal from "./CertificateModal";
+import { originCertificateAPI } from "../api/api";
+import heic_icon from "../img/heic_icon.jpeg";
 
 export default function Project() {
   const navigate = useNavigate();
@@ -16,7 +18,6 @@ export default function Project() {
   const [showCertificate, setShowCertificate] = useState(false);
   const [certificateData, setCertificateData] = useState(null);
 
-  // 🔹 부서 데이터 로딩
   useEffect(() => {
     fetchDepartments();
   }, []);
@@ -34,7 +35,6 @@ export default function Project() {
     }
   };
 
-  // 🔹 이미지 로딩
   const fetchImages = async (deptId) => {
     try {
       const res = await apiClient.get("/project/list", {
@@ -46,7 +46,6 @@ export default function Project() {
     }
   };
 
-  // 🔹 삭제
   const handleDelete = async () => {
     if (!selectedImage) return alert("삭제할 이미지를 선택하세요!");
 
@@ -69,35 +68,25 @@ export default function Project() {
     }
   };
 
-  // 🔹 이미지 검색 필터
   const filteredImages = images.filter((img) =>
     img.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 🔥🔥🔥 핵심 수정 부분: PDF 생성 요청 함수
   const handleGenerateCertificate = async () => {
     if (!selectedImage) return alert("증명서를 발급할 이미지를 선택하세요!");
 
     try {
-      // ★ FastAPI가 요구하는 Body 구성
-      const requestBody = {
-        certificate_id: `CERT-${selectedImage.id}`,
-        original_file_id: selectedImage.id
-      };
+      const certId = `CERT-${selectedImage.id}`;
 
-      // ★ PDF 다운로드 요청 (responseType: blob 필수)
-      const res = await apiClient.post("/certificate/issue", requestBody, {
-        responseType: "blob"
-      });
+      const res = await originCertificateAPI(certId, selectedImage.id);
 
-      // ★ Blob → URL 변환
       const pdfBlob = new Blob([res.data], { type: "application/pdf" });
       const pdfUrl = URL.createObjectURL(pdfBlob);
 
       setCertificateData({
-        certificateId: requestBody.certificate_id,
+        certificateId: certId,
         fileName: selectedImage.title,
-        requestedAt: new Date().toISOString().split("T")[0],
+        requestedAt: new Date().toISOString(),
         pdfUrl: pdfUrl,
         originalUploadDate: selectedImage.created_at,
         originalUploader: selectedImage.user?.username || "정보 없음"
@@ -110,9 +99,35 @@ export default function Project() {
     }
   };
 
+
+  const formatFileName = (fileName, nameLimit = 10) => {
+    if (!fileName) return "";
+
+    const lastDotIndex = fileName.lastIndexOf(".");
+
+    // 1. 확장자가 없는 경우: 그냥 끝을 자름
+    if (lastDotIndex === -1) {
+      if (fileName.length <= nameLimit) return fileName;
+      return fileName.substring(0, nameLimit) + "...";
+    }
+
+    const extension = fileName.substring(lastDotIndex); // .jpg
+    const namePart = fileName.substring(0, lastDotIndex); // 파일명만 추출
+
+    // 2. '파일명(확장자 제외)'이 제한 길이보다 짧으면 그대로 반환
+    if (namePart.length <= nameLimit) {
+      return fileName;
+    }
+
+    // 3. 중간 줄임 로직 (앞 6글자 + ... + 뒤 2글자 + 확장자)
+    const frontPart = namePart.substring(0, 6);
+    const backPart = namePart.substring(namePart.length - 3);
+
+    return `${frontPart}...${backPart}${extension}`;
+  };
+
   return (
     <div className="project-container">
-      {/* 🔹 왼쪽 사이드바 */}
       <div className="folder-sidebar">
         <h3>부서별 폴더</h3>
         <ul className="folder-list">
@@ -135,82 +150,84 @@ export default function Project() {
         </button>
       </div>
 
-      {/* 🔹 파일 리스트 영역 */}
       <div className="file-area">
-        <div className="file-actions">
-          <button>폴더생성</button>
+        <div className="file-header-area">
+          <div className="file-actions">
+            <button>폴더생성</button>
+            <button
+              onClick={() => {
+                if (!selectedImage) {
+                  alert("사진을 선택해주세요!");
+                  return;
+                }
 
-          <button
-            onClick={() => {
-              if (!selectedImage) {
-                alert("사진을 선택해주세요!");
-                return;
-              }
-
-              navigate("/detect", {
-                state: {
-                  quickImage: { id: selectedImage.id, url: selectedImage.url },
-                },
-              });
-            }}
-          >
-            빠른 검증
-          </button>
-
-          <button onClick={handleGenerateCertificate}>
-            증명서 발급
-          </button>
-
-          <button className="delete" onClick={handleDelete}>
-            삭제
-          </button>
-        </div>
-
-        <div className="path-search">
-          <div className="current-path">{selectedDept ? selectedDept.name : "부서 선택"}</div>
-
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="사진 이름으로 검색해 보세요"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button>
-              <FaSearch /> 검색
+                navigate("/detect", {
+                  state: {
+                    quickImage: selectedImage,
+                  },
+                });
+              }}
+            >
+              빠른 검증
             </button>
+
+            <button onClick={handleGenerateCertificate}>
+              증명서 발급
+            </button>
+            <button className="delete" onClick={handleDelete}>
+              삭제
+            </button>
+          </div>
+
+          <div className="path-search">
+            <div className="current-path">{selectedDept ? selectedDept.name : "부서 선택"}</div>
+            <div className="search-bar">
+              <input
+                type="text"
+                placeholder="사진 이름으로 검색해 보세요"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
         </div>
 
-        {/* 🔹 파일 카드 리스트 */}
         <div className="file-list">
           {filteredImages.length > 0 ? (
-            filteredImages.map((img) => (
-              <div
-                key={img.id}
-                className={`file-card ${selectedImage?.id === img.id ? "selected" : ""}`}
-                onClick={() =>
-                  setSelectedImage({
-                    id: img.id,
-                    url: img.full_url,
-                    title: img.title,
-                    created_at: img.created_at,
-                    user: img.user,
-                  })
-                }
-              >
-                <img src={img.full_url} alt={img.title} />
-                <p>{img.title}</p>
-                <span>등록일 {img.created_at?.split("T")[0]}</span>
-              </div>
-            ))
+            filteredImages.map((img) => {
+              const extension = img.title ? img.title.split('.').pop().toLowerCase() : '';
+              const isHeic = extension === 'heic';
+
+              const displaySrc = isHeic ? heic_icon : img.full_url;
+              return (
+                <div
+                  key={img.id}
+                  className={`file-card ${selectedImage?.id === img.id ? "selected" : ""}`}
+                  onClick={() =>
+                    setSelectedImage(img)}
+                >
+                  <img
+                    src={displaySrc}
+                    alt={img.title}
+                    onError={(e) => {
+                      e.target.src = "https://via.placeholder.com/150?text=No+Image";
+                    }}
+                  />
+                  <span className="image-title">{formatFileName(img.title)}</span>
+                  <span className="image-date">등록일 {img.created_at?.split("T")[0]}</span>
+                </div>
+              );
+            })
           ) : (
-            <p>등록된 이미지가 없습니다.</p>
+            <div className="empty-state">
+              <FaRegFolderOpen className="empty-icon" />
+              <h3>등록된 이미지가 없습니다</h3>
+              <p>새로운 파일을 업로드하거나 다른 폴더를 선택해보세요.</p>
+            </div>
           )}
         </div>
       </div>
 
-      {/* 🔹 증명서 모달 */}
       {showCertificate && (
         <CertificateModal data={certificateData} onClose={() => setShowCertificate(false)} />
       )}

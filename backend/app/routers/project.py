@@ -59,7 +59,7 @@ def get_project_images(
         # 2) 부서별 이미지 조회
         response = (
             supabase.table("gallery")
-            .select("*")
+            .select("*, user:user_id(username)") 
             .eq("department_id", department_id)
             .order("created_at", desc=True)
             .execute()

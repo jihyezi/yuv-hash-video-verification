@@ -5,7 +5,8 @@ import io
 import os
 from datetime import datetime
 import uuid 
-import mimetypes 
+import mimetypes
+import unicodedata
 
 # ReportLab 및 폰트 관련 라이브러리
 from reportlab.pdfgen import canvas
@@ -54,6 +55,7 @@ def truncate_filename(filename: str, start_len: int = 15, end_len: int = 8) -> s
     파일명이 길 경우, 중간을 '...'으로 생략하여 축약합니다.
     (예: 15글자 + ... + 8글자)
     """
+    filename = unicodedata.normalize("NFC", str(filename))
     if len(filename) > start_len + end_len + 3:
         start = filename[:start_len]
         end = filename[-end_len:]
@@ -96,6 +98,11 @@ def draw_data_box(c, x, y, title, data_list, width, height, line_height=18):
         c.setFont('NanumGothicBold', 11)
         c.setFillColor(black)
         c.drawString(x + 80, current_y, value)
+
+        safe_value = unicodedata.normalize("NFC", str(value))
+        c.setFont('NanumGothicBold', 11)
+        c.setFillColor(black)
+        c.drawString(x + 80, current_y, safe_value)
         
         current_y -= line_height
 

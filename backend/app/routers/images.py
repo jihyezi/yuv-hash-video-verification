@@ -29,9 +29,7 @@ async def upload_original_image(
             user_id = getattr(current_user, 'id', None)
 
     if not user_id:
-        raise HTTPException(status_code=401, detail="유저 ID를 찾을 수 없습니다.") 
-
-
+        raise HTTPException(status_code=401, detail="유저 ID를 찾을 수 없습니다.")
     
     folder_name = "unassigned" 
     department_id = None
@@ -85,6 +83,11 @@ async def upload_original_image(
 
         # 3) 메타데이터 포함한 이미지 생성
         save_image_with_hash(temp_original_path, temp_hashed_path, hash_value)
+
+        # ⭐️⭐️ 추가 디버깅 코드 ⭐️⭐️
+        print(f"DEBUG: temp_hashed_path: {temp_hashed_path}")
+        print(f"DEBUG: File exists after save? {os.path.exists(temp_hashed_path)}") 
+        # ⭐️⭐️
 
         # Storage 업로드
         _, file_extension = os.path.splitext(temp_hashed_path)

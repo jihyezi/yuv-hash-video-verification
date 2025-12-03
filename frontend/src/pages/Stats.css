@@ -10,19 +10,23 @@
     font-size: 26px;
     font-weight: 700;
     margin-bottom: 25px;
+    color: #1e293b;
   }
   
   .stats-table-wrapper {
     background: white;
-    padding: 25px;
+    padding: 0;
     border-radius: 12px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
   }
   
   .stats-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 15px;
+    table-layout: fixed;
   }
   
   .stats-table th {
@@ -32,15 +36,64 @@
     border-bottom: 2px solid #e2e8f0;
     color: #334155;
     font-weight: 600;
+    white-space: nowrap;
   }
   
   .stats-table td {
     padding: 14px 10px;
     border-bottom: 1px solid #e2e8f0;
-    color: #374151;
+    color: #334155;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
+
+.stats-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.stats-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.td-time {
+  color: #64748b !important; /* 시간은 회색 */
+  font-family: monospace;    /* 숫자 간격 일정하게 */
+}
+
+.td-user {
+  font-weight: 600;
+}
+
+.td-target {
+  color: #2563eb !important; /* 파일명 등은 파란색 */
+  font-weight: 500;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 20px; /* 둥근 뱃지 */
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  min-width: 60px;
+}
+
+.status-badge.success {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.status-badge.warning {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
   
-  .status-normal {
+.status-normal {
     padding: 6px 12px;
     background: #d1fae5;
     color: #047857;
@@ -48,7 +101,7 @@
     font-weight: 600;
   }
   
-  .status-warning {
+.status-warning {
     padding: 6px 12px;
     background: #fee2e2;
     color: #b91c1c;

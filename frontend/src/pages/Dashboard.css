@@ -161,7 +161,7 @@
 .activity-log {
   background-color: #fff;
   border-radius: 12px;
-  padding: 20px;
+  padding: 20px 20px 0px 20px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
@@ -222,4 +222,55 @@
   color: #6b7280;
   font-weight: 600;
   font-size: 0.9rem;
+}
+
+.log-icon-circle {
+  display: inline-flex;      
+  justify-content: center;   
+  align-items: center;       
+  width: 24px;            
+  height: 24px;
+  border-radius: 50%;        
+  margin-right: 12px;       
+  font-size: 12px;          
+  flex-shrink: 0;            
+}
+
+.log-icon-circle.success {
+  background-color: #dcfce7;
+  color: #16a34a; 
+}
+
+.log-icon-circle.warning {
+  background-color: #fee2e2;
+  color: #dc2626; 
+}
+
+.activity-log ul li {
+  display: flex;
+  align-items: center;
+  padding: 0; 
+}
+
+.log-time-prefix {
+  color: #818588;
+  font-weight: 500;
+}
+
+.log-content p {
+  margin: 0 !important;  
+  padding: 8px !important; 
+  font-size: 15px;
+  color: #333;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.add-button {
+text-align: center;
+margin-top: 20px;
+color: #4a90e2;
+font-weight: 600;
+cursor: pointer;
+padding: 5px;
 }
