@@ -28,7 +28,7 @@ def get_team_members(current_user: dict = Depends(get_current_user)):
         # user 테이블 전체 조회
         res = (
             supabase.table("user")
-            .select("id, username, department_id")
+            .select("id, username, department_id,  authority") #12.04hr
             .execute()
         )
 
@@ -54,7 +54,7 @@ def get_team_members(current_user: dict = Depends(get_current_user)):
                 "id": user_id,
                 "email": username,  # 현재는 username을 email 대신 사용
                 "team": department_name,
-                "role": "User"   # 역할 컬럼 없으므로 기본 User
+                "role": (row.get("authority") or "user").strip()    # 역할 컬럼 없으므로 기본 User12.04hr
             })
 
         return result

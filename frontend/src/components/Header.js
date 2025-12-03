@@ -2,17 +2,28 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./Header.css";
 
-export default function Header({ username, onLogout }) {
+export default function Header({ username, role, onLogout }) {   // ⭐ role 추가
   const [showLogout, setShowLogout] = useState(false);
   const containerRef = useRef(null);
+
+  // ⭐ authority → 한국어 역할 매핑
+  const roleKor = {
+    admin: "관리자",
+    institution: "기관",
+    user: "사원",
+  };
 
   const toggleLogout = () => {
     setShowLogout((prev) => !prev);
   };
 
   const handleLogout = () => {
-    setShowLogout(false); // 드롭다운 닫기
-    onLogout();           // 부모(App.js)의 로그아웃 함수 호출
+    setShowLogout(false);
+
+    // ⭐ onLogout이 없을 경우 에러 방지
+    if (typeof onLogout === "function") {
+      onLogout();
+    }
   };
 
   // 바깥 클릭 시 드롭다운 닫기
@@ -22,7 +33,9 @@ export default function Header({ username, onLogout }) {
         setShowLogout(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -33,7 +46,9 @@ export default function Header({ username, onLogout }) {
       <div className="admin-container" ref={containerRef}>
         <span className="admin-label" onClick={toggleLogout}>
           {username}님
+          {role && <span className="role-tag"> ({roleKor[role]})</span>}
         </span>
+
         {showLogout && (
           <button className="logout-btn" onClick={handleLogout}>
             로그아웃
