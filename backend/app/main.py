@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import auth,images, verify, project,origincert, verifyresult, dashboard, log
 import logging
-
+from app.routers import auth, images, verify, settings #12.03
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -42,6 +42,7 @@ app.include_router(dashboard.router)
 app.include_router(origincert.router)
 app.include_router(verifyresult.router) 
 app.include_router(log.router) 
+app.include_router(settings.router) #12.03
 
 
 

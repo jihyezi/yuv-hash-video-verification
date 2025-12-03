@@ -3,6 +3,8 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 from typing import Final
 
+
+
 current_dir = os.path.dirname(os.path.realpath(__file__))
 # app/core -> app -> backend -> root
 env_path = os.path.join(current_dir, "..", "..", "..", ".env")

@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import './Settings.css'; // 외부 CSS 파일 import
+import React, { useState, useEffect } from 'react';
+import apiClient from "../api/axiosConfig";   // ⭐ 수정(12/05) — 백엔드 연결
+import './Settings.css';
 
-// 초기 팀원 데이터
-const initialTeamMembers = [
-  { id: 3, email: 'fakerisoverlucia@example.com', team: '경영팀', role: 'Admin' },
-  { id: 4, email: 'poletrowing63@example.com', team: '변화대응팀', role: 'User' },
-  { id: 5, email: 'legal_team@example.com', team: '법무팀', role: 'User' },
-];
+// 초기 팀원 데이터 제거됨 (백엔드에서 받아오도록 변경)
+// ⭐ 수정(12/05)
+// const initialTeamMembers = [...]
+const initialTeamMembers = [];   // DB에서 가져옴
 
 const ToggleSwitch = ({ checked, onChange }) => (
   <label className="toggle-switch">
@@ -67,7 +66,7 @@ const RoleBasedPermissions = () => {
   );
 };
 
-// --- 부서 권한 설정 컴포넌트 (부서 권한 탭 내용) ---
+// --- 부서 권한 설정 컴포넌트 ---
 const DepartmentPermissions = () => {
   const [departments, setDepartments] = useState([
     { id: 'legal', name: 'Legal', type: '법무팀', autoVerify: true, apiAccess: true },
@@ -120,25 +119,52 @@ const Settings = () => {
   const [teamMembers, setTeamMembers] = useState(initialTeamMembers);
   const [selectedDepartment, setSelectedDepartment] = useState('모든 부서');
 
-  const handleTeamMemberDelete = (id) => {
-    setTeamMembers(teamMembers.filter(member => member.id !== id));
+  // ⭐ 수정(12/05) — DB에서 팀원 목록 로드
+  useEffect(() => {
+    const fetchTeamMembers = async () => {
+      try {
+        const res = await apiClient.get("/settings/team");
+        setTeamMembers(res.data);
+      } catch (err) {
+        console.error("팀원 불러오기 실패:", err);
+      }
+    };
+
+    fetchTeamMembers();
+  }, []);
+
+  // ⭐ 수정(12/05) — DB 삭제 연동
+  const handleTeamMemberDelete = async (id) => {
+    try {
+      await apiClient.delete(`/settings/team/${id}`);
+      setTeamMembers(prev => prev.filter(member => member.id !== id));
+    } catch (err) {
+      console.error("삭제 실패:", err);
+    }
   };
 
   const [newMember, setNewMember] = useState({
     email: '',
-    team: '경영',
+    team: '법무',  /*12.03*/ 
     role: 'User',
   });
 
-  const handleInvite = () => {
-    const newId = Date.now();
-    setTeamMembers([...teamMembers, { id: newId, ...newMember, team: `${newMember.team}팀` }]);
-    setNewMember({ email: '', team: '경영', role: 'User' });
+  // ⭐ 수정(12/05) — 초대하기 POST 백엔드 연동
+  const handleInvite = async () => {
+    try {
+      const res = await apiClient.post("/settings/team", newMember);
+
+      setTeamMembers(prev => [...prev, res.data]);
+
+      setNewMember({ email: '', team: '법무', role: 'User' }); /*12.03*/
+    } catch (err) {
+      console.error("초대 실패:", err);
+    }
   };
-
-  const departmentOptions = ['모든 부서', '경영', '변화대응', '법무'];
-
-  const filteredMembers = teamMembers.filter(member =>
+  
+  const departmentOptions = ['모든 부서', '법무팀', '인사팀', '디자인팀','기획팀','sw개발팀']; /*12.03 */
+  
+  const filteredMembers = teamMembers.filter(member => 
     selectedDepartment === '모든 부서' || member.team.includes(selectedDepartment)
   );
 
