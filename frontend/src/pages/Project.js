@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axiosConfig";
 import "./Project.css";
 import CertificateModal from "./CertificateModal";
-import { generateCertificateAPI } from "../api/api";
 
 export default function Project() {
   const navigate = useNavigate();
@@ -17,6 +16,7 @@ export default function Project() {
   const [showCertificate, setShowCertificate] = useState(false);
   const [certificateData, setCertificateData] = useState(null);
 
+  // 🔹 부서 데이터 로딩
   useEffect(() => {
     fetchDepartments();
   }, []);
@@ -34,6 +34,7 @@ export default function Project() {
     }
   };
 
+  // 🔹 이미지 로딩
   const fetchImages = async (deptId) => {
     try {
       const res = await apiClient.get("/project/list", {
@@ -45,6 +46,7 @@ export default function Project() {
     }
   };
 
+  // 🔹 삭제
   const handleDelete = async () => {
     if (!selectedImage) return alert("삭제할 이미지를 선택하세요!");
 
@@ -67,24 +69,38 @@ export default function Project() {
     }
   };
 
+  // 🔹 이미지 검색 필터
   const filteredImages = images.filter((img) =>
     img.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // 🔥🔥🔥 핵심 수정 부분: PDF 생성 요청 함수
   const handleGenerateCertificate = async () => {
     if (!selectedImage) return alert("증명서를 발급할 이미지를 선택하세요!");
 
     try {
-      const res = await generateCertificateAPI(selectedImage);
+      // ★ FastAPI가 요구하는 Body 구성
+      const requestBody = {
+        certificate_id: `CERT-${selectedImage.id}`,
+        original_file_id: selectedImage.id
+      };
 
+      // ★ PDF 다운로드 요청 (responseType: blob 필수)
+      const res = await apiClient.post("/certificate/issue", requestBody, {
+        responseType: "blob"
+      });
+
+      // ★ Blob → URL 변환
       const pdfBlob = new Blob([res.data], { type: "application/pdf" });
       const pdfUrl = URL.createObjectURL(pdfBlob);
 
       setCertificateData({
-        certificateId: `CERT-${selectedImage.id}`,
+        certificateId: requestBody.certificate_id,
         fileName: selectedImage.title,
         requestedAt: new Date().toISOString().split("T")[0],
         pdfUrl: pdfUrl,
+        originalUploadDate: selectedImage.created_at,
+        originalUploader: selectedImage.user?.username || "정보 없음"
       });
 
       setShowCertificate(true);
@@ -96,6 +112,7 @@ export default function Project() {
 
   return (
     <div className="project-container">
+      {/* 🔹 왼쪽 사이드바 */}
       <div className="folder-sidebar">
         <h3>부서별 폴더</h3>
         <ul className="folder-list">
@@ -118,29 +135,32 @@ export default function Project() {
         </button>
       </div>
 
+      {/* 🔹 파일 리스트 영역 */}
       <div className="file-area">
         <div className="file-actions">
           <button>폴더생성</button>
+
           <button
             onClick={() => {
-               if (!selectedImage) {
-              alert("사진을 선택해주세요!");
-        return;
-          }
+              if (!selectedImage) {
+                alert("사진을 선택해주세요!");
+                return;
+              }
 
-    navigate("/detect", {
-      state: {
-        quickImage: { id: selectedImage.id, url: selectedImage.url },
-          },
-      });
-          }}
+              navigate("/detect", {
+                state: {
+                  quickImage: { id: selectedImage.id, url: selectedImage.url },
+                },
+              });
+            }}
           >
-          빠른 검증
+            빠른 검증
           </button>
 
           <button onClick={handleGenerateCertificate}>
             증명서 발급
           </button>
+
           <button className="delete" onClick={handleDelete}>
             삭제
           </button>
@@ -148,6 +168,7 @@ export default function Project() {
 
         <div className="path-search">
           <div className="current-path">{selectedDept ? selectedDept.name : "부서 선택"}</div>
+
           <div className="search-bar">
             <input
               type="text"
@@ -161,6 +182,7 @@ export default function Project() {
           </div>
         </div>
 
+        {/* 🔹 파일 카드 리스트 */}
         <div className="file-list">
           {filteredImages.length > 0 ? (
             filteredImages.map((img) => (
@@ -172,6 +194,8 @@ export default function Project() {
                     id: img.id,
                     url: img.full_url,
                     title: img.title,
+                    created_at: img.created_at,
+                    user: img.user,
                   })
                 }
               >
@@ -186,6 +210,7 @@ export default function Project() {
         </div>
       </div>
 
+      {/* 🔹 증명서 모달 */}
       {showCertificate && (
         <CertificateModal data={certificateData} onClose={() => setShowCertificate(false)} />
       )}

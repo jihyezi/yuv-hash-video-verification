@@ -30,11 +30,11 @@
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   width: 720px;
-  min-height: 400px;  /* ⭐ 고정 높이로 버튼 위치 고정 11.27*/
-  
+  min-height: 400px;  
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* ⭐ 버튼 항상 맨 아래11.27 */
+  justify-content: space-between; 
+  
 }
 
 
@@ -127,11 +127,12 @@ button:disabled {
 /* ===== 버튼 컨테이너 통일 ===== */
 .button-container {
   display: flex;
-  justify-content: center;   /* ⭐ 중앙 정렬11.27hr */
+  justify-content: center;   
   align-items: center;
   gap: 15px;
   width: 100%;
   margin-top: 20px;
+  
 }
 
 

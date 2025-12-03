@@ -7,9 +7,7 @@ import "./Detect.css";
 export default function Detect() {
   const location = useLocation();
   const navigate = useNavigate();
-
   const quickImage = location.state?.quickImage || null;
-
   const [originalImage, setOriginalImage] = useState(quickImage);
   const [suspiciousImage, setSuspiciousImage] = useState(null);
   const [showGallery, setShowGallery] = useState(false);
@@ -135,44 +133,43 @@ export default function Detect() {
         {/* =======================
             STEP 1 — 원본
         ======================== */}
-        <div
-          className={`upload-box ${dragOriginal ? "drag-active" : ""}`}
-          onDragOver={(e) => handleDrag(e, setDragOriginal)}
-          onDragLeave={(e) => handleDragLeave(e, setDragOriginal)}
-          onDrop={(e) => handleDrop(e, setDragOriginal, handleOriginalUpload)}
-        >
-          <h3 className="step-title">
-            Step 1. <span>원본 데이터 선택</span>
-          </h3>
+       {/* Step 1 드롭존 */}
+<div
+  className={`upload-box ${dragOriginal ? "drag-active" : ""}`}
+  onDragOver={(e) => handleDrag(e, setDragOriginal)}
+  onDragLeave={(e) => handleDragLeave(e, setDragOriginal)}
+  onDrop={(e) => handleDrop(e, setDragOriginal, handleOriginalUpload)}
+>
+  <h3 className="step-title">
+    Step 1. <span>원본 데이터 선택</span>
+  </h3>
 
-          {!originalImage && (
-            <label className="drop-zone">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleOriginalUpload(e.target.files[0])}
-                className="file-input"
-              />
-              <div className="drop-content">
-                <img src="/img/upload_.svg" alt="업로드" className="upload-icon" />
-                <p>원본 이미지를 선택하거나 드래그하세요</p>
-              </div>
-            </label>
-          )}
+  {!originalImage && (
+    <label
+      className="drop-zone"
+      onClick={(e) => {
+        e.preventDefault();
+        setShowGallery(true); // 클릭하면 갤러리 모달 열기
+      }}
+    >
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => handleOriginalUpload(e.target.files[0])}
+        className="file-input"
+      />
+      <div className="drop-content">
+        <img src="/img/upload_.svg" alt="업로드" className="upload-icon" />
+        <p>원본 이미지를 선택하세요.</p>
+      </div>
+    </label>
+  )}
 
-          {originalImage && (
-            <img src={getPreviewSrc(originalImage)} className="image-preview" alt="원본" />
-          )}
-
-          <button   /*11.27hr*/ 
-          className="detect-btn"
-          onClick={() => setShowGallery(true)}
-          disabled={!!originalImage}  
-                  >
-                    내 갤러리에서 선택
-            </button>
-
-        </div>
+  {originalImage && (
+    <img src={getPreviewSrc(originalImage)} className="image-preview" alt="원본" />
+  )}
+  <button className="detect-btn" onClick={() => setShowGallery(true)} disabled={!!originalImage} > 내 갤러리에서 선택 </button>
+</div>
 
         {/* =======================
             STEP 2 — 의심 이미지
@@ -197,7 +194,7 @@ export default function Detect() {
               />
               <div className="drop-content">
                 <img src="/img/upload_.svg" alt="업로드" className="upload-icon" />
-                <p>의심 이미지를 선택하거나 드래그하세요</p>
+                <p>의심 이미지를 선택하세요.</p>
               </div>
             </label>
           )}
