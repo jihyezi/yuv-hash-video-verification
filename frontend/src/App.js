@@ -10,7 +10,7 @@ import Stats from "./pages/Stats";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Certificate from "./pages/Certificate";   // ⭐ 추가된 부분
+import Certificate from "./pages/Certificate";
 import "./App.css";
 
 function App() {
@@ -19,10 +19,11 @@ function App() {
     name: "",
     id: "",
     email: "",
-    department: ""
+    department: "",
+    role: ""
   });
 
-  // 새로고침 시 로그인 유지
+  // 🔥 새로고침 시 로그인 유지
   useEffect(() => {
     const token = localStorage.getItem("access_token");
 
@@ -31,38 +32,59 @@ function App() {
       const savedId = localStorage.getItem("user_id");
       const savedEmail = localStorage.getItem("email");
       const savedDept = localStorage.getItem("department");
+      const savedRole = localStorage.getItem("role");
 
       setUser({
         name: savedName || "사용자",
         id: savedId || "",
         email: savedEmail || "",
-        department: savedDept || ""
+        department: savedDept || "",
+        role: savedRole || "user"   // 기본값 user
       });
+
       setIsLoggedIn(true);
     }
   }, []);
 
+  // 🔥 로그인 시 유저 저장 + localStorage 저장
   const handleLogin = (userInfo) => {
     console.log("유저 데이터: ", userInfo);
 
-    setUser({
+    // authority 값에서 줄바꿈 제거
+    const cleanRole = (userInfo.role || userInfo.authority || "user").trim();
+
+    const userData = {
       name: userInfo.username,
       id: userInfo.id,
       email: userInfo.email,
-      department: userInfo.department || ""
-    });
+      department: userInfo.department || "",
+      role: cleanRole
+    };
+
+    setUser(userData);
+
+    // localStorage 저장
+    localStorage.setItem("access_token", userInfo.access_token);
+    localStorage.setItem("username", userInfo.username);
+    localStorage.setItem("user_id", userInfo.id);
+    localStorage.setItem("email", userInfo.email);
+    localStorage.setItem("department", userInfo.department || "");
+    localStorage.setItem("role", cleanRole);
+
     setIsLoggedIn(true);
   };
 
+  // 🔥 로그아웃
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("username");
     localStorage.removeItem("user_id");
     localStorage.removeItem("email");
     localStorage.removeItem("department");
+    localStorage.removeItem("role");   // ← 중요!!
 
     setIsLoggedIn(false);
-    setUser({ name: "", id: "", email: "", department: "" });
+    setUser({ name: "", id: "", email: "", department: "", role: "" });
   };
 
   return (
@@ -71,7 +93,13 @@ function App() {
         <div className="app-container">
           <Sidebar />
           <div className="main-content">
-            <Header username={user.name} onLogout={handleLogout} />
+            
+            {/* ⭐ 역할 추가된 헤더 */}
+            <Header 
+              username={user.name}
+              role={user.role}
+              onLogout={handleLogout}
+            />
 
             <Routes>
               <Route path="/" element={<Dashboard />} />
@@ -80,11 +108,7 @@ function App() {
               <Route path="/detect" element={<Detect />} />
               <Route path="/stats" element={<Stats />} />
               <Route path="/settings" element={<Settings />} />
-
-              {/* ⭐ 여기가 증명서 페이지 라우트 */}
               <Route path="/certificate" element={<Certificate />} />
-
-              {/* 로그인 상태에서 잘못된 경로 → 홈으로 */}
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </div>

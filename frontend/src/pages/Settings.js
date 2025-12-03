@@ -7,12 +7,13 @@ import './Settings.css';
 // const initialTeamMembers = [...]
 const initialTeamMembers = [];   // DB에서 가져옴
 
-const ToggleSwitch = ({ checked, onChange }) => (
+const ToggleSwitch = ({ checked }) => (
   <label className="toggle-switch">
-    <input type="checkbox" checked={checked} onChange={onChange} />
+    <input type="checkbox" checked={checked} disabled />
     <span className="slider round"></span>
   </label>
 );
+
 
 const RoleBadge = ({ role }) => (
   <span className={`role-badge ${role.toLowerCase()}`}>{role}</span>
@@ -43,9 +44,9 @@ const RoleBasedPermissions = () => {
           <thead>
             <tr>
               <th style={{ width: '20%' }}>역할</th>
-              <th className="center">검증 권한</th>
+              <th className="center">등록 권한</th>
               <th className="center">발급 권한</th>
-              <th className="center">사용자 관리</th>
+              <th className="center">검증 권한</th>
               <th className="center">설정 접근</th>
             </tr>
           </thead>

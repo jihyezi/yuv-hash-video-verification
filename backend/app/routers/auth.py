@@ -27,15 +27,21 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         user_id = auth_user.id
         user_email = auth_user.email
 
-        user_db_res = supabase.table("user").select("username, department_id").eq("id", user_id).execute()
+        # ⚡ authority 추가
+        user_db_res = supabase.table("user").select(
+            "username, department_id, authority"
+        ).eq("id", user_id).execute()
 
         username = "이름 정보 없음"
         department_name = "부서 미지정"
+        authority = "user"
 
         if user_db_res.data:
-            username = user_db_res.data[0].get('username')
-            dept_id_uuid = user_db_res.data[0].get("department_id")
+            row = user_db_res.data[0]
+            username = row.get('username')
+            authority = (row.get('authority') or "user").strip()   # 공백 제거
 
+            dept_id_uuid = row.get("department_id")
             if dept_id_uuid:
                 dept = supabase.table("department").select("name").eq("id", dept_id_uuid).execute()
                 if dept.data:
@@ -45,8 +51,10 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
             "id": user_id,
             "email": user_email,
             "username": username,
-            "department": department_name
+            "department": department_name,
+            "authority": authority   # ⭐ 추가!
         }
+
 
     except HTTPException:
         raise
@@ -117,6 +125,7 @@ def create_user(user_in: UserCreate):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 # --- 로그인 ---
+# --- 로그인 ---
 @router.post("/login")
 def login_user(user_in: UserLogin):
     try:
@@ -128,53 +137,56 @@ def login_user(user_in: UserLogin):
         user_id = session.user.id
         user_email = session.user.email
 
-        user_data = supabase.table("user").select("username, department_id").eq("id", user_id).execute()
+        # 🔥 authority까지 조회!
+        user_data = supabase.table("user").select(
+            "username, department_id, authority"
+        ).eq("id", user_id).execute()
 
-        username =""
+        username = ""
         department_name = "부서 미지정"
+        authority = "user"   # 기본값
 
-        if user_data.data and len(user_data.data) > 0:
+        if user_data.data:
             data = user_data.data[0]
-            username = data['username']
-            
-            dept_id_uuid = data.get('department_id')
+            username = data.get('username')
+            authority = (data.get('authority') or "user").strip()  # 🔥 \n 제거
 
+            dept_id_uuid = data.get('department_id')
             if dept_id_uuid:
                 dept_res = supabase.table("department").select("name").eq("id", dept_id_uuid).execute()
                 if dept_res.data:
-                    department_name = dept_res.data[0]['name']
-        else: 
-            # user 테이블에 정보가 없을 경우 auth 테이블의 이메일 사용
+                    department_name = dept_res.data[0]["name"]
+        else:
             username = session.user.email.split("@")[0]
 
-        # -----------------------------------------------------------
-        # 활동 로그 기록: 로그인 성공
-        # -----------------------------------------------------------
+        # 🔥 활동 로그 기록
         supabase.table("activity_log").insert({
             "user_id": user_id,
             "username": username,
             "activity_type": "로그인",
             "target_object": "관리자 시스템",
             "status": "성공",
-            # IP 주소는 FastAPI Request 객체에서 가져올 수 있으나, 현재 함수 시그니처에는 없음
         }).execute()
-        # -----------------------------------------------------------
 
-
+        # 🔥 authority 포함해서 반환!!!
         return {
             "access_token": session.session.access_token,
             "refresh_token": session.session.refresh_token,
             "token_type": "bearer",
             "expires_in": session.session.expires_in,
             "user_info": {
-                "id": user_id,            # UUID
-                "email": user_email,      # 이메일
-                "username": username,     # 유저 이름
-                "department": department_name # 부서 이름
+                "id": user_id,
+                "email": user_email,
+                "username": username,
+                "department": department_name,
+                "authority": authority   # 🔥🔥 핵심!
             }
         }
+
     except Exception as e:
         raise HTTPException(status_code=400, detail="로그인 실패")
+
+
 
 # --- 토근 갱신 함수 ---
 @router.post("/refresh")
