@@ -250,6 +250,7 @@
 }
 .role-pill.admin { background-color: #e9d8fd; color: #6b46c1; }
 .role-pill.user { background-color: #bee3f8; color: #2b6cb0; }
+.role-pill.institution { background-color: #bef8f6; color: #289aa0; }
 
 /* 4. 삭제 버튼 컬럼 */
 .col-action { flex: 0.5; text-align: right; }

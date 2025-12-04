@@ -1,0 +1,112 @@
+/* ForbiddenPage.css */
+
+/* 전체 화면을 채우고 중앙 정렬 */
+.forbidden-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-height: 100vh;
+  background-color: #f9fafb; /* 아주 연한 회색 배경 */
+  padding: 60px;
+}
+
+/* 흰색 카드 박스 */
+.forbidden-card {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* 부드러운 그림자 */
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  animation: slideUp 0.3s ease-out; /* 나타날 때 애니메이션 */
+}
+
+/* 자물쇠 아이콘 영역 */
+.icon-wrapper {
+  width: 60px;
+  height: 60px;
+  background-color: #fee2e2; /* 연한 빨간색 배경 */
+  color: #ef4444; /* 빨간색 아이콘 */
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 24px; /* 중앙 정렬 및 아래 여백 */
+}
+
+.icon-wrapper svg {
+  width: 30px;
+  height: 30px;
+}
+
+/* 텍스트 스타일 */
+.forbidden-card h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 12px;
+}
+
+.forbidden-card p {
+  font-size: 15px;
+  color: #6b7280; /* 회색 텍스트 */
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+/* 버튼 그룹 */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 메인 버튼 (홈으로) */
+.home-btn {
+  width: 100%;
+  padding: 12px 0;
+  background-color: #4B8CF1; /* 기존에 쓰시던 파란색 */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.home-btn:hover {
+  background-color: #3b76d1;
+}
+
+/* 서브 버튼 (이전 페이지) */
+.back-btn {
+  width: 100%;
+  padding: 12px 0;
+  background-color: transparent;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* 애니메이션 */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
