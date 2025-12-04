@@ -1,10 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import Optional, Dict, Any, List
+from typing import Optional
 import os
 
-# Supabase 클라이언트
 from app.core.supabase_client import supabase
-# 인증된 사용자 정보 가져오기
 from app.routers.auth import get_current_user
 
 router = APIRouter(prefix="/project", tags=["Project"])
@@ -13,104 +11,74 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 STORAGE_BUCKET_NAME = "Gallery"
 
 
+# =========================================
+# 📌 1) 부서별 이미지 목록 조회 (권한 포함)
+# =========================================
 @router.get("/list")
 def get_project_images(
     department_id: Optional[str] = None,
     current_user=Depends(get_current_user)
 ):
-    """
-    📌 특정 부서(department_id)의 이미지를 불러오는 API
-    - department_id가 전달되면 해당 부서 이미지 조회
-    - 전달되지 않으면 로그인한 유저의 부서 기준 조회
-    """
-
     try:
-        # 1. 유저 ID 추출 (AttributeError 방지)
-        if isinstance(current_user, dict):
+        # 유저 정보
+        user_id = current_user.get("id")
+        user_department = current_user.get("department_id")
+        authority = current_user.get("authority")
 
-            user_id = current_user.get('id')
-        else:
-            user_id = getattr(current_user, 'id', None)
-
-        if not user_id:
-
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="유저 ID를 찾을 수 없습니다.")
-        
-        print("\n========== [프로젝트 이미지 조회 시작] ==========")
-        print(f"1. 요청자 사용자 ID: {user_id}")
-
-        # 1) department_id가 없으면 로그인 유저의 부서 사용
+        # ✔ department_id 없이 요청하면 자동으로 자기 부서
         if not department_id:
-            user_data = (
-                supabase.table("user")
-                .select("department_id")
-                .eq("id", user_id)
-                .execute()
-            )
+            department_id = user_department
 
-            if not user_data.data or not user_data.data[0].get("department_id"):
-                print("🚨 이 유저는 department_id가 없습니다.")
-                return []
+        # 🔥 권한 체크
+        if authority != "admin":
+            if str(department_id) != str(user_department):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="해당 부서에 접근할 권한이 없습니다."
+                )
 
-            department_id = user_data.data[0]["department_id"]
-
-        print(f"2. 조회할 부서 ID: {department_id}")
-
-        # 2) 부서별 이미지 조회
+        # ✔ Supabase에서 이미지 가져오기
         response = (
             supabase.table("gallery")
-            .select("*, user:user_id(username)") 
+            .select("*, user:user_id(username)")
             .eq("department_id", department_id)
             .order("created_at", desc=True)
             .execute()
         )
 
         images = response.data
-        print(f"3. 조회된 이미지 개수: {len(images)}개")
 
-        # 3) Storage URL 변환
+        # 이미지 URL 변환
         for img in images:
             path = img["image_url"]
-            full_url = f"{SUPABASE_URL}/storage/v1/object/public/{STORAGE_BUCKET_NAME}/{path}"
+            full_url = (
+                f"{SUPABASE_URL}/storage/v1/object/public/{STORAGE_BUCKET_NAME}/{path}"
+            )
             img["full_url"] = full_url
-
-        if images:
-            print(f"4. 첫 번째 이미지 URL 예시: {images[0]['full_url']}")
-
-        print("=============================================\n")
 
         return images
 
     except Exception as e:
-        print("🔥 이미지 조회 오류:", e)
+        print("🔥 get_project_images ERROR:", e)
         raise HTTPException(status_code=500, detail="이미지 목록 불러오기 실패")
 
-@router.delete("/delete")
-def delete_image(
-    image_id: str,
-    current_user=Depends(get_current_user)
-):
-    """
-    📌 이미지 삭제 API
-    - gallery 테이블에서 해당 row 삭제
-    - Supabase Storage에서도 파일 삭제
-    """
 
+# =========================================
+# 📌 2) 이미지 삭제 (활동 로그 포함)
+# =========================================
+@router.delete("/delete")
+def delete_image(image_id: str, current_user=Depends(get_current_user)):
     try:
-        # 1. 유저 ID 추출 (AttributeError 방지)
-        if isinstance(current_user, dict):
-            user_id = current_user.get('id')
-        else:
-            user_id = getattr(current_user, 'id', None)
-        
+        # 1. 유저 ID 추출
+        user_id = current_user.get("id")
         if not user_id:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="유저 ID를 찾을 수 없습니다.")
+            raise HTTPException(status_code=401, detail="유저 ID가 없습니다.")
 
         print("\n========== [이미지 삭제 시작] ==========")
-        print(f"1. 요청한 사용자 ID: {user_id}")
-        print(f"2. 삭제 요청한 이미지 ID: {image_id}")
+        print(f"사용자 ID: {user_id}")
+        print(f"삭제 요청한 이미지 ID: {image_id}")
 
-        # 1) gallery 테이블에서 이미지 정보 가져오기 (로그를 위해 title도 가져옴)
+        # 1) gallery 테이블에서 이미지 정보 가져오기
         image_data = (
             supabase.table("gallery")
             .select("image_url, title")
@@ -124,14 +92,13 @@ def delete_image(
 
         image_row = image_data.data
         file_path = image_row["image_url"]
-        file_title = image_row["title"] # 로그에 사용할 파일 제목 추출
+        file_title = image_row["title"]
 
-        print(f"3. 삭제할 Storage 파일 경로: {file_path}")
+        print(f"삭제 파일 경로: {file_path}")
 
         # 2) Supabase Storage 파일 삭제
         storage_res = supabase.storage.from_(STORAGE_BUCKET_NAME).remove([file_path])
-
-        print("4. Storage 삭제 결과:", storage_res)
+        print("Storage 삭제 결과:", storage_res)
 
         # 3) gallery 테이블에서 row 삭제
         delete_res = (
@@ -140,23 +107,26 @@ def delete_image(
             .eq("id", image_id)
             .execute()
         )
+        print("DB 삭제 결과:", delete_res)
 
-        print("5. DB 삭제 결과:", delete_res)
-        
-        # 4) 사용자 이름 조회 (활동 로그 기록용)
-        username_res = supabase.table("user").select("username").eq("id", user_id).single().execute()
-        username_placeholder = username_res.data.get("username", "Unknown User") if username_res.data else "Unknown User"
+        # 4) 사용자 닉네임 조회
+        username_res = (
+            supabase.table("user")
+            .select("username")
+            .eq("id", user_id)
+            .single()
+            .execute()
+        )
+        username = username_res.data.get("username", "Unknown User")
 
-        # -----------------------------------------------------------
-        # 활동 로그 기록 (Activity Log)
+        # 5) 활동 로그 기록
         supabase.table("activity_log").insert({
             "user_id": user_id,
-            "username": username_placeholder,
+            "username": username,
             "activity_type": "파일 삭제",
             "target_object": file_title,
             "status": "완료"
         }).execute()
-        # -----------------------------------------------------------
 
         print("=====================================\n")
 

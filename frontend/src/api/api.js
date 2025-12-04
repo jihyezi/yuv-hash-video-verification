@@ -56,11 +56,15 @@ export const verifyImageAPI = (file, original_file_id) => {
 };
 
 // 내 부서 이미지 목록 조회 (GalleryModal용)
-export const getDepartmentGalleryAPI = () => {
+export const getDepartmentGalleryAPI = (department_id) => {
     return apiClient.get("/project/list", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` }
+        params: { department_id },
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`
+        }
     });
 };
+
 
 
 // --- 3. 부서 목록 조회 (Departments) ---

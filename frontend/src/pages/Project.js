@@ -6,6 +6,7 @@ import "./Project.css";
 import CertificateModal from "./CertificateModal";
 import { originCertificateAPI } from "../api/api";
 import heic_icon from "../img/heic_icon.jpeg";
+import AlertModal from "./AlertModal";
 
 export default function Project() {
   const navigate = useNavigate();
@@ -18,6 +19,9 @@ export default function Project() {
   const [showCertificate, setShowCertificate] = useState(false);
   const [certificateData, setCertificateData] = useState(null);
 
+  const [alertMessage, setAlertMessage] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+
   useEffect(() => {
     fetchDepartments();
   }, []);
@@ -25,15 +29,28 @@ export default function Project() {
   const fetchDepartments = async () => {
     try {
       const res = await apiClient.get("/auth/departments");
-      setDepartments(res.data || []);
-      if (res.data.length > 0) {
-        setSelectedDept(res.data[0]);
-        fetchImages(res.data[0].id);
+      const allDepartments = res.data || [];
+      setDepartments(allDepartments);
+  
+      const myDeptId = localStorage.getItem("department_id")?.trim();
+  
+      // 내 부서 찾기
+      const myDept = allDepartments.find(dept => dept.id === myDeptId);
+  
+      if (myDept) {
+        setSelectedDept(myDept);
+        fetchImages(myDept.id);
+      } else if (allDepartments.length > 0) {
+        // 내 부서 없으면 첫 번째 부서 선택
+        setSelectedDept(allDepartments[0]);
+        fetchImages(allDepartments[0].id);
       }
+  
     } catch (error) {
       console.error("부서 목록 불러오기 실패:", error);
     }
   };
+  
 
   const fetchImages = async (deptId) => {
     try {
@@ -133,15 +150,24 @@ export default function Project() {
         <ul className="folder-list">
           {departments.map((dept) => (
             <li
-              key={dept.id}
-              className={`team ${selectedDept?.id === dept.id ? "active" : ""}`}
-              onClick={() => {
-                setSelectedDept(dept);
-                fetchImages(dept.id);
-              }}
-            >
-              📁 {dept.name}
-            </li>
+            key={dept.id}
+            className={`team ${selectedDept?.id === dept.id ? "active" : ""}`}
+            onClick={() => {
+              const myDept = localStorage.getItem("department_id")?.trim();
+              const authority = localStorage.getItem("authority")?.trim();
+          
+              if (authority !== "admin" && dept.id !== myDept) {
+                setAlertMessage("해당 부서에 접근할 권한이 없습니다.");
+                setShowAlert(true);
+                return;
+              }
+          
+              setSelectedDept(dept);
+              fetchImages(dept.id);
+            }}
+          >
+            📁 {dept.name}
+          </li>
           ))}
         </ul>
 
@@ -149,6 +175,12 @@ export default function Project() {
           <FaTrashAlt /> 휴지통
         </button>
       </div>
+      {showAlert && (
+        <AlertModal 
+          message={alertMessage} 
+          onClose={() => setShowAlert(false)} 
+        />
+      )}
 
       <div className="file-area">
         <div className="file-header-area">
