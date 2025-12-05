@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import apiClient from "../api/axiosConfig";   // ⭐ 수정(12/05) — 백엔드 연결
+import apiClient from "../api/axiosConfig";   //hr
 import './Settings.css';
 
 // 초기 팀원 데이터 제거됨 (백엔드에서 받아오도록 변경)
-// ⭐ 수정(12/05)
+
 // const initialTeamMembers = [...]
 const initialTeamMembers = [];   // DB에서 가져옴
 
-const ToggleSwitch = ({ checked }) => (
+const ToggleSwitch = ({ checked }) => ( //hr
   <label className="toggle-switch">
     <input type="checkbox" checked={checked} disabled />
     <span className="slider round"></span>
@@ -15,16 +15,17 @@ const ToggleSwitch = ({ checked }) => (
 );
 
 
+
 const RoleBadge = ({ role }) => (
   <span className={`role-badge ${role.toLowerCase()}`}>{role}</span>
 );
 
-// --- 역할 기반 권한 설정 컴포넌트 (사용자 관리 탭 내용) ---
+// --- 역할 기반 권한 설정 컴포넌트 (사용자 관리 탭 내용) ---hr
 const RoleBasedPermissions = () => {
   const [roles, setRoles] = useState([
     { id: 'admin', name: 'Admin', userManagement: true, contentManagement: true, settingsAccess: true, auditLog: true },
-    { id: 'institution', name: 'Institution', userManagement: false, contentManagement: true, settingsAccess: false, auditLog: false },
-    { id: 'user', name: 'User', userManagement: false, contentManagement: true, settingsAccess: false, auditLog: false },
+    { id: 'institution', name: 'Institution', userManagement: false, contentManagement: true, settingsAccess: true, auditLog: false },
+    { id: 'user', name: 'User', userManagement: true, contentManagement: false, settingsAccess: true, auditLog: false },
   ]);
 
   const handlePermissionChange = (roleId, permissionKey) => {
@@ -134,7 +135,7 @@ const Settings = () => {
     fetchTeamMembers();
   }, []);
 
-  // ⭐ 수정(12/05) — DB 삭제 연동
+ 
   const handleTeamMemberDelete = async (id) => {
     try {
       await apiClient.delete(`/settings/team/${id}`);
@@ -146,24 +147,24 @@ const Settings = () => {
 
   const [newMember, setNewMember] = useState({
     email: '',
-    team: '법무',  /*12.03*/ 
+    team: '법무',  
     role: 'User',
   });
 
-  // ⭐ 수정(12/05) — 초대하기 POST 백엔드 연동
+ 
   const handleInvite = async () => {
     try {
       const res = await apiClient.post("/settings/team", newMember);
 
       setTeamMembers(prev => [...prev, res.data]);
 
-      setNewMember({ email: '', team: '법무', role: 'User' }); /*12.03*/
+      setNewMember({ email: '', team: '법무', role: 'User' }); 
     } catch (err) {
       console.error("초대 실패:", err);
     }
   };
   
-  const departmentOptions = ['모든 부서', '법무팀', '인사팀', '디자인팀','기획팀','sw개발팀']; /*12.03 */
+  const departmentOptions = ['모든 부서', '법무팀', '인사팀', '디자인팀','기획팀','sw개발팀']; 
   
   const filteredMembers = teamMembers.filter(member => 
     selectedDepartment === '모든 부서' || member.team.includes(selectedDepartment)
@@ -210,7 +211,7 @@ const Settings = () => {
               onChange={(e) => setNewMember({ ...newMember, team: e.target.value })}
               className="select-modern"
             >
-              <option value="경영">경영팀</option>
+              <option value="기획">기획팀</option>
               <option value="법무">법무팀</option>
               <option value="sw개발">SW개발팀</option>
               <option value="디자인">디자인팀</option>
@@ -256,7 +257,7 @@ const Settings = () => {
                   className="select-transparent"
                   onChange={() => { }} // 기능 연결 필요 시 추가
                 >
-                  <option value="경영팀">경영팀</option>
+                  <option value="기획팀">기획팀</option>
                   <option value="법무팀">법무팀</option>
                   <option value="sw개발팀">SW개발팀</option>
                   <option value="디자인팀">디자인팀</option>
