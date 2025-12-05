@@ -7,7 +7,6 @@ import CertificateModal from "./CertificateModal";
 import { originCertificateAPI } from "../api/api";
 import heic_icon from "../img/heic_icon.jpeg";
 import AlertModal from "./AlertModal";
-
 export default function Project() {
   const navigate = useNavigate();
 

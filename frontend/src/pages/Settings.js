@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import apiClient from "../api/axiosConfig";   // ⭐ 수정(12/05) — 백엔드 연결
+import apiClient from "../api/axiosConfig";
 import './Settings.css';
-
-// 초기 팀원 데이터 제거됨 (백엔드에서 받아오도록 변경)
-// ⭐ 수정(12/05)
-// const initialTeamMembers = [...]
-const initialTeamMembers = [];   // DB에서 가져옴
+import { inviteTeamMemberAPI } from "../api/api";
 
 const ToggleSwitch = ({ checked }) => (
   <label className="toggle-switch">
@@ -14,12 +10,10 @@ const ToggleSwitch = ({ checked }) => (
   </label>
 );
 
-
 const RoleBadge = ({ role }) => (
   <span className={`role-badge ${role.toLowerCase()}`}>{role}</span>
 );
 
-// --- 역할 기반 권한 설정 컴포넌트 (사용자 관리 탭 내용) ---
 const RoleBasedPermissions = () => {
   const [roles, setRoles] = useState([
     { id: 'admin', name: 'Admin', userManagement: true, contentManagement: true, settingsAccess: true, auditLog: true },
@@ -54,10 +48,10 @@ const RoleBasedPermissions = () => {
             {roles.map(role => (
               <tr key={role.id}>
                 <td><RoleBadge role={role.name} /></td>
-                <td className="center"><ToggleSwitch checked={role.userManagement} onChange={() => handlePermissionChange(role.id, 'userManagement')} /></td>
-                <td className="center"><ToggleSwitch checked={role.contentManagement} onChange={() => handlePermissionChange(role.id, 'contentManagement')} /></td>
-                <td className="center"><ToggleSwitch checked={role.settingsAccess} onChange={() => handlePermissionChange(role.id, 'settingsAccess')} /></td>
-                <td className="center"><ToggleSwitch checked={role.auditLog} onChange={() => handlePermissionChange(role.id, 'auditLog')} /></td>
+                <td className="center"><ToggleSwitch checked={role.userManagement} /></td>
+                <td className="center"><ToggleSwitch checked={role.contentManagement} /></td>
+                <td className="center"><ToggleSwitch checked={role.settingsAccess} /></td>
+                <td className="center"><ToggleSwitch checked={role.auditLog} /></td>
               </tr>
             ))}
           </tbody>
@@ -67,7 +61,6 @@ const RoleBasedPermissions = () => {
   );
 };
 
-// --- 부서 권한 설정 컴포넌트 ---
 const DepartmentPermissions = () => {
   const [departments, setDepartments] = useState([
     { id: 'legal', name: 'Legal', type: '법무팀', autoVerify: true, apiAccess: true },
@@ -102,8 +95,8 @@ const DepartmentPermissions = () => {
               <tr key={dept.id}>
                 <td style={{ fontWeight: '600', fontSize: '15px' }}>{dept.type}</td>
                 <td style={{ color: '#888' }}>{dept.name}</td>
-                <td className="center"><ToggleSwitch checked={dept.autoVerify} onChange={() => toggleDept(dept.id, 'autoVerify')} /></td>
-                <td className="center"><ToggleSwitch checked={dept.apiAccess} onChange={() => toggleDept(dept.id, 'apiAccess')} /></td>
+                <td className="center"><ToggleSwitch checked={dept.autoVerify} /></td>
+                <td className="center"><ToggleSwitch checked={dept.apiAccess} /></td>
               </tr>
             ))}
           </tbody>
@@ -113,14 +106,13 @@ const DepartmentPermissions = () => {
   );
 };
 
-
-// --- Settings 메인 컴포넌트 ---
 const Settings = () => {
   const [tabValue, setTabValue] = useState('팀원 관리');
-  const [teamMembers, setTeamMembers] = useState(initialTeamMembers);
+  const [teamMembers, setTeamMembers] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState('모든 부서');
 
-  // ⭐ 수정(12/05) — DB에서 팀원 목록 로드
+  const [newMember, setNewMember] = useState({ email: '', team: '법무', role: 'User' });
+
   useEffect(() => {
     const fetchTeamMembers = async () => {
       try {
@@ -130,11 +122,9 @@ const Settings = () => {
         console.error("팀원 불러오기 실패:", err);
       }
     };
-
     fetchTeamMembers();
   }, []);
 
-  // ⭐ 수정(12/05) — DB 삭제 연동
   const handleTeamMemberDelete = async (id) => {
     try {
       await apiClient.delete(`/settings/team/${id}`);
@@ -144,44 +134,41 @@ const Settings = () => {
     }
   };
 
-  const [newMember, setNewMember] = useState({
-    email: '',
-    team: '법무',  /*12.03*/ 
-    role: 'User',
-  });
+  // 기존 handleInvite 함수 수정
+const handleInvite = async () => {
+  try {
+    // 서버가 기대하는 필드 이름 맞춰서 payload 생성
+    const payload = {
+      email: newMember.email,
+      team: newMember.team,  // team → department
+      role: newMember.role
+    };
 
-  // ⭐ 수정(12/05) — 초대하기 POST 백엔드 연동
-  const handleInvite = async () => {
-    try {
-      const res = await apiClient.post("/settings/team", newMember);
+    const res = await apiClient.post("/settings/team", payload);
 
-      setTeamMembers(prev => [...prev, res.data]);
+    // 서버가 반환한 새 팀원 데이터를 teamMembers에 추가
+    setTeamMembers(prev => [...prev, res.data]);
 
-      setNewMember({ email: '', team: '법무', role: 'User' }); /*12.03*/
-    } catch (err) {
-      console.error("초대 실패:", err);
-    }
-  };
-  
-  const departmentOptions = ['모든 부서', '법무팀', '인사팀', '디자인팀','기획팀','sw개발팀']; /*12.03 */
-  
-  const filteredMembers = teamMembers.filter(member => 
+    // 입력 필드 초기화
+    setNewMember({ email: '', team: '법무', role: 'User' });
+  } catch (err) {
+    console.error("초대 실패:", err);
+    alert("팀원 초대 중 오류가 발생했습니다. 서버 로그 확인 필요");
+  }
+};
+
+
+  const filteredMembers = teamMembers.filter(member =>
     selectedDepartment === '모든 부서' || member.team.includes(selectedDepartment)
-  );
-
-  const TabPanel = ({ tabName, children }) => (
-    <div style={{ padding: '20px 0' }} hidden={tabValue !== tabName}>
-      {children}
-    </div>
   );
 
   return (
     <div className="settings-container">
-      <h2 className="page-title">설정 및 권한 관리</h2> {/* 클래스 추가 */}
+      <h2 className="page-title">설정 및 권한 관리</h2>
 
-      <div className="tabs-container"> {/* 감싸는 div 추가 */}
+      <div className="tabs-container">
         <div className="tabs-header">
-          {['팀원 관리', '사용자 관리', '부서 권한'].map((tab) => (
+          {['팀원 관리', '사용자 관리', '부서 권한'].map(tab => (
             <button
               key={tab}
               className={`tab-button ${tabValue === tab ? 'active' : ''}`}
@@ -191,91 +178,73 @@ const Settings = () => {
             </button>
           ))}
         </div>
-        <div className="tabs-line"></div> {/* 하단 라인용 div */}
+        <div className="tabs-line"></div>
       </div>
 
-      {/* 팀원 관리 탭 패널 */}
-      <TabPanel tabName="팀원 관리">
-        <div className="action-bar">
-          <div className="invite-group">
-            <input
-              type="email"
-              placeholder="이메일 주소 (user@company.com)"
-              value={newMember.email}
-              onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
-              className="input-modern"
-            />
-            <select
-              value={newMember.team}
-              onChange={(e) => setNewMember({ ...newMember, team: e.target.value })}
-              className="select-modern"
-            >
-              <option value="경영">경영팀</option>
-              <option value="법무">법무팀</option>
-              <option value="sw개발">SW개발팀</option>
-              <option value="디자인">디자인팀</option>
-              <option value="인사">인사팀</option>
-            </select>
-            <select
-              value={newMember.role}
-              onChange={(e) => setNewMember({ ...newMember, role: e.target.value })}
-              className="select-modern"
-            >
-              <option value="User">Admin</option>
-              <option value="Admin">Institution</option>
-              <option value="Admin">User</option>
-            </select>
-            <button onClick={handleInvite} className="btn-primary">
-              + 초대하기
-            </button>
+      {/* 조건부 렌더링으로 TabPanel */}
+      {tabValue === "팀원 관리" && (
+        <div style={{ padding: '20px 0' }}>
+          <div className="action-bar">
+            <div className="invite-group">
+              <input
+                type="email"
+                placeholder="이메일 주소 (user@company.com)"
+                value={newMember.email}
+                onChange={e => setNewMember(prev => ({ ...prev, email: e.target.value }))}
+                className="input-modern"
+              />
+              <select
+                value={newMember.team}
+                onChange={e => setNewMember(prev => ({ ...prev, team: e.target.value }))}
+                className="select-modern"
+              >
+                <option value="경영">경영팀</option>
+                <option value="법무">법무팀</option>
+                <option value="sw개발">SW개발팀</option>
+                <option value="디자인">디자인팀</option>
+                <option value="인사">인사팀</option>
+              </select>
+              <select
+                value={newMember.role}
+                onChange={e => setNewMember(prev => ({ ...prev, role: e.target.value }))}
+                className="select-modern"
+              >
+                <option value="User">Admin</option>
+                <option value="Admin">Institution</option>
+                <option value="Admin">User</option>
+              </select>
+              <button onClick={handleInvite} className="btn-primary">
+                + 초대하기
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* 팀원 리스트 헤더 */}
-        <div className="list-header">
-          <h3>전체 멤버 <span className="count-badge">{filteredMembers.length}</span></h3>
-        </div>
+          <div className="list-header">
+            <h3>전체 멤버 <span className="count-badge">{filteredMembers.length}</span></h3>
+          </div>
 
-        {/* 팀원 리스트 (카드형 테이블) */}
-        <div className="member-list">
-          {filteredMembers.map((member) => (
-            <div key={member.id} className="member-row">
-              {/* 1. 사용자 정보 */}
-              <div className="col-user">
-                <div className="avatar">{member.email[0].toUpperCase()}</div>
-                <div className="user-details">
-                  <span className="email">{member.email}</span>
-                  {member.email.startsWith('faker') && <span className="me-tag">ME</span>}
+          <div className="member-list">
+            {filteredMembers.map(member => (
+              <div key={member.id} className="member-row">
+                <div className="col-user">
+                  <div className="avatar">{member.email[0].toUpperCase()}</div>
+                  <div className="user-details">
+                    <span className="email">{member.email}</span>
+                  </div>
                 </div>
-              </div>
-
-              {/* 2. 부서 정보 */}
-              <div className="col-team">
-                <select
-                  value={member.team}
-                  className="select-transparent"
-                  onChange={() => { }} // 기능 연결 필요 시 추가
-                >
-                  <option value="경영팀">경영팀</option>
-                  <option value="법무팀">법무팀</option>
-                  <option value="sw개발팀">SW개발팀</option>
-                  <option value="디자인팀">디자인팀</option>
-                  <option value="인사팀">인사팀</option>
-                </select>
-              </div>
-
-              {/* 3. 역할 뱃지 */}
-              <div className="col-role">
-                <span className={`role-pill ${member.role.toLowerCase()}`}>
-                  {member.role}
-                </span>
-              </div>
-
-              {/* 4. 삭제 버튼 */}
-              <div className="col-action">
-                {member.email.startsWith('faker') ? (
-                  <span className="disabled-text">관리자</span>
-                ) : (
+                <div className="col-team">
+                  <select value={member.team} className="select-transparent" readOnly>
+                    <option value="경영팀">경영팀</option>
+                    <option value="법무팀">법무팀</option>
+                    <option value="sw개발팀">SW개발팀</option>
+                    <option value="디자인팀">디자인팀</option>
+                    <option value="인사팀">인사팀</option>
+                  </select>
+                </div>
+                <div className="col-role">
+                  <span className={`role-pill ${member.role.toLowerCase()}`}>{member.role}</span>
+                </div>
+                <div className="col-action">
                   <button
                     className="btn-delete-icon"
                     onClick={() => handleTeamMemberDelete(member.id)}
@@ -283,23 +252,15 @@ const Settings = () => {
                   >
                     ✕
                   </button>
-                )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+      )}
 
-      </TabPanel>
-
-      {/* 사용자 관리 탭 패널 */}
-      <TabPanel tabName="사용자 관리">
-        <RoleBasedPermissions />
-      </TabPanel>
-
-      {/* 부서 권한 탭 패널 */}
-      <TabPanel tabName="부서 권한">
-        <DepartmentPermissions />
-      </TabPanel>
+      {tabValue === "사용자 관리" && <RoleBasedPermissions />}
+      {tabValue === "부서 권한" && <DepartmentPermissions />}
     </div>
   );
 };

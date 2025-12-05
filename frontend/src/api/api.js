@@ -139,3 +139,23 @@ export const fetchActivityLogAPI = async (limit = 100) => {
         throw error;
     }
 };
+
+
+//--- 7. 팀원 초대 
+export const inviteTeamMemberAPI = async (member) => {
+  // member 객체: { email: string, team: string, role: string }
+  try {
+    const payload = {
+      email: member.email,
+      team: member.team,   // 프론트에서 선택한 팀 이름
+      role: member.role    // User / Admin / Institution
+    };
+
+    const response = await apiClient.post("/settings/team", payload);
+    return response.data; // 서버가 반환한 새 팀원 정보
+  } catch (err) {
+    console.error("팀원 초대 실패:", err);
+    throw err;
+  }
+};
+  
