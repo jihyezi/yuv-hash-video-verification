@@ -21,22 +21,25 @@ export default function Login({ onLogin }) {
 
     try {
       const response = await loginAPI(form.email, form.password);
+      const { access_token, refresh_token, user_info } = response.data;
 
-      const { access_token, user_info } = response.data;
+      // 🔹 authority trim 적용
+      const authority = user_info.authority ? user_info.authority.trim() : "user";
 
-      // 1️⃣ 로그인 토큰과 유저 정보를 로컬스토리지에 저장
+      // ⭐ localStorage에 저장
       localStorage.setItem("access_token", access_token);
-      localStorage.setItem("refresh_token", response.data.refresh_token);
+      localStorage.setItem("refresh_token", refresh_token);
       localStorage.setItem("user_id", user_info.id);
       localStorage.setItem("username", user_info.username);
       localStorage.setItem("email", user_info.email);
-      localStorage.setItem("department", user_info.department || "");
+      localStorage.setItem("department_id", user_info.department_id || "");
+      localStorage.setItem("authority", authority);
 
-      // 2️⃣ 로그인 후 유저 상태 전달
+      // 부모 컴포넌트에 로그인 상태 전달
       onLogin(user_info);
 
-      // 3️⃣ 로그인 성공 후 데이터 등록 페이지로 이동
-      navigate("/data-upload");
+      // 로그인 후 이동
+      navigate("/project"); // 필요 시 다른 경로로 변경
 
     } catch (error) {
       console.error("로그인 에러:", error);

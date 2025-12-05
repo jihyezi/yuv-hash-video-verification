@@ -47,6 +47,7 @@ export default function Signup() {
       email: form.email,
       password: form.password,
       department_id: form.department_id,
+      authority: "user", 
     };
 
     console.log("📤 전송되는 payload:", payload);
