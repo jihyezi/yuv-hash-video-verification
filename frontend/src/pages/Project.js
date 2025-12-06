@@ -184,7 +184,10 @@ export default function Project() {
       <div className="file-area">
         <div className="file-header-area">
           <div className="file-actions">
-            <button>폴더생성</button>
+          <button onClick={() => navigate("/data")}>
+                데이터 등록
+          </button>
+
             <button
               onClick={() => {
                 if (!selectedImage) {
