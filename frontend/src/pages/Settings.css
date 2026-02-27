@@ -1,0 +1,464 @@
+/* 통합된 CSS 스타일 */
+.settings-container {
+    padding: 40px 80px ;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: white;
+    min-height: 100vh;
+    }
+
+/* 탭 스타일 */
+.tabs-container {
+    position: relative;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee; 
+}
+
+.tabs-header {
+    display: flex;
+    position: relative;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 12px 0; 
+    font-size: 16px;
+    font-weight: 500;
+    color: #888;      
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+    color: #fff;
+    background-color: #4B8CF1;
+    border-radius: 0;
+}
+
+.tab-button.active {
+    color: #4B8CF1; 
+    font-weight: 700; 
+}
+
+.tab-button.active:hover {
+    color: #fff;
+    font-weight: 700; 
+    border-radius: 0;
+}
+
+/* 활성화된 탭 아래 파란색 밑줄 (애니메이션 없이 깔끔하게) */
+.tab-button.active::after {
+    content: "";
+    position: absolute;
+    bottom: -1px; /* 회색 라인 바로 위에 겹치도록 */
+    left: 0;
+    width: 100%;
+    height: 2px;  /* 얇고 세련되게 */
+    background-color: #4B8CF1;
+}
+
+.tabs-line {
+  display: none; 
+}
+
+/* --- 팀원 관리 페이지 디자인 --- */
+
+/* 상단 액션 바 */
+.action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.invite-group {
+  display: flex;
+  gap: 16px;
+  flex: 1;
+  margin-right: 20px;
+}
+
+/* 입력창 모던 스타일 */
+.input-modern {
+    width: 380px;
+    padding: 10px 16px;
+    margin-left: 16px;
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    background-color: white;
+}
+
+.input-modern:focus {
+  border-color: #2b6cb0;
+}
+
+/* 2. 선택창 (화살표 위치 수정됨) */
+.select-modern {
+  padding: 10px 16px;
+  width: 180px;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  background-color: white;
+  cursor: pointer;
+
+  /* 🔥 [핵심] 기본 브라우저 화살표 숨기기 */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  /* 🔥 [핵심] 커스텀 화살표 아이콘 추가 (SVG) */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  
+  /* 🔥 [핵심] 화살표 위치 조정 (오른쪽에서 12px 떨어지게) */
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px; /* 화살표 크기 */
+  
+  /* 텍스트가 화살표와 겹치지 않도록 오른쪽 패딩 넉넉하게 */
+  padding-right: 40px;
+}
+
+.select-modern:focus {
+  border-color: #2b6cb0;
+}
+
+
+/* 초대 버튼 */
+.btn-primary {
+  background-color: #4B8CF1;
+  color: white;
+  width: 200px;
+  border: none;
+  padding: 0 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.btn-primary:hover { background-color: #1a4971; }
+
+/* 리스트 헤더 */
+.list-header {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+}
+.list-header h3 {
+  font-size: 16px;
+  color: #333;
+  margin: 0;
+}
+.count-badge {
+  background-color: #e2e8f0;
+  color: #4a5568;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+/* 멤버 리스트 (카드형) */
+.member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.member-row {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #edf2f7;
+  border-radius: 10px;
+  padding: 15px 20px;
+  transition: box-shadow 0.2s;
+}
+
+.member-row:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border-color: #e2e8f0;
+}
+
+/* 1. 사용자 정보 컬럼 */
+.col-user {
+  flex: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  background-color: #ebf8ff;
+  color: #2b6cb0;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.user-details {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.email { font-weight: 500; color: #2d3748; }
+.me-tag {
+  font-size: 10px;
+  background: #edf2f7;
+  color: #718096;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* 2. 부서 컬럼 */
+.col-team { flex: 1.5; }
+.select-transparent {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #4a5568;
+  cursor: pointer;
+  padding: 5px;
+}
+.select-transparent:hover { background-color: #f7fafc; border-radius: 6px; }
+
+/* 3. 역할 컬럼 */
+.col-role { flex: 1; text-align: center; }
+.role-pill {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.role-pill.admin { background-color: #e9d8fd; color: #6b46c1; }
+.role-pill.user { background-color: #bee3f8; color: #2b6cb0; }
+.role-pill.institution { background-color: #bef8f6; color: #289aa0; }
+
+/* 4. 삭제 버튼 컬럼 */
+.col-action { flex: 0.5; text-align: right; }
+.btn-delete-icon {
+  background: none;
+  border: none;
+  color: #cbd5e0;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+.btn-delete-icon:hover {
+  background-color: #fff5f5;
+  color: #e53e3e;
+}
+.disabled-text { color: #cbd5e0; font-size: 12px; }
+    
+    /* 초대 폼 섹션 */
+    .invite-form-container {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .input-field, .select-field {
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 14px;
+    flex-grow: 1;
+    min-width: 150px;
+    }
+    
+    .primary-button {
+    width: 100px;
+    background-color: #1c7ed6;
+    color: white;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+    
+    }
+    
+    .primary-button:hover {
+    background-color: #1864ab;
+    }
+    
+    /* 작은 Select 박스 (부서별 보기) 스타일 */
+    .small-select-field {
+    padding: 6px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #495057;
+    background-color: white;
+    cursor: pointer;
+    min-width: 120px;
+    }
+    
+    .small-select-field:focus {
+    border-color: #1c7ed6;
+    outline: none;
+    }
+    
+    /* 테이블 스타일 */
+    .table-container {
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+    }
+    
+    table {
+    width: 100%;
+    border-collapse: collapse;
+    }
+    
+    /* TH, TD 기본 스타일: TH는 무조건 중앙 정렬 */
+    th, td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    }
+    
+    th {
+    background-color: #fafafa;
+    font-weight: 600;
+    color: #495057;
+    text-align: center; /* 모든 TH 중앙 정렬 */
+    }
+    
+    /* 첫 번째 TD (이메일)는 왼쪽 정렬 유지 */
+    td:first-child {
+    text-align: left;
+    }
+    
+    /* 중앙 정렬이 필요한 TD를 위한 클래스 (드롭다운, 버튼 등) */
+    .table-center-cell {
+    text-align: center;
+    }
+    
+    /* 테이블 내부 셀렉트 박스 (팀원 정보 수정용) */
+    .select-inline {
+    border: 1px solid #e9ecef;
+    padding: 4px;
+    border-radius: 4px;
+    font-size: 13px;
+    }
+    
+    .delete-button {
+    background: none;
+    border: 1px solid #fa5252;
+    color: #fa5252;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s;
+    }
+    
+    .delete-button:hover {
+    background-color: #fff0f0;
+    }
+    
+    /* 일반적인 체크박스 스타일 */
+    input[type="checkbox"] {
+    transform: scale(1.2); 
+    margin: 0;
+    cursor: pointer;
+    accent-color: #1c7ed6;
+    }
+    
+    /* 체크박스 셀은 이미 중앙 정렬되어 있음 */
+    .checkbox-cell {
+    text-align: center;
+    }
+    
+    /* 권한 테이블 섹션의 특정 패딩 */
+    .permissions-section .table-container {
+    margin-top: 20px; 
+    }
+    
+    /* 마지막 행의 하단 테두리 제거 (선택 사항) */
+    .permissions-section tbody tr:last-child td {
+    border-bottom: none;
+    }
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e5e7eb; /* 꺼짐 상태 색상 (회색) */
+  transition: .3s;
+  border-radius: 34px; /* 둥근 모양 */
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+input:checked + .slider {
+  background-color: #4B8CF1; /* 켜짐 상태 색상 (파란색) */
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px); /* 오른쪽으로 이동 */
+}
+
+/* 테이블 헤더 중앙 정렬 보조 클래스 */
+.center {
+  text-align: center !important;
+}
+
+th.center {
+  text-align: center;
+}
